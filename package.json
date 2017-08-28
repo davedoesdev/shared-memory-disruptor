@@ -1,0 +1,35 @@
+{
+  "name": "shared-memory-disruptor",
+  "description": "Shared memory LMAX Disruptor",
+  "version": "0.0.1",
+  "homepage": "https://github.com/davedoesdev/shared-memory-disruptor",
+  "author": {
+    "name": "David Halls",
+    "email": "dave@davedoesdev.com",
+    "url": "http://www.davedoesdev.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davedoesdev/shared-memory-disruptor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/davedoesdev/shared-memory-disruptor/issues"
+  },
+  "license": "MIT",
+  "main": "lib/disruptor.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "keywords": [
+    "shared memory",
+    "LMAX Disruptor"
+  ],
+  "dependencies": {
+    "bindings": "~1.3.0",
+    "node-addon-api": "~0.6.3"
+  },
+  "engines": {
+    "node": ">=8"
+  }
+}
