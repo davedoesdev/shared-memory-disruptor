@@ -25,13 +25,18 @@ public:
     Napi::Value Release(const Napi::CallbackInfo& info);
 
     // Return unconsumed values for a consumer
-    Napi::Value Consume(const Napi::CallbackInfo& info); 
+    Napi::Value ConsumeNew(const Napi::CallbackInfo& info); 
+
+    // Update consumer sequence without consuming more
+    Napi::Value ConsumeCommit(const Napi::CallbackInfo& info);
 
     // Produce a value
     Napi::Value Produce(const Napi::CallbackInfo& info);
 
 private:
     int Release();
+    void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
+    void ConsumeCommit();
 
     uint32_t num_elements;
     uint32_t element_size;
@@ -45,6 +50,10 @@ private:
     sequence_t *cursor;    // next slot to be filled
     sequence_t *next;      // first free slot
     uint8_t* elements;
+    sequence_t *ptr_consumer;
+
+    sequence_t pending_seq_consumer;
+    sequence_t pending_seq_cursor;
 };
 
 struct CloseFD
@@ -118,6 +127,10 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     cursor = &consumers[num_consumers];
     next = &cursor[1];
     elements = reinterpret_cast<uint8_t*>(&next[1]);
+    ptr_consumer = &consumers[consumer];
+
+    pending_seq_consumer = 0;
+    pending_seq_cursor = 0;
 }
 
 Disruptor::~Disruptor()
@@ -152,56 +165,79 @@ Napi::Value Disruptor::Release(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-Napi::Value Disruptor::Consume(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
 {
     // Return all elements [&consumers[consumer], cursor)
 
-    // TODO: Do we need to access consumer atomically if only we know only
-    // this thread is updating it?
-    sequence_t *ptr_consumer = &consumers[consumer];
+    // Commit previous consume
+    ConsumeCommit();
+
+    // TODO: Do we need to access consumer sequence atomically if we know
+    // only this thread is updating it?
     sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
     sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
+    sequence_t pos_consumer = seq_consumer % num_elements;
+    sequence_t pos_cursor = seq_cursor % num_elements;
 
     Napi::Array r = Napi::Array::New(info.Env());
 
-    if (seq_cursor > seq_consumer)
+    if (pos_cursor > pos_consumer)
     {
         r.Set(0U, Napi::Buffer<uint8_t>::New(
             info.Env(),
-            elements + seq_consumer * element_size,
-            (seq_cursor - seq_consumer) * element_size));
+            elements + pos_consumer * element_size,
+            (pos_cursor - pos_consumer) * element_size));
+
+        UpdatePending(seq_consumer, seq_cursor);
     }
-    else if (seq_cursor < seq_consumer)
+    else if (pos_cursor < pos_consumer)
     {
         r.Set(0U, Napi::Buffer<uint8_t>::New(
             info.Env(),
-            elements + seq_consumer * element_size,
-            (num_elements - seq_consumer) * element_size));
+            elements + pos_consumer * element_size,
+            (num_elements - pos_consumer) * element_size));
 
         if (seq_cursor > 0)
         {
             r.Set(1U, Napi::Buffer<uint8_t>::New(
                 info.Env(),
                 elements,
-                seq_cursor * element_size));
+                pos_cursor * element_size));
         }
+
+        UpdatePending(seq_consumer, seq_cursor);
     }
 
-    // Options to return or busy wait?
-    // Actually we need to callback - to prevent a copy of the data,
-    // only update consumer sequence once callback returns
-    // Does that mean we can't do async since the call will be done on
-    // different (main) thread? Yes
-    // We could pass back seq_cursor so app can call in with it to update
-
-    // So either we do it synchronously or async with something to call back
-    // into us to update consumer sequence.
-
-    // Or allow both? Consume and ConsumeSync
-
-        __sync_val_compare_and_swap(ptr_consumer, seq_consumer, seq_cursor);
+    // Options to return or busy wait (with sleep time)
+    // Async version
 
     return r;
+}
+
+Napi::Value Disruptor::ConsumeCommit(const Napi::CallbackInfo& info)
+{
+    ConsumeCommit();
+    return info.Env().Undefined();
+}
+
+void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)
+{
+    pending_seq_consumer = seq_consumer;
+    pending_seq_cursor = seq_cursor;
+}
+
+void Disruptor::ConsumeCommit()
+{
+    if (pending_seq_cursor)
+    {
+        // TODO: Do we need to access consumer sequence atomically if we know
+        // only this thread is updating it?
+        __sync_val_compare_and_swap(ptr_consumer,
+                                    pending_seq_consumer,
+                                    pending_seq_cursor);
+        pending_seq_consumer = 0;
+        pending_seq_cursor = 0;
+    }
 }
 
 Napi::Value Disruptor::Produce(const Napi::CallbackInfo& info)
@@ -218,7 +254,8 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
     exports["Disruptor"] = DefineClass(env, "Disruptor",
     {
         InstanceMethod("release", &Disruptor::Release),
-        InstanceMethod("consume", &Disruptor::Consume),
+        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
+        InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
         InstanceMethod("produce", &Disruptor::Produce)
     });
 }
