@@ -9,6 +9,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <memory>
+#include <chrono>
+#include <thread>
 #include <napi.h>
 
 typedef uint64_t sequence_t;
@@ -22,26 +24,31 @@ public:
     static void Initialize(Napi::Env env, Napi::Object exports);
 
     // Unmap the shared memory. Don't access it again from this process!
-    Napi::Value Release(const Napi::CallbackInfo& info);
+    void Release(const Napi::CallbackInfo& info);
 
     // Return unconsumed values for a consumer
-    Napi::Value ConsumeNew(const Napi::CallbackInfo& info); 
+    Napi::Value ConsumeNewSync(const Napi::CallbackInfo& info); 
+    void ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
     // Update consumer sequence without consuming more
-    Napi::Value ConsumeCommit(const Napi::CallbackInfo& info);
+    void ConsumeCommit(const Napi::CallbackInfo&);
 
     // Produce a value
     Napi::Value Produce(const Napi::CallbackInfo& info);
 
 private:
+    friend class ConsumeAsync;
+
     int Release();
     void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
+    Napi::Value ConsumeNewSync(const Napi::Env& env);
     void ConsumeCommit();
 
     uint32_t num_elements;
     uint32_t element_size;
     uint32_t num_consumers;
     uint32_t consumer;
+    int32_t spin_sleep;
 
     size_t shm_size;
     void* shm_buf;
@@ -87,6 +94,15 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     num_consumers = info[3].As<Napi::Number>();
     bool init = info[4].As<Napi::Boolean>();
     consumer = info[5].As<Napi::Number>();
+
+    if (info[6].IsNumber())
+    {
+        spin_sleep = info[6].As<Napi::Number>();
+    }
+    else
+    {
+        spin_sleep = -1;
+    }
 
     // Open shared memory object
     std::unique_ptr<int, CloseFD> shm_fd(new int(
@@ -155,69 +171,114 @@ int Disruptor::Release()
     return 0;
 }
 
-Napi::Value Disruptor::Release(const Napi::CallbackInfo& info)
+void Disruptor::Release(const Napi::CallbackInfo& info)
 {
     if (Release() < 0)
     {
         ThrowErrnoError(info, "Failed to unmap shared memory");
     }
-
-    return info.Env().Undefined();
 }
 
-Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ConsumeNewSync(const Napi::Env& env)
 {
     // Return all elements [&consumers[consumer], cursor)
 
     // Commit previous consume
     ConsumeCommit();
 
-    // TODO: Do we need to access consumer sequence atomically if we know
-    // only this thread is updating it?
-    sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
-    sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
-    sequence_t pos_consumer = seq_consumer % num_elements;
-    sequence_t pos_cursor = seq_cursor % num_elements;
+    Napi::Array r = Napi::Array::New(env);
+    sequence_t seq_consumer, pos_consumer;
+    sequence_t seq_cursor, pos_cursor;
 
-    Napi::Array r = Napi::Array::New(info.Env());
-
-    if (pos_cursor > pos_consumer)
+    do
     {
-        r.Set(0U, Napi::Buffer<uint8_t>::New(
-            info.Env(),
-            elements + pos_consumer * element_size,
-            (pos_cursor - pos_consumer) * element_size));
+        // TODO: Do we need to access consumer sequence atomically if we know
+        // only this thread is updating it?
+        seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
+        seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
+        pos_consumer = seq_consumer % num_elements;
+        pos_cursor = seq_cursor % num_elements;
 
-        UpdatePending(seq_consumer, seq_cursor);
-    }
-    else if (pos_cursor < pos_consumer)
-    {
-        r.Set(0U, Napi::Buffer<uint8_t>::New(
-            info.Env(),
-            elements + pos_consumer * element_size,
-            (num_elements - pos_consumer) * element_size));
-
-        if (seq_cursor > 0)
+        if (pos_cursor > pos_consumer)
         {
-            r.Set(1U, Napi::Buffer<uint8_t>::New(
-                info.Env(),
-                elements,
-                pos_cursor * element_size));
+            r.Set(0U, Napi::Buffer<uint8_t>::New(
+                env,
+                elements + pos_consumer * element_size,
+                (pos_cursor - pos_consumer) * element_size));
+
+            UpdatePending(seq_consumer, seq_cursor);
+            break;
         }
+        else if (pos_cursor < pos_consumer)
+        {
+            r.Set(0U, Napi::Buffer<uint8_t>::New(
+                env,
+                elements + pos_consumer * element_size,
+                (num_elements - pos_consumer) * element_size));
 
-        UpdatePending(seq_consumer, seq_cursor);
+            if (seq_cursor > 0)
+            {
+                r.Set(1U, Napi::Buffer<uint8_t>::New(
+                    env,
+                    elements,
+                    pos_cursor * element_size));
+            }
+
+            UpdatePending(seq_consumer, seq_cursor);
+            break;
+        }
+        else if (spin_sleep < 0)
+        {
+            break;
+        }
+        else if (spin_sleep > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
+        }
     }
-
-    // Options to return or busy wait (with sleep time)
-    // Async version
+    while (true);
 
     return r;
 }
 
-Napi::Value Disruptor::ConsumeCommit(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
+{
+    return ConsumeNewSync(info.Env());
+}
+
+class ConsumeAsync : public Napi::AsyncWorker
+{
+public:
+    ConsumeAsync(const Napi::CallbackInfo& info) :
+        Napi::AsyncWorker(info[0].As<Napi::Function>()),
+        env(info.Env()),
+        disruptor_ref(Napi::Persistent(info.This().As<Napi::Object>()))
+    {
+    }
+
+protected:
+    void Execute() override
+    {
+        Disruptor *disruptor = Napi::ObjectWrap<Disruptor>::Unwrap(
+            disruptor_ref.Value());
+        // TODO: Really there should be a way of passing result to the callback
+        Receiver().Set("result", disruptor->ConsumeNewSync(env));
+    }
+
+private:
+    Napi::Env env;
+    Napi::ObjectReference disruptor_ref;
+};
+
+void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
+{
+    ConsumeAsync *worker = new ConsumeAsync(info);
+    worker->Queue();
+}
+
+void Disruptor::ConsumeCommit(const Napi::CallbackInfo&)
 {
     ConsumeCommit();
-    return info.Env().Undefined();
 }
 
 void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)
@@ -230,8 +291,6 @@ void Disruptor::ConsumeCommit()
 {
     if (pending_seq_cursor)
     {
-        // TODO: Do we need to access consumer sequence atomically if we know
-        // only this thread is updating it?
         __sync_val_compare_and_swap(ptr_consumer,
                                     pending_seq_consumer,
                                     pending_seq_cursor);
@@ -254,7 +313,8 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
     exports["Disruptor"] = DefineClass(env, "Disruptor",
     {
         InstanceMethod("release", &Disruptor::Release),
-        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
+        InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
+        InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
         InstanceMethod("produce", &Disruptor::Produce)
     });
