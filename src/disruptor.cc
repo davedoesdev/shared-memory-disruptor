@@ -33,8 +33,11 @@ public:
     // Update consumer sequence without consuming more
     void ConsumeCommit(const Napi::CallbackInfo&);
 
-    // Produce a value
-    Napi::Value Produce(const Napi::CallbackInfo& info);
+    // Claim a slot for writing a value
+    Napi::Value ProduceClaimSync(const Napi::CallbackInfo& info);
+
+    // Commit a claimed slot.
+    Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
 
 private:
     friend class ConsumeAsync;
@@ -53,9 +56,9 @@ private:
     size_t shm_size;
     void* shm_buf;
     
-    sequence_t *consumers; // for each consumer, slot it's waiting to be filled
+    sequence_t *consumers; // for each consumer, next slot to read
     sequence_t *cursor;    // next slot to be filled
-    sequence_t *next;      // first free slot
+    sequence_t *next;      // next slot to claim
     uint8_t* elements;
     sequence_t *ptr_consumer;
 
@@ -87,6 +90,8 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     Napi::ObjectWrap<Disruptor>(info),
     shm_buf(MAP_FAILED)
 {
+    // TODO: How do we ensure non-initers don't read while init is happening?
+
     // Arguments
     Napi::String shm_name = info[0].As<Napi::String>();
     num_elements = info[1].As<Napi::Number>();
@@ -209,14 +214,15 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::Env& env)
             UpdatePending(seq_consumer, seq_cursor);
             break;
         }
-        else if (pos_cursor < pos_consumer)
+
+        if (pos_cursor < pos_consumer)
         {
             r.Set(0U, Napi::Buffer<uint8_t>::New(
                 env,
                 elements + pos_consumer * element_size,
                 (num_elements - pos_consumer) * element_size));
 
-            if (seq_cursor > 0)
+            if (pos_cursor > 0)
             {
                 r.Set(1U, Napi::Buffer<uint8_t>::New(
                     env,
@@ -227,11 +233,13 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::Env& env)
             UpdatePending(seq_consumer, seq_cursor);
             break;
         }
-        else if (spin_sleep < 0)
+
+        if (spin_sleep < 0)
         {
             break;
         }
-        else if (spin_sleep > 0)
+
+        if (spin_sleep > 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
         }
@@ -299,14 +307,85 @@ void Disruptor::ConsumeCommit()
     }
 }
 
-Napi::Value Disruptor::Produce(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
 {
-    // Check there is space (there isn't a consumer at next)
+    sequence_t seq_next, pos_next;
+    sequence_t seq_consumer, pos_consumer;
+    bool can_claim;
 
-    // Claim slot, write to it and then commit, waiting for the cursor
+    do
+    {
+        seq_next = __sync_val_compare_and_swap(next, 0, 0);
+        pos_next = seq_next % num_elements;
 
-    return info.Env().Undefined();
+        can_claim = true;
+
+        for (uint32_t i = 0; i < num_consumers; ++i)
+        {
+            seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
+            pos_consumer = seq_consumer % num_elements;
+
+            if ((pos_consumer == pos_next) && (seq_consumer != pos_next))
+            {
+                can_claim = false;
+                break;
+            }
+        }
+
+        if (can_claim &&
+            (__sync_val_compare_and_swap(next, seq_next, seq_next + 1) ==
+             seq_next))
+        {
+            Napi::Buffer<uint8_t> r = Napi::Buffer<uint8_t>::New(
+                info.Env(),
+                elements + pos_next * element_size,
+                element_size);
+
+            r.Set("seq_next", Napi::Number::New(info.Env(), seq_next));
+
+            return r;
+        }
+
+        if (spin_sleep < 0)
+        {
+            return Napi::Buffer<uint8_t>::New(info.Env(), 0);
+        }
+
+        if (spin_sleep > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
+        }
+    }
+    while (true);
 }
+
+Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
+{
+    sequence_t seq_next = (int64_t) info[0].As<Napi::Number>();
+    
+    do
+    {
+        if (__sync_val_compare_and_swap(cursor, seq_next, seq_next + 1) ==
+            seq_next)
+        {
+            return Napi::Boolean::New(info.Env(), true);
+        }
+
+        if (spin_sleep < 0)
+        {
+            return Napi::Boolean::New(info.Env(), false);
+        }
+
+        if (spin_sleep > 0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
+        }
+
+    }
+    while (true);
+}
+
+// Async versions of ProduceClaim and ProduceCommit
 
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
@@ -316,7 +395,8 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
         InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
-        InstanceMethod("produce", &Disruptor::Produce)
+        InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
+        InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync)
     });
 }
 
