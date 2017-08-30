@@ -35,17 +35,24 @@ public:
 
     // Claim a slot for writing a value
     Napi::Value ProduceClaimSync(const Napi::CallbackInfo& info);
+    void ProduceClaimAsync(const Napi::CallbackInfo& info);
 
     // Commit a claimed slot.
     Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
+    void ProduceCommitAsync(const Napi::CallbackInfo& info);
 
 private:
-    friend class ConsumeAsync;
+    friend class ConsumeNewAsyncWorker;
+    friend class ProduceClaimAsyncWorker;
+    friend class ProduceCommitAsyncWorker;
 
     int Release();
     void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
     Napi::Value ConsumeNewSync(const Napi::Env& env);
     void ConsumeCommit();
+    Napi::Value ProduceClaimSync(const Napi::Env& env);
+    Napi::Value ProduceCommitSync(const Napi::Env& env,
+                                  const Napi::Object& obj);
 
     uint32_t num_elements;
     uint32_t element_size;
@@ -64,6 +71,32 @@ private:
 
     sequence_t pending_seq_consumer;
     sequence_t pending_seq_cursor;
+};
+
+template <uint32_t CB>
+class DisruptorAsyncWorker : public Napi::AsyncWorker
+{
+public:
+    DisruptorAsyncWorker(const Napi::CallbackInfo& info) :
+        Napi::AsyncWorker(info[CB].As<Napi::Function>()),
+        env(info.Env()),
+        disruptor_ref(Napi::Persistent(info.This().As<Napi::Object>()))
+    {
+    }
+
+protected:
+    virtual Napi::Value Execute(Disruptor *disruptor) = 0;
+
+    void Execute() override
+    {
+        Disruptor *disruptor = Napi::ObjectWrap<Disruptor>::Unwrap(
+            disruptor_ref.Value());
+        // TODO: Really there should be a way of passing result to the callback
+        Receiver().Set("result", Execute(disruptor));
+    }
+
+    Napi::Env env;
+    Napi::ObjectReference disruptor_ref;
 };
 
 struct CloseFD
@@ -254,33 +287,24 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
     return ConsumeNewSync(info.Env());
 }
 
-class ConsumeAsync : public Napi::AsyncWorker
+class ConsumeNewAsyncWorker : public DisruptorAsyncWorker<0>
 {
 public:
-    ConsumeAsync(const Napi::CallbackInfo& info) :
-        Napi::AsyncWorker(info[0].As<Napi::Function>()),
-        env(info.Env()),
-        disruptor_ref(Napi::Persistent(info.This().As<Napi::Object>()))
+    ConsumeNewAsyncWorker(const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<0>(info)
     {
     }
 
 protected:
-    void Execute() override
+    Napi::Value Execute(Disruptor* disruptor) override
     {
-        Disruptor *disruptor = Napi::ObjectWrap<Disruptor>::Unwrap(
-            disruptor_ref.Value());
-        // TODO: Really there should be a way of passing result to the callback
-        Receiver().Set("result", disruptor->ConsumeNewSync(env));
+        return disruptor->ConsumeNewSync(env);
     }
-
-private:
-    Napi::Env env;
-    Napi::ObjectReference disruptor_ref;
 };
 
 void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
 {
-    ConsumeAsync *worker = new ConsumeAsync(info);
+    ConsumeNewAsyncWorker *worker = new ConsumeNewAsyncWorker(info);
     worker->Queue();
 }
 
@@ -307,7 +331,7 @@ void Disruptor::ConsumeCommit()
     }
 }
 
-Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ProduceClaimSync(const Napi::Env& env)
 {
     sequence_t seq_next, pos_next;
     sequence_t seq_consumer, pos_consumer;
@@ -337,18 +361,18 @@ Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
              seq_next))
         {
             Napi::Buffer<uint8_t> r = Napi::Buffer<uint8_t>::New(
-                info.Env(),
+                env,
                 elements + pos_next * element_size,
                 element_size);
 
-            r.Set("seq_next", Napi::Number::New(info.Env(), seq_next));
+            r.Set("seq_next", Napi::Number::New(env, seq_next));
 
             return r;
         }
 
         if (spin_sleep < 0)
         {
-            return Napi::Buffer<uint8_t>::New(info.Env(), 0);
+            return Napi::Buffer<uint8_t>::New(env, 0);
         }
 
         if (spin_sleep > 0)
@@ -359,21 +383,48 @@ Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
     while (true);
 }
 
-Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
 {
-    sequence_t seq_next = (int64_t) info[0].As<Napi::Number>();
+    return ProduceClaimSync(info.Env());
+}
+
+class ProduceClaimAsyncWorker : public DisruptorAsyncWorker<0>
+{
+public:
+    ProduceClaimAsyncWorker(const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<0>(info)
+    {
+    }
+
+protected:
+    Napi::Value Execute(Disruptor* disruptor) override
+    {
+        return disruptor->ProduceClaimSync(env);
+    }
+};
+
+void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
+{
+    ProduceClaimAsyncWorker *worker = new ProduceClaimAsyncWorker(info);
+    worker->Queue();
+}
+
+Napi::Value Disruptor::ProduceCommitSync(const Napi::Env& env,
+                                         const Napi::Object& obj)
+{
+    sequence_t seq_next = obj.Get("seq_next").As<Napi::Number>().Int64Value();
     
     do
     {
         if (__sync_val_compare_and_swap(cursor, seq_next, seq_next + 1) ==
             seq_next)
         {
-            return Napi::Boolean::New(info.Env(), true);
+            return Napi::Boolean::New(env, true);
         }
 
         if (spin_sleep < 0)
         {
-            return Napi::Boolean::New(info.Env(), false);
+            return Napi::Boolean::New(env, false);
         }
 
         if (spin_sleep > 0)
@@ -385,18 +436,41 @@ Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
     while (true);
 }
 
-// Async versions of ProduceClaim and ProduceCommit
+Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
+{
+    return ProduceCommitSync(info.Env(), info[0].As<Napi::Object>());
+}
+
+class ProduceCommitAsyncWorker : public DisruptorAsyncWorker<1>
+{
+public:
+    ProduceCommitAsyncWorker(const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<1>(info),
+        obj_ref(Napi::Persistent(info[0].As<Napi::Object>()))
+    {
+    }
+
+protected:
+    Napi::Value Execute(Disruptor* disruptor) override
+    {
+        return disruptor->ProduceCommitSync(env, obj_ref.Value());
+    }
+
+    Napi::ObjectReference obj_ref;
+};
 
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports["Disruptor"] = DefineClass(env, "Disruptor",
     {
         InstanceMethod("release", &Disruptor::Release),
+        InstanceMethod("consumeNew", &Disruptor::ConsumeNewAsync),
         InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
-        InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
+        InstanceMethod("produceClaim", &Disruptor::ProduceClaimAsync),
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
-        InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync)
+        InstanceMethod("produceCommit", &Disruptor::ProduceCommitAsync),
+        InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
     });
 }
 
