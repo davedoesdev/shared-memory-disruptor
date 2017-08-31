@@ -91,13 +91,19 @@ protected:
     {
         Disruptor *disruptor = Napi::ObjectWrap<Disruptor>::Unwrap(
             disruptor_ref.Value());
-        // TODO: Really there should be a way of passing result to the callback
-        // TODO: How long will this value last (which handle scope is it in)?
-        Receiver().Set("result", Execute(disruptor));
+        result = Napi::Persistent(Execute(disruptor));
+    }
+
+    void OnOK() override
+    {
+        Callback().MakeCallback(
+            Receiver().Value(),
+            std::initializer_list<napi_value>{env.Null(), result.Value()});
     }
 
     Napi::Env env;
     Napi::ObjectReference disruptor_ref;
+    Napi::Reference<Napi::Value> result;
 };
 
 struct CloseFD

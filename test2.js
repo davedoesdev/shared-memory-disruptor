@@ -3,7 +3,7 @@ var d = new Disruptor('/test', 100, 4, 1, 0, false);
 
 let sum = 0;
 let i = 0;
-while (i < 11000)
+while (i < 1000000)
 {
     var bs = d.consumeNewSync();
     for (let b of bs)
