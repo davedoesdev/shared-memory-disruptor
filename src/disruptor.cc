@@ -92,6 +92,7 @@ protected:
         Disruptor *disruptor = Napi::ObjectWrap<Disruptor>::Unwrap(
             disruptor_ref.Value());
         // TODO: Really there should be a way of passing result to the callback
+        // TODO: How long will this value last (which handle scope is it in)?
         Receiver().Set("result", Execute(disruptor));
     }
 
@@ -130,8 +131,8 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     num_elements = info[1].As<Napi::Number>();
     element_size = info[2].As<Napi::Number>();
     num_consumers = info[3].As<Napi::Number>();
-    bool init = info[4].As<Napi::Boolean>();
-    consumer = info[5].As<Napi::Number>();
+    consumer = info[4].As<Napi::Number>();
+    bool init = info[5].As<Napi::Boolean>();
 
     if (info[6].IsNumber())
     {
@@ -248,7 +249,7 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::Env& env)
             break;
         }
 
-        if (pos_cursor < pos_consumer)
+        if (seq_cursor != seq_consumer)
         {
             r.Set(0U, Napi::Buffer<uint8_t>::New(
                 env,
@@ -349,7 +350,7 @@ Napi::Value Disruptor::ProduceClaimSync(const Napi::Env& env)
             seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
             pos_consumer = seq_consumer % num_elements;
 
-            if ((pos_consumer == pos_next) && (seq_consumer != pos_next))
+            if ((pos_consumer == pos_next) && (seq_consumer != seq_next))
             {
                 can_claim = false;
                 break;
@@ -459,9 +460,15 @@ protected:
     Napi::ObjectReference obj_ref;
 };
 
+void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
+{
+    ProduceCommitAsyncWorker *worker = new ProduceCommitAsyncWorker(info);
+    worker->Queue();
+}
+
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
-    exports["Disruptor"] = DefineClass(env, "Disruptor",
+    exports.Set("Disruptor", DefineClass(env, "Disruptor",
     {
         InstanceMethod("release", &Disruptor::Release),
         InstanceMethod("consumeNew", &Disruptor::ConsumeNewAsync),
@@ -471,7 +478,7 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
         InstanceMethod("produceCommit", &Disruptor::ProduceCommitAsync),
         InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
-    });
+    }));
 }
 
 void Initialize(Napi::Env env, Napi::Object exports, Napi::Object module)
