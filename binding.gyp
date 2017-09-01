@@ -6,8 +6,9 @@
       "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
       "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
 
+      'cflags': [ '-std=gnu++14' ],
       'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      'cflags_cc!': [ '-fno-exceptions', '-std=gnu++0x' ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
