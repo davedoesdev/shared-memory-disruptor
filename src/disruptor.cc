@@ -1,8 +1,3 @@
-// Start by just creating shared memory and checking multiple processes can read
-// and write to it.
-// Then get the atomic operations working (add and cas).
-// Then implement the algorithm. Option to clear all the memory?
-
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>

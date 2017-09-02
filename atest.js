@@ -12,8 +12,9 @@ function produce()
         if (err) { throw err; }
         let n = Math.floor(Math.random() * 100);
         b.writeUInt32LE(n, 0, true);
-        d.produceCommit(b, function ()
+        d.produceCommit(b, function (err)
         {
+            if (err) { throw err; }
             sum += n;
             count++;
             if (count === num)
