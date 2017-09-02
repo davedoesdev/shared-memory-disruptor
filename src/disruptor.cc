@@ -295,15 +295,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     num_consumers = info[3].As<Napi::Number>();
     consumer = info[4].As<Napi::Number>();
     bool init = info[5].As<Napi::Boolean>();
-
-    if (info[6].IsBoolean())
-    {
-        spin = info[6].As<Napi::Boolean>();
-    }
-    else
-    {
-        spin = false;
-    }
+    spin = info[6].As<Napi::Boolean>();
 
     // Open shared memory object
     std::unique_ptr<int, CloseFD> shm_fd(new int(

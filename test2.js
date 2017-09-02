@@ -1,8 +1,9 @@
 var Disruptor = require('.').Disruptor;
-var d = new Disruptor('/test', 100, 4, 1, 0, false);
+var d = new Disruptor('/test', 1000, 4, 1, 0, false, true);
 
 let sum = 0;
 let i = 0;
+
 while (i < 1000000)
 {
     var bs = d.consumeNewSync();
@@ -16,4 +17,5 @@ while (i < 1000000)
     }
     d.consumeCommit();
 }
+
 console.log(sum);
