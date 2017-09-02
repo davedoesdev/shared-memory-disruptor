@@ -9,8 +9,6 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <memory>
-#include <chrono>
-#include <thread>
 #include <napi.h>
 #include <memory>
 #include <vector>
@@ -43,6 +41,11 @@ public:
     Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
     void ProduceCommitAsync(const Napi::CallbackInfo& info);
 
+    inline bool Spin()
+    {
+        return spin;
+    }
+
 private:
     friend class ConsumeNewAsyncWorker;
     friend class ProduceClaimAsyncWorker;
@@ -53,15 +56,15 @@ private:
     void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
 
     template<typename Array, template<typename> typename Buffer>
-    Array ConsumeNewSync(const Napi::Env& env);
+    Array ConsumeNewSync(const Napi::Env& env, bool retry);
 
     void ConsumeCommit();
 
     template<template<typename> typename Buffer, typename Number>
-    Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env);
+    Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env, bool retry);
 
     template<typename Boolean>
-    Boolean ProduceCommitSync(const Napi::Env& env, sequence_t seq_next);
+    Boolean ProduceCommitSync(const Napi::Env& env, sequence_t seq_next, bool retry);
 
     static sequence_t GetSeqNext(const Napi::CallbackInfo& info);
 
@@ -69,7 +72,7 @@ private:
     uint32_t element_size;
     uint32_t num_consumers;
     uint32_t consumer;
-    int32_t spin_sleep;
+    bool spin;
 
     size_t shm_size;
     void* shm_buf;
@@ -89,25 +92,42 @@ class DisruptorAsyncWorker : public Napi::AsyncWorker
 {
 public:
     DisruptorAsyncWorker(Disruptor *disruptor,
-                         const Napi::CallbackInfo& info) :
-        Napi::AsyncWorker(info.Length() > CB_ARG ?
-            info[CB_ARG].As<Napi::Function>() :
-            Napi::Function::New(info.Env(), NullCallback)),
+                         const Napi::Function& callback) :
+        Napi::AsyncWorker(callback),
+        retry(false),
         disruptor(disruptor),
         disruptor_ref(Napi::Persistent(disruptor->Value()))
     {
     }
 
+    DisruptorAsyncWorker(Disruptor *disruptor,
+                         const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker(
+            disruptor,
+            info.Length() > CB_ARG ?
+                info[CB_ARG].As<Napi::Function>() :
+                Napi::Function::New(info.Env(), NullCallback))
+    {
+    }
+
 protected:
+    virtual void Retry() = 0;
+
     void OnOK() override
     {
+        if (disruptor->Spin() && retry)
+        {
+            return Retry();
+        }
+
         Callback().MakeCallback(
             Receiver().Value(),
             std::initializer_list<napi_value>{Env().Null(), result.ToValue(Env())});
     }
 
-    Disruptor *disruptor;
     Result result;
+    bool retry;
+    Disruptor *disruptor;
 
 private:
     static void NullCallback(const Napi::CallbackInfo& info)
@@ -161,6 +181,11 @@ struct AsyncBuffer
         return r;
     }
 
+    size_t Length()
+    {
+        return length;
+    }
+
     T* data;
     size_t length;
     sequence_t seq_next;
@@ -198,6 +223,11 @@ struct AsyncArray
         return r;
     }
 
+    size_t Length()
+    {
+        return elements->size();
+    }
+
     std::unique_ptr<std::vector<T>> elements;
 };
 
@@ -213,6 +243,11 @@ struct AsyncBoolean
     Napi::Value ToValue(Napi::Env env)
     {
         return Napi::Boolean::New(env, b);
+    }
+
+    operator bool() const
+    {
+        return b;
     }
 
     bool b;
@@ -261,13 +296,13 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     consumer = info[4].As<Napi::Number>();
     bool init = info[5].As<Napi::Boolean>();
 
-    if (info[6].IsNumber())
+    if (info[6].IsBoolean())
     {
-        spin_sleep = info[6].As<Napi::Number>();
+        spin = info[6].As<Napi::Boolean>();
     }
     else
     {
-        spin_sleep = -1;
+        spin = false;
     }
 
     // Open shared memory object
@@ -346,7 +381,7 @@ void Disruptor::Release(const Napi::CallbackInfo& info)
 }
 
 template<typename Array, template<typename> typename Buffer>
-Array Disruptor::ConsumeNewSync(const Napi::Env& env)
+Array Disruptor::ConsumeNewSync(const Napi::Env& env, bool retry)
 {
     // Return all elements [&consumers[consumer], cursor)
 
@@ -397,14 +432,9 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env)
             break;
         }
 
-        if (spin_sleep < 0)
+        if (!retry)
         {
             break;
-        }
-
-        if (spin_sleep > 0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
         }
     }
     while (true);
@@ -414,13 +444,20 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env)
 
 Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
 {
-    return ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env());
+    return ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env(), spin);
 }
 
 class ConsumeNewAsyncWorker :
     public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>
 {
 public:
+    ConsumeNewAsyncWorker(Disruptor *disruptor,
+                          const Napi::Function& callback) :
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(
+            disruptor, callback)
+    {
+    }
+
     ConsumeNewAsyncWorker(Disruptor *disruptor,
                           const Napi::CallbackInfo& info) :
         DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(
@@ -432,7 +469,13 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env());
+        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env(), false);
+        retry = result.Length() == 0;
+    }
+
+    void Retry() override
+    {
+        (new ConsumeNewAsyncWorker(disruptor, Callback().Value()))->Queue();
     }
 };
 
@@ -465,7 +508,7 @@ void Disruptor::ConsumeCommit()
 }
 
 template<template<typename> typename Buffer, typename Number>
-Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env)
+Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env, bool retry)
 {
     sequence_t seq_next, pos_next;
     sequence_t seq_consumer, pos_consumer;
@@ -491,8 +534,7 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env)
         }
 
         if (can_claim &&
-            (__sync_val_compare_and_swap(next, seq_next, seq_next + 1) ==
-             seq_next))
+            __sync_bool_compare_and_swap(next, seq_next, seq_next + 1))
         {
             Buffer<uint8_t> r = Buffer<uint8_t>::New(
                 env,
@@ -504,14 +546,9 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env)
             return r;
         }
 
-        if (spin_sleep < 0)
+        if (!retry)
         {
             return Buffer<uint8_t>::New(env, 0);
-        }
-
-        if (spin_sleep > 0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
         }
     }
     while (true);
@@ -519,13 +556,20 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env)
 
 Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
 {
-    return ProduceClaimSync<Napi::Buffer, Napi::Number>(info.Env());
+    return ProduceClaimSync<Napi::Buffer, Napi::Number>(info.Env(), spin);
 }
 
 class ProduceClaimAsyncWorker :
     public DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>
 {
 public:
+    ProduceClaimAsyncWorker(Disruptor *disruptor,
+                            const Napi::Function& callback) :
+        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(
+            disruptor, callback)
+    {
+    }
+
     ProduceClaimAsyncWorker(Disruptor *disruptor,
                             const Napi::CallbackInfo& info) :
         DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(
@@ -537,7 +581,13 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ProduceClaimSync<AsyncBuffer, AsyncNumber>(Env());
+        result = disruptor->ProduceClaimSync<AsyncBuffer, AsyncNumber>(Env(), false);
+        retry = result.Length() == 0;
+    }
+
+    void Retry() override
+    {
+        (new ProduceClaimAsyncWorker(disruptor, Callback().Value()))->Queue();
     }
 };
 
@@ -548,26 +598,20 @@ void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
 
 template<typename Boolean>
 Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
-                                     sequence_t seq_next)
+                                     sequence_t seq_next,
+                                     bool retry)
 {
     do
     {
-        if (__sync_val_compare_and_swap(cursor, seq_next, seq_next + 1) ==
-            seq_next)
+        if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next + 1))
         {
             return Boolean::New(env, true);
         }
 
-        if (spin_sleep < 0)
+        if (!retry)
         {
             return Boolean::New(env, false);
         }
-
-        if (spin_sleep > 0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(spin_sleep));
-        }
-
     }
     while (true);
 }
@@ -579,13 +623,21 @@ sequence_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info)
 
 Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
 {
-    return ProduceCommitSync<Napi::Boolean>(info.Env(), GetSeqNext(info));
+    return ProduceCommitSync<Napi::Boolean>(info.Env(), GetSeqNext(info), spin);
 }
 
 class ProduceCommitAsyncWorker :
     public DisruptorAsyncWorker<AsyncBoolean, 1>
 {
 public:
+    ProduceCommitAsyncWorker(Disruptor *disruptor,
+                             const Napi::Function& callback,
+                             sequence_t seq_next) :
+        DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, callback),
+        seq_next(seq_next)
+    {
+    }
+
     ProduceCommitAsyncWorker(Disruptor *disruptor,
                              const Napi::CallbackInfo& info) :
         DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, info),
@@ -597,7 +649,13 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), seq_next);
+        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), seq_next, false);
+        retry = !result;
+    }
+
+    void Retry() override
+    {
+        (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next))->Queue();
     }
 
 private:
