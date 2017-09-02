@@ -49,15 +49,21 @@ private:
     friend class ProduceCommitAsyncWorker;
 
     int Release();
+
     void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
+
     template<typename Array, template<typename> typename Buffer>
     Array ConsumeNewSync(const Napi::Env& env);
+
     void ConsumeCommit();
+
     template<template<typename> typename Buffer, typename Number>
     Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env);
+
     template<typename Boolean>
-    Boolean ProduceCommitSync(const Napi::Env& env,
-                              const Napi::Object& obj);
+    Boolean ProduceCommitSync(const Napi::Env& env, sequence_t seq_next);
+
+    static sequence_t GetSeqNext(const Napi::CallbackInfo& info);
 
     uint32_t num_elements;
     uint32_t element_size;
@@ -82,20 +88,17 @@ template <typename Result, uint32_t CB_ARG>
 class DisruptorAsyncWorker : public Napi::AsyncWorker
 {
 public:
-    DisruptorAsyncWorker(const Napi::CallbackInfo& info) :
-        Napi::AsyncWorker(info[CB_ARG].As<Napi::Function>()),
-        disruptor_ref(Napi::Persistent(info.This().As<Napi::Object>()))
+    DisruptorAsyncWorker(Disruptor *disruptor,
+                         const Napi::CallbackInfo& info) :
+        Napi::AsyncWorker(info.Length() > CB_ARG ?
+            info[CB_ARG].As<Napi::Function>() :
+            Napi::Function::New(info.Env(), NullCallback)),
+        disruptor(disruptor),
+        disruptor_ref(Napi::Persistent(disruptor->Value()))
     {
     }
 
 protected:
-    virtual void Execute(Disruptor *disruptor) = 0;
-
-    void Execute() override
-    {
-        Execute(Napi::ObjectWrap<Disruptor>::Unwrap(disruptor_ref.Value()));
-    }
-
     void OnOK() override
     {
         Callback().MakeCallback(
@@ -103,9 +106,14 @@ protected:
             std::initializer_list<napi_value>{Env().Null(), result.ToValue(Env())});
     }
 
+    Disruptor *disruptor;
     Result result;
 
 private:
+    static void NullCallback(const Napi::CallbackInfo& info)
+    {
+    }
+
     Napi::ObjectReference disruptor_ref;
 };
 
@@ -121,7 +129,6 @@ struct AsyncBuffer
         return r;
     }
 
-    // TODO: pass env by reference?
     static AsyncBuffer New(Napi::Env env, size_t length)
     {
         return New(env, nullptr, length);
@@ -410,25 +417,28 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
     return ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env());
 }
 
-class ConsumeNewAsyncWorker : public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>
+class ConsumeNewAsyncWorker :
+    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>
 {
 public:
-    ConsumeNewAsyncWorker(const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(info)
+    ConsumeNewAsyncWorker(Disruptor *disruptor,
+                          const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(
+            disruptor, info)
     {
     }
 
 protected:
-    void Execute(Disruptor* disruptor) override
+    void Execute() override
     {
+        // Remember: don't access any V8 stuff in worker thread
         result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env());
     }
 };
 
 void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
 {
-    ConsumeNewAsyncWorker *worker = new ConsumeNewAsyncWorker(info);
-    worker->Queue();
+    (new ConsumeNewAsyncWorker(this, info))->Queue();
 }
 
 void Disruptor::ConsumeCommit(const Napi::CallbackInfo&)
@@ -512,34 +522,34 @@ Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
     return ProduceClaimSync<Napi::Buffer, Napi::Number>(info.Env());
 }
 
-class ProduceClaimAsyncWorker : public DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>
+class ProduceClaimAsyncWorker :
+    public DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>
 {
 public:
-    ProduceClaimAsyncWorker(const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(info)
+    ProduceClaimAsyncWorker(Disruptor *disruptor,
+                            const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(
+            disruptor, info)
     {
     }
 
 protected:
-    void Execute(Disruptor* disruptor) override
+    void Execute() override
     {
+        // Remember: don't access any V8 stuff in worker thread
         result = disruptor->ProduceClaimSync<AsyncBuffer, AsyncNumber>(Env());
     }
 };
 
 void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
 {
-    ProduceClaimAsyncWorker *worker = new ProduceClaimAsyncWorker(info);
-    worker->Queue();
+    (new ProduceClaimAsyncWorker(this, info))->Queue();
 }
 
 template<typename Boolean>
 Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
-// TODO: should take sequence_t
-                                     const Napi::Object& obj)
+                                     sequence_t seq_next)
 {
-    sequence_t seq_next = obj.Get("seq_next").As<Napi::Number>().Int64Value();
-    
     do
     {
         if (__sync_val_compare_and_swap(cursor, seq_next, seq_next + 1) ==
@@ -562,34 +572,41 @@ Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
     while (true);
 }
 
-Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
+sequence_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info)
 {
-    return ProduceCommitSync<Napi::Boolean>(info.Env(), info[0].As<Napi::Object>());
+    return info[0].As<Napi::Object>().Get("seq_next").As<Napi::Number>().Int64Value();
 }
 
-class ProduceCommitAsyncWorker : public DisruptorAsyncWorker<AsyncBoolean, 1>
+Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
+{
+    return ProduceCommitSync<Napi::Boolean>(info.Env(), GetSeqNext(info));
+}
+
+class ProduceCommitAsyncWorker :
+    public DisruptorAsyncWorker<AsyncBoolean, 1>
 {
 public:
-    ProduceCommitAsyncWorker(const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker<AsyncBoolean, 1>(info),
-        obj_ref(Napi::Persistent(info[0].As<Napi::Object>()))
+    ProduceCommitAsyncWorker(Disruptor *disruptor,
+                             const Napi::CallbackInfo& info) :
+        DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, info),
+        seq_next(Disruptor::GetSeqNext(info))
     {
     }
 
 protected:
-    void Execute(Disruptor* disruptor) override
+    void Execute() override
     {
-        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), obj_ref.Value());
+        // Remember: don't access any V8 stuff in worker thread
+        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), seq_next);
     }
 
 private:
-    Napi::ObjectReference obj_ref;
+    sequence_t seq_next;
 };
 
 void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
 {
-    ProduceCommitAsyncWorker *worker = new ProduceCommitAsyncWorker(info);
-    worker->Queue();
+    (new ProduceCommitAsyncWorker(this, info))->Queue();
 }
 
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
