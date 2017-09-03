@@ -23,18 +23,18 @@ public:
 
     // Return unconsumed values for a consumer
     Napi::Value ConsumeNewSync(const Napi::CallbackInfo& info); 
-    void ConsumeNewAsync(const Napi::CallbackInfo& info); 
+    Napi::Value ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
     // Update consumer sequence without consuming more
     void ConsumeCommit(const Napi::CallbackInfo&);
 
     // Claim a slot for writing a value
     Napi::Value ProduceClaimSync(const Napi::CallbackInfo& info);
-    void ProduceClaimAsync(const Napi::CallbackInfo& info);
+    Napi::Value ProduceClaimAsync(const Napi::CallbackInfo& info);
 
     // Commit a claimed slot.
     Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
-    void ProduceCommitAsync(const Napi::CallbackInfo& info);
+    Napi::Value ProduceCommitAsync(const Napi::CallbackInfo& info);
 
     inline bool Spin()
     {
@@ -82,6 +82,20 @@ private:
     sequence_t pending_seq_cursor;
 };
 
+void NullCallback(const Napi::CallbackInfo& info)
+{
+}
+
+Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
+{
+    if (info.Length() > cb_arg)
+    {
+        return info[cb_arg].As<Napi::Function>();
+    }
+
+    return Napi::Function::New(info.Env(), NullCallback);
+}
+
 template <typename Result, uint32_t CB_ARG>
 class DisruptorAsyncWorker : public Napi::AsyncWorker
 {
@@ -97,11 +111,7 @@ public:
 
     DisruptorAsyncWorker(Disruptor *disruptor,
                          const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker(
-            disruptor,
-            info.Length() > CB_ARG ?
-                info[CB_ARG].As<Napi::Function>() :
-                Napi::Function::New(info.Env(), NullCallback))
+        DisruptorAsyncWorker(disruptor, GetCallback(info, CB_ARG))
     {
     }
 
@@ -125,10 +135,6 @@ protected:
     Disruptor *disruptor;
 
 private:
-    static void NullCallback(const Napi::CallbackInfo& info)
-    {
-    }
-
     Napi::ObjectReference disruptor_ref;
 };
 
@@ -466,9 +472,16 @@ protected:
     }
 };
 
-void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
 {
+    Napi::Array r = ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env(), false);
+    if (r.Length() > 0)
+    {
+        return r;
+    }
+
     (new ConsumeNewAsyncWorker(this, info))->Queue();
+    return info.Env().Undefined();
 }
 
 void Disruptor::ConsumeCommit(const Napi::CallbackInfo&)
@@ -578,9 +591,16 @@ protected:
     }
 };
 
-void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
 {
+    Napi::Buffer<uint8_t> r = ProduceClaimSync<Napi::Buffer, Napi::Number>(info.Env(), false);
+    if (r.Length() > 0)
+    {
+        return r;
+    }
+
     (new ProduceClaimAsyncWorker(this, info))->Queue();
+    return info.Env().Undefined();
 }
 
 template<typename Boolean>
@@ -626,9 +646,10 @@ public:
     }
 
     ProduceCommitAsyncWorker(Disruptor *disruptor,
-                             const Napi::CallbackInfo& info) :
+                             const Napi::CallbackInfo& info,
+                             sequence_t seq_next) :
         DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, info),
-        seq_next(Disruptor::GetSeqNext(info))
+        seq_next(seq_next)
     {
     }
 
@@ -649,9 +670,18 @@ private:
     sequence_t seq_next;
 };
 
-void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
 {
-    (new ProduceCommitAsyncWorker(this, info))->Queue();
+    sequence_t seq_next = Disruptor::GetSeqNext(info);
+
+    Napi::Boolean r = ProduceCommitSync<Napi::Boolean>(info.Env(), seq_next, false);
+    if (r)
+    {
+        return r;
+    }
+
+    (new ProduceCommitAsyncWorker(this, info, seq_next))->Queue();
+    return info.Env().Undefined();
 }
 
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
