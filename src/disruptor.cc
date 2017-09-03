@@ -381,9 +381,6 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env, bool retry)
 
     do
     {
-        // TODO: Do we need to access consumer sequence atomically if we know
-        // only this thread is updating it?
-        // In general do we need CAS for reading?
         seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
         seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
         pos_consumer = seq_consumer % num_elements;
