@@ -280,9 +280,6 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     Napi::ObjectWrap<Disruptor>(info),
     shm_buf(MAP_FAILED)
 {
-    // TODO: How do we ensure non-initers don't read while init is happening?
-    //       (Bus error if start test2.js first then test.js)
-
     // Arguments
     Napi::String shm_name = info[0].As<Napi::String>();
     num_elements = info[1].As<Napi::Number>();
