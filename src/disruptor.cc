@@ -96,7 +96,7 @@ Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
     return Napi::Function::New(info.Env(), NullCallback);
 }
 
-template <typename Result, uint32_t CB_ARG>
+template <typename Result>
 class DisruptorAsyncWorker : public Napi::AsyncWorker
 {
 public:
@@ -106,12 +106,6 @@ public:
         retry(false),
         disruptor(disruptor),
         disruptor_ref(Napi::Persistent(disruptor->Value()))
-    {
-    }
-
-    DisruptorAsyncWorker(Disruptor *disruptor,
-                         const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker(disruptor, GetCallback(info, CB_ARG))
     {
     }
 
@@ -441,20 +435,13 @@ Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
 }
 
 class ConsumeNewAsyncWorker :
-    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>
+    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>>
 {
 public:
     ConsumeNewAsyncWorker(Disruptor *disruptor,
                           const Napi::Function& callback) :
-        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>>(
             disruptor, callback)
-    {
-    }
-
-    ConsumeNewAsyncWorker(Disruptor *disruptor,
-                          const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>, 0>(
-            disruptor, info)
     {
     }
 
@@ -480,7 +467,7 @@ Napi::Value Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ConsumeNewAsyncWorker(this, info))->Queue();
+    (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))->Queue();
     return info.Env().Undefined();
 }
 
@@ -560,20 +547,12 @@ Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
 }
 
 class ProduceClaimAsyncWorker :
-    public DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>
+    public DisruptorAsyncWorker<AsyncBuffer<uint8_t>>
 {
 public:
     ProduceClaimAsyncWorker(Disruptor *disruptor,
                             const Napi::Function& callback) :
-        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(
-            disruptor, callback)
-    {
-    }
-
-    ProduceClaimAsyncWorker(Disruptor *disruptor,
-                            const Napi::CallbackInfo& info) :
-        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, 0>(
-            disruptor, info)
+        DisruptorAsyncWorker<AsyncBuffer<uint8_t>>(disruptor, callback)
     {
     }
 
@@ -599,7 +578,7 @@ Napi::Value Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ProduceClaimAsyncWorker(this, info))->Queue();
+    (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))->Queue();
     return info.Env().Undefined();
 }
 
@@ -634,21 +613,13 @@ Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
 }
 
 class ProduceCommitAsyncWorker :
-    public DisruptorAsyncWorker<AsyncBoolean, 1>
+    public DisruptorAsyncWorker<AsyncBoolean>
 {
 public:
     ProduceCommitAsyncWorker(Disruptor *disruptor,
                              const Napi::Function& callback,
                              sequence_t seq_next) :
-        DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, callback),
-        seq_next(seq_next)
-    {
-    }
-
-    ProduceCommitAsyncWorker(Disruptor *disruptor,
-                             const Napi::CallbackInfo& info,
-                             sequence_t seq_next) :
-        DisruptorAsyncWorker<AsyncBoolean, 1>(disruptor, info),
+        DisruptorAsyncWorker<AsyncBoolean>(disruptor, callback),
         seq_next(seq_next)
     {
     }
@@ -680,7 +651,7 @@ Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ProduceCommitAsyncWorker(this, info, seq_next))->Queue();
+    (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next))->Queue();
     return info.Env().Undefined();
 }
 
