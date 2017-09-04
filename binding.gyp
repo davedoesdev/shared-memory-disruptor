@@ -6,7 +6,7 @@
       "include_dirs": ["<!@(node -p \"require('node-addon-api').include\")"],
       "dependencies": ["<!(node -p \"require('node-addon-api').gyp\")"],
 
-      'cflags': [ '-std=gnu++14' ],
+      'cflags+': [ '-std=gnu++14' ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions', '-std=gnu++0x' ],
       'xcode_settings': {
@@ -16,7 +16,16 @@
       },
       'msvs_settings': {
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
-      }
+      },
+      'conditions': [
+        [
+          'coverage == "true"',
+          {
+            'cflags+': [ '--coverage' ],
+            'ldflags+': [ '--coverage' ]
+          }
+        ]
+      ]
     }
   ]
 }

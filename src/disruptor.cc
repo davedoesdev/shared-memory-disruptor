@@ -18,7 +18,7 @@ public:
 
     static void Initialize(Napi::Env env, Napi::Object exports);
 
-    // Unmap the shared memory. Don't access it again from this process!
+    // Unmap the shared memory. Don't access it again from this Disruptor!
     void Release(const Napi::CallbackInfo& info);
 
     // Return unconsumed values for a consumer
@@ -80,6 +80,13 @@ private:
 
     sequence_t pending_seq_consumer;
     sequence_t pending_seq_cursor;
+
+    // For testing only
+    Napi::Value GetConsumers(const Napi::CallbackInfo& info);
+    Napi::Value GetCursor(const Napi::CallbackInfo& info);
+    Napi::Value GetNext(const Napi::CallbackInfo& info);
+    Napi::Value GetElements(const Napi::CallbackInfo& info);
+    Napi::Value GetConsumer(const Napi::CallbackInfo& info);
 };
 
 void NullCallback(const Napi::CallbackInfo& info)
@@ -649,6 +656,36 @@ Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
+// ==========
+// For testing only
+
+Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo& info)
+{
+    return Napi::Buffer<sequence_t>::New(info.Env(), consumers, num_consumers);
+}
+
+Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(cursor, 0, 0));
+}
+
+Napi::Value Disruptor::GetNext(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(next, 0, 0));
+}
+
+Napi::Value Disruptor::GetElements(const Napi::CallbackInfo& info)
+{
+    return Napi::Buffer<uint8_t>::New(info.Env(), elements, num_elements * element_size);
+}
+
+Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));
+}
+
+// ==========
+
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
@@ -661,6 +698,13 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
         InstanceMethod("produceCommit", &Disruptor::ProduceCommitAsync),
         InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
+
+        // For testing only
+        InstanceAccessor("consumers", &Disruptor::GetConsumers, nullptr),
+        InstanceAccessor("cursor", &Disruptor::GetCursor, nullptr),
+        InstanceAccessor("next", &Disruptor::GetNext, nullptr),
+        InstanceAccessor("elements", &Disruptor::GetElements, nullptr),
+        InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr)
     }));
 }
 

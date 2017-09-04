@@ -1,0 +1,814 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - lcov.info - src/disruptor.cc</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - disruptor.cc<span style="font-size: 80%;"> (source / <a href="disruptor.cc.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">lcov.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntry">220</td>
+            <td class="headerCovTableEntryLo">49.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-09-04 22:58:58</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntryLo">37.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryLo">17.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : #include &lt;sys/mman.h&gt;</a>
+<span class="lineNum">       2 </span>                :            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">       3 </span>                :            : #include &lt;fcntl.h&gt;
+<span class="lineNum">       4 </span>                :            : #include &lt;unistd.h&gt;
+<span class="lineNum">       5 </span>                :            : #include &lt;sys/types.h&gt;
+<span class="lineNum">       6 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">       7 </span>                :            : #include &lt;napi.h&gt;
+<span class="lineNum">       8 </span>                :            : #include &lt;memory&gt;
+<span class="lineNum">       9 </span>                :            : #include &lt;vector&gt;
+<span class="lineNum">      10 </span>                :            : 
+<span class="lineNum">      11 </span>                :            : typedef uint64_t sequence_t;
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : class Disruptor : public Napi::ObjectWrap&lt;Disruptor&gt;
+<span class="lineNum">      14 </span>                :            : {
+<span class="lineNum">      15 </span>                :            : public:
+<span class="lineNum">      16 </span>                :            :     Disruptor(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      17 </span>                :            :     ~Disruptor();
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            :     static void Initialize(Napi::Env env, Napi::Object exports);
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            :     // Unmap the shared memory. Don't access it again from this Disruptor!
+<span class="lineNum">      22 </span>                :            :     void Release(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            :     // Return unconsumed values for a consumer
+<span class="lineNum">      25 </span>                :            :     Napi::Value ConsumeNewSync(const Napi::CallbackInfo&amp; info); 
+<span class="lineNum">      26 </span>                :            :     Napi::Value ConsumeNewAsync(const Napi::CallbackInfo&amp; info); 
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            :     // Update consumer sequence without consuming more
+<span class="lineNum">      29 </span>                :            :     void ConsumeCommit(const Napi::CallbackInfo&amp;);
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            :     // Claim a slot for writing a value
+<span class="lineNum">      32 </span>                :            :     Napi::Value ProduceClaimSync(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      33 </span>                :            :     Napi::Value ProduceClaimAsync(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            :     // Commit a claimed slot.
+<span class="lineNum">      36 </span>                :            :     Napi::Value ProduceCommitSync(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      37 </span>                :            :     Napi::Value ProduceCommitAsync(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            :     inline bool Spin()
+<span class="lineNum">      40 </span>                :            :     {
+<span class="lineNum">      41 </span>                :            :         return spin;
+<span class="lineNum">      42 </span>                :            :     }
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : private:
+<span class="lineNum">      45 </span>                :            :     friend class ConsumeNewAsyncWorker;
+<span class="lineNum">      46 </span>                :            :     friend class ProduceClaimAsyncWorker;
+<span class="lineNum">      47 </span>                :            :     friend class ProduceCommitAsyncWorker;
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            :     int Release();
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            :     void UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor);
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            :     template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
+<span class="lineNum">      54 </span>                :            :     Array ConsumeNewSync(const Napi::Env&amp; env, bool retry);
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            :     void ConsumeCommit();
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            :     template&lt;template&lt;typename&gt; typename Buffer, typename Number&gt;
+<span class="lineNum">      59 </span>                :            :     Buffer&lt;uint8_t&gt; ProduceClaimSync(const Napi::Env&amp; env, bool retry);
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            :     template&lt;typename Boolean&gt;
+<span class="lineNum">      62 </span>                :            :     Boolean ProduceCommitSync(const Napi::Env&amp; env, sequence_t seq_next, bool retry);
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            :     static sequence_t GetSeqNext(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            :     uint32_t num_elements;
+<span class="lineNum">      67 </span>                :            :     uint32_t element_size;
+<span class="lineNum">      68 </span>                :            :     uint32_t num_consumers;
+<span class="lineNum">      69 </span>                :            :     uint32_t consumer;
+<span class="lineNum">      70 </span>                :            :     bool spin;
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :     size_t shm_size;
+<span class="lineNum">      73 </span>                :            :     void* shm_buf;
+<span class="lineNum">      74 </span>                :            :     
+<span class="lineNum">      75 </span>                :            :     sequence_t *consumers; // for each consumer, next slot to read
+<span class="lineNum">      76 </span>                :            :     sequence_t *cursor;    // next slot to be filled
+<span class="lineNum">      77 </span>                :            :     sequence_t *next;      // next slot to claim
+<span class="lineNum">      78 </span>                :            :     uint8_t* elements;
+<span class="lineNum">      79 </span>                :            :     sequence_t *ptr_consumer;
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :     sequence_t pending_seq_consumer;
+<span class="lineNum">      82 </span>                :            :     sequence_t pending_seq_cursor;
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            :     // For testing only
+<span class="lineNum">      85 </span>                :            :     Napi::Value GetConsumers(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      86 </span>                :            :     Napi::Value GetCursor(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      87 </span>                :            :     Napi::Value GetNext(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      88 </span>                :            :     Napi::Value GetElements(const Napi::CallbackInfo&amp; info);
+<span class="lineNum">      89 </span>                :            :     Napi::Value GetConsumer(const Napi::CallbackInfo&amp; info);
+<a name="90"><span class="lineNum">      90 </span>                :            : };</a>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 : void NullCallback(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">      93 </span>                :            : {
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 : Napi::Function GetCallback(const Napi::CallbackInfo&amp; info, uint32_t cb_arg)</span>
+<span class="lineNum">      97 </span>                :            : {
+<span class="lineNum">      98 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (info.Length() &gt; cb_arg)</span>
+<span class="lineNum">      99 </span>                :            :     {
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         return info[cb_arg].As&lt;Napi::Function&gt;();</span>
+<span class="lineNum">     101 </span>                :            :     }
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :     return Napi::Function::New(info.Env(), NullCallback);</span>
+<span class="lineNum">     104 </span>                :            : }
+<a name="105"><span class="lineNum">     105 </span>                :            : </a>
+<span class="lineNum">     106 </span>                :            : template &lt;typename Result&gt;
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 : class DisruptorAsyncWorker : public Napi::AsyncWorker</span>
+<span class="lineNum">     108 </span>                :            : {
+<span class="lineNum">     109 </span>                :            : public:
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :     DisruptorAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     111 </span>                :            :                          const Napi::Function&amp; callback) :
+<span class="lineNum">     112 </span>                :            :         Napi::AsyncWorker(callback),
+<span class="lineNum">     113 </span>                :            :         retry(false),
+<span class="lineNum">     114 </span>                :            :         disruptor(disruptor),
+<span class="lineNum">     115 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>]:<span class="lineNoCov">          0 :         disruptor_ref(Napi::Persistent(disruptor-&gt;Value()))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>]
+<span class="lineNum">     116 </span>                :            :     {
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            : protected:
+<span class="lineNum">     120 </span>                :            :     virtual void Retry() = 0;
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :     void OnOK() override</span>
+<span class="lineNum">     123 </span>                :            :     {
+<span class="lineNum">     124 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (disruptor-&gt;Spin() &amp;&amp; retry)</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 12 was not executed"> # </span><span class="branchNoExec" title="Branch 13 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 16 was not executed"> # </span><span class="branchNoExec" title="Branch 17 was not executed"> # </span>]
+<span class="lineNum">     125 </span>                :            :         {
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :             return Retry();</span>
+<span class="lineNum">     127 </span>                :            :         }
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]:<span class="lineNoCov">          0 :         Callback().MakeCallback(</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 11 was not executed"> # </span><span class="branchNoExec" title="Branch 12 was not executed"> # </span>][<span class="branchNoExec" title="Branch 14 was not executed"> # </span><span class="branchNoExec" title="Branch 15 was not executed"> # </span>]
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 18 was not executed"> # </span><span class="branchNoExec" title="Branch 19 was not executed"> # </span>][<span class="branchNoExec" title="Branch 21 was not executed"> # </span><span class="branchNoExec" title="Branch 22 was not executed"> # </span>]
+<span class="lineNum">     130 </span>                :            :             Receiver().Value(),
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :             std::initializer_list&lt;napi_value&gt;{Env().Null(), result.ToValue(Env())});</span>
+<span class="lineNum">     132 </span>                :            :     }
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            :     Result result;
+<span class="lineNum">     135 </span>                :            :     bool retry;
+<span class="lineNum">     136 </span>                :            :     Disruptor *disruptor;
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            : private:
+<span class="lineNum">     139 </span>                :            :     Napi::ObjectReference disruptor_ref;
+<span class="lineNum">     140 </span>                :            : };
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            : template&lt;typename T&gt;
+<span class="lineNum">     143 </span>                :            : struct AsyncBuffer
+<span class="lineNum">     144 </span>                :            : {
+<span class="lineNum">     145 </span>                :            :     static AsyncBuffer New(Napi::Env, T* data, size_t length)
+<span class="lineNum">     146 </span>                :            :     {
+<span class="lineNum">     147 </span>                :            :         AsyncBuffer r;
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         r.data = data;</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         r.length = length;</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         r.seq_next_set = false;</span>
+<span class="lineNum">     151 </span>                :            :         return r;
+<span class="lineNum">     152 </span>                :            :     }
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :     static AsyncBuffer New(Napi::Env env, size_t length)
+<span class="lineNum">     155 </span>                :            :     {
+<span class="lineNum">     156 </span>                :            :         return New(env, nullptr, length);
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            :     void Set(const char* /* &quot;seq_next&quot; */, sequence_t value)
+<span class="lineNum">     160 </span>                :            :     {
+<span class="lineNum">     161 </span>                :            :         seq_next = value;
+<span class="lineNum">     162 </span>                :            :         seq_next_set = true;
+<span class="lineNum">     163 </span>                :            :     }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :     Napi::Value ToValue(Napi::Env env)</span>
+<span class="lineNum">     166 </span>                :            :     {
+<span class="lineNum">     167 </span>                :            :         Napi::Buffer&lt;T&gt; r;
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (data)</span>
+<span class="lineNum">     170 </span>                :            :         {
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :             r = Napi::Buffer&lt;T&gt;::New(env, data, length);</span>
+<span class="lineNum">     172 </span>                :            :         }
+<span class="lineNum">     173 </span>                :            :         else
+<span class="lineNum">     174 </span>                :            :         {
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :             r = Napi::Buffer&lt;T&gt;::New(env, length);</span>
+<span class="lineNum">     176 </span>                :            :         }
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (seq_next_set)</span>
+<span class="lineNum">     179 </span>                :            :         {
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :             r.Set(&quot;seq_next&quot;, Napi::Number::New(env, seq_next));</span>
+<span class="lineNum">     181 </span>                :            :         }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :         return r;</span>
+<span class="lineNum">     184 </span>                :            :     }
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :     size_t Length()
+<span class="lineNum">     187 </span>                :            :     {
+<span class="lineNum">     188 </span>                :            :         return length;
+<span class="lineNum">     189 </span>                :            :     }
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :            :     T* data;
+<span class="lineNum">     192 </span>                :            :     size_t length;
+<span class="lineNum">     193 </span>                :            :     sequence_t seq_next;
+<span class="lineNum">     194 </span>                :            :     bool seq_next_set;
+<span class="lineNum">     195 </span>                :            : };
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :            : template&lt;typename T&gt;
+<a name="198"><span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 : struct AsyncArray</span></a>
+<span class="lineNum">     199 </span>                :            : {
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :     static AsyncArray New(Napi::Env)</span>
+<span class="lineNum">     201 </span>                :            :     {
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :         AsyncArray r;</span>
+<span class="lineNum">     203 </span>                :            :         r.elements = std::make_unique&lt;std::vector&lt;T&gt;&gt;();
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         return r;</span>
+<a name="205"><span class="lineNum">     205 </span>                :            :     }</a>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :     void Set(uint32_t index, T el)</span>
+<span class="lineNum">     208 </span>                :            :     {
+<span class="lineNum">     209 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elements-&gt;size() &lt;= index)</span>
+<span class="lineNum">     210 </span>                :            :         {
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :             elements-&gt;resize(index + 1);</span>
+<span class="lineNum">     212 </span>                :            :         }
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         (*elements)[index] = el;</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :     Napi::Value ToValue(Napi::Env env)</span>
+<span class="lineNum">     218 </span>                :            :     {
+<span class="lineNum">     219 </span>                :            :         size_t length = elements-&gt;size();
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         Napi::Array r = Napi::Array::New(env);</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (size_t i = 0; i &lt; length; ++i)</span>
+<span class="lineNum">     222 </span>                :            :         {
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :             r[i] = (*elements)[i].ToValue(env);</span>
+<span class="lineNum">     224 </span>                :            :         }
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         return r;</span>
+<span class="lineNum">     226 </span>                :            :     }
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            :     size_t Length()
+<span class="lineNum">     229 </span>                :            :     {
+<span class="lineNum">     230 </span>                :            :         return elements-&gt;size();
+<span class="lineNum">     231 </span>                :            :     }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :     std::unique_ptr&lt;std::vector&lt;T&gt;&gt; elements;
+<span class="lineNum">     234 </span>                :            : };
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :            : struct AsyncBoolean
+<span class="lineNum">     237 </span>                :            : {
+<span class="lineNum">     238 </span>                :            :     static AsyncBoolean New(Napi::Env, bool b)
+<span class="lineNum">     239 </span>                :            :     {
+<span class="lineNum">     240 </span>                :            :         AsyncBoolean r;
+<span class="lineNum">     241 </span>                :            :         r.b = b;
+<span class="lineNum">     242 </span>                :            :         return r;
+<span class="lineNum">     243 </span>                :            :     }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            :     Napi::Value ToValue(Napi::Env env)
+<span class="lineNum">     246 </span>                :            :     {
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :         return Napi::Boolean::New(env, b);</span>
+<span class="lineNum">     248 </span>                :            :     }
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :     operator bool() const
+<span class="lineNum">     251 </span>                :            :     {
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :         return b;</span>
+<span class="lineNum">     253 </span>                :            :     }
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            :     bool b;
+<span class="lineNum">     256 </span>                :            : };
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            : struct AsyncNumber
+<span class="lineNum">     259 </span>                :            : {
+<span class="lineNum">     260 </span>                :            :     static sequence_t New(Napi::Env, sequence_t n)
+<span class="lineNum">     261 </span>                :            :     {
+<span class="lineNum">     262 </span>                :            :         return n;
+<span class="lineNum">     263 </span>                :            :     }
+<span class="lineNum">     264 </span>                :            : };
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            : struct CloseFD
+<span class="lineNum">     267 </span>                :            : {
+<span class="lineNum">     268 </span>                :            :     void operator()(int *fd)
+<span class="lineNum">     269 </span>                :            :     {
+<span class="lineNum">     270 </span>                :<span class="lineCov">          2 :         close(*fd);</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          2 :         delete fd;</span>
+<span class="lineNum">     272 </span>                :            :     }
+<span class="lineNum">     273 </span>                :            : };
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 : void ThrowErrnoError(const Napi::CallbackInfo&amp; info, const char *msg)</span>
+<span class="lineNum">     276 </span>                :            : {
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :     int errnum = errno;</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :     char buf[1024] = {0};</span>
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :     auto errmsg = strerror_r(errnum, buf, sizeof(buf));</span>
+<span class="lineNum">     280 </span>                :            :     static_assert(std::is_same&lt;decltype(errmsg), char*&gt;::value,
+<span class="lineNum">     281 </span>                :            :                   &quot;strerror_r must return char*&quot;);
+<span class="lineNum">     282 </span>                :            :     throw Napi::Error::New(info.Env(), 
+<span class="lineNum">     283 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         std::string(msg) + &quot;: &quot; + (errmsg ? errmsg : std::to_string(errnum)));</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span>][<span class="branchNoExec" title="Branch 10 was not executed"> # </span><span class="branchNoExec" title="Branch 11 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 13 was not executed"> # </span><span class="branchNoExec" title="Branch 14 was not executed"> # </span>]
+<span class="lineNum">     284 </span>                :            : }
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :<span class="lineCov">          2 : Disruptor::Disruptor(const Napi::CallbackInfo&amp; info) :</span>
+<span class="lineNum">     287 </span>                :            :     Napi::ObjectWrap&lt;Disruptor&gt;(info),
+<span class="lineNum">     288 </span>                :<span class="lineCov">          2 :     shm_buf(MAP_FAILED)</span>
+<span class="lineNum">     289 </span>                :            : {
+<span class="lineNum">     290 </span>                :            :     // Arguments
+<span class="lineNum">     291 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     Napi::String shm_name = info[0].As&lt;Napi::String&gt;();</span>
+<span class="lineNum">     292 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     num_elements = info[1].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     element_size = info[2].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     num_consumers = info[3].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     295 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     consumer = info[4].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     bool init = info[5].As&lt;Napi::Boolean&gt;();</span>
+<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :     spin = info[6].As&lt;Napi::Boolean&gt;();</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            :     // Open shared memory object
+<span class="lineNum">     300 </span>                :            :     std::unique_ptr&lt;int, CloseFD&gt; shm_fd(new int(
+<span class="lineNum">     301 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :         shm_open(shm_name.Utf8Value().c_str(),</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 6 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
+<span class="lineNum">     302 </span>                :            :                  O_CREAT | O_RDWR | (init ? O_TRUNC : 0),
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :                  S_IRUSR | S_IWUSR)));</span>
+<span class="lineNum">     304 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (*shm_fd &lt; 0)</span>
+<span class="lineNum">     305 </span>                :            :     {
+<span class="lineNum">     306 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ThrowErrnoError(info, &quot;Failed to open shared memory object&quot;);</span>
+<span class="lineNum">     307 </span>                :            :     }
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :            :     // Allow space for all the elements,
+<span class="lineNum">     310 </span>                :            :     // a sequence number for each consumer,
+<span class="lineNum">     311 </span>                :            :     // the cursor sequence number (last filled slot) and
+<span class="lineNum">     312 </span>                :            :     // the next sequence number (first free slot).
+<span class="lineNum">     313 </span>                :<span class="lineCov">          4 :     shm_size = (num_consumers + 2) * sizeof(sequence_t) +</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          2 :                num_elements * element_size;</span>
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            :     // Resize the shared memory if we're initializing it.
+<span class="lineNum">     317 </span>                :            :     // Note: ftruncate initializes to null bytes.
+<span class="lineNum">     318 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :     if (init &amp;&amp; (ftruncate(*shm_fd, shm_size) &lt; 0))</span>
+<span class="lineNum">         </span>        [<span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 2 times"> + </span>]
+<span class="lineNum">     319 </span>                :            :     {
+<span class="lineNum">     320 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ThrowErrnoError(info, &quot;Failed to size shared memory&quot;);</span>
+<span class="lineNum">     321 </span>                :            :     }
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :            :     // Map the shared memory
+<span class="lineNum">     324 </span>                :<span class="lineCov">          2 :     shm_buf = mmap(NULL,</span>
+<span class="lineNum">     325 </span>                :            :                    shm_size,
+<span class="lineNum">     326 </span>                :            :                    PROT_READ | PROT_WRITE, MAP_SHARED,
+<span class="lineNum">     327 </span>                :            :                    *shm_fd,
+<span class="lineNum">     328 </span>                :            :                    0);
+<span class="lineNum">     329 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (shm_buf == MAP_FAILED)</span>
+<span class="lineNum">     330 </span>                :            :     {
+<span class="lineNum">     331 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ThrowErrnoError(info, &quot;Failed to map shared memory&quot;);</span>
+<span class="lineNum">     332 </span>                :            :     }
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineCov">          2 :     consumers = static_cast&lt;sequence_t*&gt;(shm_buf);</span>
+<span class="lineNum">     335 </span>                :<span class="lineCov">          2 :     cursor = &amp;consumers[num_consumers];</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          2 :     next = &amp;cursor[1];</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">          2 :     elements = reinterpret_cast&lt;uint8_t*&gt;(&amp;next[1]);</span>
+<span class="lineNum">     338 </span>                :<span class="lineCov">          2 :     ptr_consumer = &amp;consumers[consumer];</span>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :<span class="lineCov">          2 :     pending_seq_consumer = 0;</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">          2 :     pending_seq_cursor = 0;</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 : Disruptor::~Disruptor()</span>
+<span class="lineNum">     345 </span>                :            : {
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :     Release();</span>
+<a name="347"><span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineCov">          2 : int Disruptor::Release()</span>
+<span class="lineNum">     350 </span>                :            : {
+<span class="lineNum">     351 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :     if (shm_buf != MAP_FAILED)</span>
+<span class="lineNum">     352 </span>                :            :     {
+<span class="lineNum">     353 </span>                :<span class="lineCov">          2 :         int r = munmap(shm_buf, shm_size);</span>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (r &lt; 0)</span>
+<span class="lineNum">     356 </span>                :            :         {
+<span class="lineNum">     357 </span>                :            :             return r;
+<span class="lineNum">     358 </span>                :            :         }
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :<span class="lineCov">          2 :         shm_buf = MAP_FAILED;</span>
+<span class="lineNum">     361 </span>                :            :     }
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :            :     return 0;
+<a name="364"><span class="lineNum">     364 </span>                :            : }</a>
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :<span class="lineCov">          2 : void Disruptor::Release(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     367 </span>                :            : {
+<span class="lineNum">     368 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :     if (Release() &lt; 0)</span>
+<span class="lineNum">     369 </span>                :            :     {
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :         ThrowErrnoError(info, &quot;Failed to unmap shared memory&quot;);</span>
+<span class="lineNum">     371 </span>                :            :     }
+<span class="lineNum">     372 </span>                :<span class="lineCov">          2 : }</span>
+<a name="373"><span class="lineNum">     373 </span>                :            : </a>
+<span class="lineNum">     374 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
+<span class="lineNum">     375 </span>                :<span class="lineCov">          1 : Array Disruptor::ConsumeNewSync(const Napi::Env&amp; env, bool retry)</span>
+<span class="lineNum">     376 </span>                :            : {
+<span class="lineNum">     377 </span>                :            :     // Return all elements [&amp;consumers[consumer], cursor)
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :            :     // Commit previous consume
+<span class="lineNum">     380 </span>                :<span class="lineCov">          1 :     ConsumeCommit();</span>
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :     Array r = Array::New(env);</span>
+<span class="lineNum">     383 </span>                :            :     sequence_t seq_consumer, pos_consumer;
+<span class="lineNum">     384 </span>                :            :     sequence_t seq_cursor, pos_cursor;
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :            :     do
+<span class="lineNum">     387 </span>                :            :     {
+<span class="lineNum">     388 </span>                :<span class="lineCov">          1 :         seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :         seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :         pos_consumer = seq_consumer % num_elements;</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">          1 :         pos_cursor = seq_cursor % num_elements;</span>
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if (pos_cursor &gt; pos_consumer)</span>
+<span class="lineNum">     394 </span>                :            :         {
+<span class="lineNum">     395 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineCov">          1 :             r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     396 </span>                :            :                 env,
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :                 elements + pos_consumer * element_size,</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">          1 :                 (pos_cursor - pos_consumer) * element_size));</span>
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineCov">          1 :             UpdatePending(seq_consumer, seq_cursor);</span>
+<span class="lineNum">     401 </span>                :            :             break;
+<span class="lineNum">     402 </span>                :            :         }
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (seq_cursor != seq_consumer)</span>
+<span class="lineNum">     405 </span>                :            :         {
+<span class="lineNum">     406 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     407 </span>                :            :                 env,
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 elements + pos_consumer * element_size,</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 (num_elements - pos_consumer) * element_size));</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (pos_cursor &gt; 0)</span>
+<span class="lineNum">     412 </span>                :            :             {
+<span class="lineNum">     413 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 r.Set(1U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     414 </span>                :            :                     env,
+<span class="lineNum">     415 </span>                :            :                     elements,
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :                     pos_cursor * element_size));</span>
+<span class="lineNum">     417 </span>                :            :             }
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             UpdatePending(seq_consumer, seq_cursor);</span>
+<span class="lineNum">     420 </span>                :            :             break;
+<span class="lineNum">     421 </span>                :            :         }
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!retry)</span>
+<span class="lineNum">     424 </span>                :            :         {
+<span class="lineNum">     425 </span>                :            :             break;
+<span class="lineNum">     426 </span>                :            :         }
+<span class="lineNum">     427 </span>                :            :     }
+<span class="lineNum">     428 </span>                :            :     while (true);
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :     return r;</span>
+<a name="431"><span class="lineNum">     431 </span>                :            : }</a>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :<span class="lineCov">          1 : Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     434 </span>                :            : {
+<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :     return ConsumeNewSync&lt;Napi::Array, Napi::Buffer&gt;(info.Env(), spin);</span>
+<a name="436"><span class="lineNum">     436 </span>                :            : }</a>
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 : class ConsumeNewAsyncWorker :</span>
+<span class="lineNum">     439 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;&gt;
+<span class="lineNum">     440 </span>                :            : {
+<span class="lineNum">     441 </span>                :            : public:
+<span class="lineNum">     442 </span>                :            :     ConsumeNewAsyncWorker(Disruptor *disruptor,
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :                           const Napi::Function&amp; callback) :</span>
+<span class="lineNum">     444 </span>                :            :         DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;&gt;(
+<span class="lineNum">     445 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :             disruptor, callback)</span>
+<span class="lineNum">     446 </span>                :            :     {
+<span class="lineNum">     447 </span>                :            :     }
+<a name="448"><span class="lineNum">     448 </span>                :            : </a>
+<span class="lineNum">     449 </span>                :            : protected:
+<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :     void Execute() override</span>
+<span class="lineNum">     451 </span>                :            :     {
+<span class="lineNum">     452 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :         result = disruptor-&gt;ConsumeNewSync&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;, AsyncBuffer&gt;(Env(), false);</span>
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :         retry = result.Length() == 0;</span>
+<a name="455"><span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :     void Retry() override</span>
+<span class="lineNum">     458 </span>                :            :     {
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :         (new ConsumeNewAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :     }</span>
+<a name="461"><span class="lineNum">     461 </span>                :            : };</a>
+<span class="lineNum">     462 </span>                :            : 
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 : Napi::Value Disruptor::ConsumeNewAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     464 </span>                :            : {
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :     Napi::Array r = ConsumeNewSync&lt;Napi::Array, Napi::Buffer&gt;(info.Env(), false);</span>
+<span class="lineNum">     466 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (r.Length() &gt; 0)</span>
+<span class="lineNum">     467 </span>                :            :     {
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :         return r;</span>
+<span class="lineNum">     469 </span>                :            :     }
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :     (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :     return info.Env().Undefined();</span>
+<a name="473"><span class="lineNum">     473 </span>                :            : }</a>
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :<span class="lineCov">          1 : void Disruptor::ConsumeCommit(const Napi::CallbackInfo&amp;)</span>
+<span class="lineNum">     476 </span>                :            : {
+<span class="lineNum">     477 </span>                :<span class="lineCov">          1 :     ConsumeCommit();</span>
+<a name="478"><span class="lineNum">     478 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 : void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)</span>
+<span class="lineNum">     481 </span>                :            : {
+<span class="lineNum">     482 </span>                :<span class="lineCov">          1 :     pending_seq_consumer = seq_consumer;</span>
+<span class="lineNum">     483 </span>                :<span class="lineCov">          1 :     pending_seq_cursor = seq_cursor;</span>
+<a name="484"><span class="lineNum">     484 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     485 </span>                :            : 
+<span class="lineNum">     486 </span>                :<span class="lineCov">          2 : void Disruptor::ConsumeCommit()</span>
+<span class="lineNum">     487 </span>                :            : {
+<span class="lineNum">     488 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :     if (pending_seq_cursor)</span>
+<span class="lineNum">     489 </span>                :            :     {
+<span class="lineNum">     490 </span>                :<span class="lineCov">          1 :         __sync_val_compare_and_swap(ptr_consumer,</span>
+<span class="lineNum">     491 </span>                :            :                                     pending_seq_consumer,
+<span class="lineNum">     492 </span>                :<span class="lineCov">          1 :                                     pending_seq_cursor);</span>
+<span class="lineNum">     493 </span>                :<span class="lineCov">          1 :         pending_seq_consumer = 0;</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">          1 :         pending_seq_cursor = 0;</span>
+<span class="lineNum">     495 </span>                :            :     }
+<span class="lineNum">     496 </span>                :<span class="lineCov">          2 : }</span>
+<a name="497"><span class="lineNum">     497 </span>                :            : </a>
+<span class="lineNum">     498 </span>                :            : template&lt;template&lt;typename&gt; typename Buffer, typename Number&gt;
+<span class="lineNum">     499 </span>                :<span class="lineCov">          2 : Buffer&lt;uint8_t&gt; Disruptor::ProduceClaimSync(const Napi::Env&amp; env, bool retry)</span>
+<span class="lineNum">     500 </span>                :            : {
+<span class="lineNum">     501 </span>                :            :     sequence_t seq_next, pos_next;
+<span class="lineNum">     502 </span>                :            :     sequence_t seq_consumer, pos_consumer;
+<span class="lineNum">     503 </span>                :            :     bool can_claim;
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :            :     do
+<span class="lineNum">     506 </span>                :            :     {
+<span class="lineNum">     507 </span>                :<span class="lineCov">          1 :         seq_next = __sync_val_compare_and_swap(next, 0, 0);</span>
+<span class="lineNum">     508 </span>                :<span class="lineCov">          1 :         pos_next = seq_next % num_elements;</span>
+<span class="lineNum">     509 </span>                :            : 
+<span class="lineNum">     510 </span>                :            :         can_claim = true;
+<span class="lineNum">     511 </span>                :            : 
+<span class="lineNum">     512 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for (uint32_t i = 0; i &lt; num_consumers; ++i)</span>
+<span class="lineNum">     513 </span>                :            :         {
+<span class="lineNum">     514 </span>                :<span class="lineCov">          1 :             seq_consumer = __sync_val_compare_and_swap(&amp;consumers[i], 0, 0);</span>
+<span class="lineNum">     515 </span>                :<span class="lineCov">          1 :             pos_consumer = seq_consumer % num_elements;</span>
+<span class="lineNum">     516 </span>                :            : 
+<span class="lineNum">     517 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :             if ((pos_consumer == pos_next) &amp;&amp; (seq_consumer != seq_next))</span>
+<span class="lineNum">     518 </span>                :            :             {
+<span class="lineNum">     519 </span>                :            :                 can_claim = false;
+<span class="lineNum">     520 </span>                :            :                 break;
+<span class="lineNum">     521 </span>                :            :             }
+<span class="lineNum">     522 </span>                :            :         }
+<span class="lineNum">     523 </span>                :            : 
+<span class="lineNum">     524 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if (can_claim &amp;&amp;</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchCov" title="Branch 6 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
+<span class="lineNum">         </span>[<span class="branchNoCov" title="Branch 8 was not taken"> - </span><span class="branchCov" title="Branch 9 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 10 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 11 was not taken"> - </span>]
+<span class="lineNum">     525 </span>                :<span class="lineCov">          1 :             __sync_bool_compare_and_swap(next, seq_next, seq_next + 1))</span>
+<span class="lineNum">     526 </span>                :            :         {
+<span class="lineNum">     527 </span>                :<span class="lineCov">          2 :             Buffer&lt;uint8_t&gt; r = Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     528 </span>                :            :                 env,
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :                 elements + pos_next * element_size,</span>
+<span class="lineNum">     530 </span>                :<span class="lineCov">          1 :                 element_size);</span>
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>                :<span class="lineCov">          1 :             r.Set(&quot;seq_next&quot;, Number::New(env, seq_next));</span>
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>                :<span class="lineCov">          1 :             return r;</span>
+<span class="lineNum">     535 </span>                :            :         }
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!retry)</span>
+<span class="lineNum">     538 </span>                :            :         {
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :             return Buffer&lt;uint8_t&gt;::New(env, 0);</span>
+<span class="lineNum">     540 </span>                :            :         }
+<span class="lineNum">     541 </span>                :            :     }
+<span class="lineNum">     542 </span>                :            :     while (true);
+<a name="543"><span class="lineNum">     543 </span>                :            : }</a>
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>                :<span class="lineCov">          1 : Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     546 </span>                :            : {
+<span class="lineNum">     547 </span>                :<span class="lineCov">          1 :     return ProduceClaimSync&lt;Napi::Buffer, Napi::Number&gt;(info.Env(), spin);</span>
+<a name="548"><span class="lineNum">     548 </span>                :            : }</a>
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 : class ProduceClaimAsyncWorker :</span>
+<span class="lineNum">     551 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;&gt;
+<span class="lineNum">     552 </span>                :            : {
+<span class="lineNum">     553 </span>                :            : public:
+<span class="lineNum">     554 </span>                :            :     ProduceClaimAsyncWorker(Disruptor *disruptor,
+<span class="lineNum">     555 </span>                :<span class="lineNoCov">          0 :                             const Napi::Function&amp; callback) :</span>
+<span class="lineNum">     556 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;&gt;(disruptor, callback)</span>
+<span class="lineNum">     557 </span>                :            :     {
+<span class="lineNum">     558 </span>                :            :     }
+<a name="559"><span class="lineNum">     559 </span>                :            : </a>
+<span class="lineNum">     560 </span>                :            : protected:
+<span class="lineNum">     561 </span>                :<span class="lineNoCov">          0 :     void Execute() override</span>
+<span class="lineNum">     562 </span>                :            :     {
+<span class="lineNum">     563 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     564 </span>                :<span class="lineNoCov">          0 :         result = disruptor-&gt;ProduceClaimSync&lt;AsyncBuffer, AsyncNumber&gt;(Env(), false);</span>
+<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 :         retry = result.Length() == 0;</span>
+<a name="566"><span class="lineNum">     566 </span>                :<span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     567 </span>                :            : 
+<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :     void Retry() override</span>
+<span class="lineNum">     569 </span>                :            :     {
+<span class="lineNum">     570 </span>                :<span class="lineNoCov">          0 :         (new ProduceClaimAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     572 </span>                :            : };
+<span class="lineNum">     573 </span>                :            : 
+<span class="lineNum">     574 </span>                :<span class="lineNoCov">          0 : Napi::Value Disruptor::ProduceClaimAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     575 </span>                :            : {
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 :     Napi::Buffer&lt;uint8_t&gt; r = ProduceClaimSync&lt;Napi::Buffer, Napi::Number&gt;(info.Env(), false);</span>
+<span class="lineNum">     577 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (r.Length() &gt; 0)</span>
+<span class="lineNum">     578 </span>                :            :     {
+<span class="lineNum">     579 </span>                :<span class="lineNoCov">          0 :         return r;</span>
+<span class="lineNum">     580 </span>                :            :     }
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>                :<span class="lineNoCov">          0 :     (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
+<span class="lineNum">     583 </span>                :<span class="lineNoCov">          0 :     return info.Env().Undefined();</span>
+<span class="lineNum">     584 </span>                :            : }
+<span class="lineNum">     585 </span>                :            : 
+<span class="lineNum">     586 </span>                :            : template&lt;typename Boolean&gt;
+<span class="lineNum">     587 </span>                :<span class="lineCov">          2 : Boolean Disruptor::ProduceCommitSync(const Napi::Env&amp; env,</span>
+<span class="lineNum">     588 </span>                :            :                                      sequence_t seq_next,
+<span class="lineNum">     589 </span>                :            :                                      bool retry)
+<span class="lineNum">     590 </span>                :            : {
+<span class="lineNum">     591 </span>                :            :     do
+<span class="lineNum">     592 </span>                :            :     {
+<span class="lineNum">     593 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next + 1))</span>
+<span class="lineNum">     594 </span>                :            :         {
+<span class="lineNum">     595 </span>                :<span class="lineCov">          1 :             return Boolean::New(env, true);</span>
+<span class="lineNum">     596 </span>                :            :         }
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!retry)</span>
+<span class="lineNum">     599 </span>                :            :         {
+<span class="lineNum">     600 </span>                :<span class="lineNoCov">          0 :             return Boolean::New(env, false);</span>
+<span class="lineNum">     601 </span>                :            :         }
+<span class="lineNum">     602 </span>                :            :     }
+<span class="lineNum">     603 </span>                :            :     while (true);
+<span class="lineNum">     604 </span>                :            : }
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 : sequence_t Disruptor::GetSeqNext(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     607 </span>                :            : {
+<span class="lineNum">     608 </span>                :<span class="lineCov">          1 :     return info[0].As&lt;Napi::Object&gt;().Get(&quot;seq_next&quot;).As&lt;Napi::Number&gt;().Int64Value();</span>
+<a name="609"><span class="lineNum">     609 </span>                :            : }</a>
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 : Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     612 </span>                :            : {
+<span class="lineNum">     613 </span>                :<span class="lineNoCov">          0 :     return ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), GetSeqNext(info), spin);</span>
+<a name="614"><span class="lineNum">     614 </span>                :            : }</a>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :<span class="lineNoCov">          0 : class ProduceCommitAsyncWorker :</span>
+<span class="lineNum">     617 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBoolean&gt;
+<span class="lineNum">     618 </span>                :            : {
+<span class="lineNum">     619 </span>                :            : public:
+<span class="lineNum">     620 </span>                :            :     ProduceCommitAsyncWorker(Disruptor *disruptor,
+<span class="lineNum">     621 </span>                :            :                              const Napi::Function&amp; callback,
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :                              sequence_t seq_next) :</span>
+<span class="lineNum">     623 </span>                :            :         DisruptorAsyncWorker&lt;AsyncBoolean&gt;(disruptor, callback),
+<span class="lineNum">     624 </span>  [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :         seq_next(seq_next)</span>
+<span class="lineNum">     625 </span>                :            :     {
+<span class="lineNum">     626 </span>                :            :     }
+<a name="627"><span class="lineNum">     627 </span>                :            : </a>
+<span class="lineNum">     628 </span>                :            : protected:
+<span class="lineNum">     629 </span>                :<span class="lineNoCov">          0 :     void Execute() override</span>
+<span class="lineNum">     630 </span>                :            :     {
+<span class="lineNum">     631 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     632 </span>                :<span class="lineNoCov">          0 :         result = disruptor-&gt;ProduceCommitSync&lt;AsyncBoolean&gt;(Env(), seq_next, false);</span>
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :         retry = !result;</span>
+<a name="634"><span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     635 </span>                :            : 
+<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :     void Retry() override</span>
+<span class="lineNum">     637 </span>                :            :     {
+<span class="lineNum">     638 </span>                :<span class="lineNoCov">          0 :         (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next))-&gt;Queue();</span>
+<span class="lineNum">     639 </span>                :<span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     640 </span>                :            : 
+<span class="lineNum">     641 </span>                :            : private:
+<span class="lineNum">     642 </span>                :            :     sequence_t seq_next;
+<span class="lineNum">     643 </span>                :            : };
+<span class="lineNum">     644 </span>                :            : 
+<span class="lineNum">     645 </span>                :<span class="lineCov">          1 : Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     646 </span>                :            : {
+<span class="lineNum">     647 </span>                :<span class="lineCov">          1 :     sequence_t seq_next = Disruptor::GetSeqNext(info);</span>
+<span class="lineNum">     648 </span>                :            : 
+<span class="lineNum">     649 </span>                :<span class="lineCov">          1 :     Napi::Boolean r = ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), seq_next, false);</span>
+<span class="lineNum">     650 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :     if (r)</span>
+<span class="lineNum">     651 </span>                :            :     {
+<span class="lineNum">     652 </span>                :<span class="lineCov">          1 :         return r;</span>
+<span class="lineNum">     653 </span>                :            :     }
+<span class="lineNum">     654 </span>                :            : 
+<span class="lineNum">     655 </span>                :<span class="lineNoCov">          0 :     (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next))-&gt;Queue();</span>
+<span class="lineNum">     656 </span>                :<span class="lineCov">          1 :     return info.Env().Undefined();</span>
+<span class="lineNum">     657 </span>                :            : }
+<span class="lineNum">     658 </span>                :            : 
+<span class="lineNum">     659 </span>                :            : // ==========
+<a name="660"><span class="lineNum">     660 </span>                :            : // For testing only</a>
+<span class="lineNum">     661 </span>                :            : 
+<span class="lineNum">     662 </span>                :<span class="lineCov">          1 : Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     663 </span>                :            : {
+<span class="lineNum">     664 </span>                :<span class="lineCov">          1 :     return Napi::Buffer&lt;sequence_t&gt;::New(info.Env(), consumers, num_consumers);</span>
+<a name="665"><span class="lineNum">     665 </span>                :            : }</a>
+<span class="lineNum">     666 </span>                :            : 
+<span class="lineNum">     667 </span>                :<span class="lineCov">          5 : Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     668 </span>                :            : {
+<span class="lineNum">     669 </span>                :<span class="lineCov">          5 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(cursor, 0, 0));</span>
+<a name="670"><span class="lineNum">     670 </span>                :            : }</a>
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :<span class="lineCov">          5 : Napi::Value Disruptor::GetNext(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     673 </span>                :            : {
+<span class="lineNum">     674 </span>                :<span class="lineCov">          5 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(next, 0, 0));</span>
+<a name="675"><span class="lineNum">     675 </span>                :            : }</a>
+<span class="lineNum">     676 </span>                :            : 
+<span class="lineNum">     677 </span>                :<span class="lineCov">          1 : Napi::Value Disruptor::GetElements(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     678 </span>                :            : {
+<span class="lineNum">     679 </span>                :<span class="lineCov">          1 :     return Napi::Buffer&lt;uint8_t&gt;::New(info.Env(), elements, num_elements * element_size);</span>
+<a name="680"><span class="lineNum">     680 </span>                :            : }</a>
+<span class="lineNum">     681 </span>                :            : 
+<span class="lineNum">     682 </span>                :<span class="lineCov">          5 : Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     683 </span>                :            : {
+<span class="lineNum">     684 </span>                :<span class="lineCov">          5 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));</span>
+<span class="lineNum">     685 </span>                :            : }
+<span class="lineNum">     686 </span>                :            : 
+<span class="lineNum">     687 </span>                :            : // ==========
+<span class="lineNum">     688 </span>                :            : 
+<span class="lineNum">     689 </span>                :<span class="lineCov">          1 : void Disruptor::Initialize(Napi::Env env, Napi::Object exports)</span>
+<span class="lineNum">     690 </span>                :            : {
+<span class="lineNum">     691 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     exports.Set(&quot;Disruptor&quot;, DefineClass(env, &quot;Disruptor&quot;,</span>
+<span class="lineNum">     692 </span>                :            :     {
+<span class="lineNum">     693 </span>                :            :         InstanceMethod(&quot;release&quot;, &amp;Disruptor::Release),
+<span class="lineNum">     694 </span>                :            :         InstanceMethod(&quot;consumeNew&quot;, &amp;Disruptor::ConsumeNewAsync),
+<span class="lineNum">     695 </span>                :            :         InstanceMethod(&quot;consumeNewSync&quot;, &amp;Disruptor::ConsumeNewSync),
+<span class="lineNum">     696 </span>                :            :         InstanceMethod(&quot;consumeCommit&quot;, &amp;Disruptor::ConsumeCommit),
+<span class="lineNum">     697 </span>                :            :         InstanceMethod(&quot;produceClaim&quot;, &amp;Disruptor::ProduceClaimAsync),
+<span class="lineNum">     698 </span>                :            :         InstanceMethod(&quot;produceClaimSync&quot;, &amp;Disruptor::ProduceClaimSync),
+<span class="lineNum">     699 </span>                :            :         InstanceMethod(&quot;produceCommit&quot;, &amp;Disruptor::ProduceCommitAsync),
+<span class="lineNum">     700 </span>                :            :         InstanceMethod(&quot;produceCommitSync&quot;, &amp;Disruptor::ProduceCommitSync),
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>                :            :         // For testing only
+<span class="lineNum">     703 </span>                :            :         InstanceAccessor(&quot;consumers&quot;, &amp;Disruptor::GetConsumers, nullptr),
+<span class="lineNum">     704 </span>                :            :         InstanceAccessor(&quot;cursor&quot;, &amp;Disruptor::GetCursor, nullptr),
+<span class="lineNum">     705 </span>                :            :         InstanceAccessor(&quot;next&quot;, &amp;Disruptor::GetNext, nullptr),
+<span class="lineNum">     706 </span>                :            :         InstanceAccessor(&quot;elements&quot;, &amp;Disruptor::GetElements, nullptr),
+<span class="lineNum">     707 </span>                :            :         InstanceAccessor(&quot;consumer&quot;, &amp;Disruptor::GetConsumer, nullptr)
+<span class="lineNum">     708 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :     }));</span>
+<a name="709"><span class="lineNum">     709 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     710 </span>                :            : 
+<span class="lineNum">     711 </span>                :<span class="lineCov">          1 : void Initialize(Napi::Env env, Napi::Object exports, Napi::Object module)</span>
+<span class="lineNum">     712 </span>                :            : {
+<span class="lineNum">     713 </span>                :<span class="lineCov">          1 :     Disruptor::Initialize(env, exports);</span>
+<a name="714"><span class="lineNum">     714 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     715 </span>                :            : 
+<span class="lineNum">     716 </span>                :<span class="lineCov">          3 : NODE_API_MODULE(disruptor, Initialize)</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
