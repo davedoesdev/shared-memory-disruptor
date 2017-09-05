@@ -22,19 +22,19 @@ public:
     void Release(const Napi::CallbackInfo& info);
 
     // Return unconsumed values for a consumer
+    Napi::Value ConsumeNew(const Napi::CallbackInfo& info); 
     Napi::Value ConsumeNewSync(const Napi::CallbackInfo& info); 
-    Napi::Value ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
     // Update consumer sequence without consuming more
     void ConsumeCommit(const Napi::CallbackInfo&);
 
     // Claim a slot for writing a value
+    Napi::Value ProduceClaim(const Napi::CallbackInfo& info);
     Napi::Value ProduceClaimSync(const Napi::CallbackInfo& info);
-    Napi::Value ProduceClaimAsync(const Napi::CallbackInfo& info);
 
     // Commit a claimed slot.
+    Napi::Value ProduceCommit(const Napi::CallbackInfo& info);
     Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
-    Napi::Value ProduceCommitAsync(const Napi::CallbackInfo& info);
 
     inline bool Spin()
     {
@@ -52,14 +52,19 @@ private:
 
     template<typename Array, template<typename> typename Buffer>
     Array ConsumeNewSync(const Napi::Env& env, bool retry);
+    void ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
     void ConsumeCommit();
 
     template<template<typename> typename Buffer, typename Number>
     Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env, bool retry);
+    void ProduceClaimAsync(const Napi::CallbackInfo& info);
 
     template<typename Boolean>
     Boolean ProduceCommitSync(const Napi::Env& env, sequence_t seq_next, bool retry);
+    void ProduceCommitAsync(const Napi::CallbackInfo& info);
+    void ProduceCommitAsync(const Napi::CallbackInfo& info,
+                            sequence_t seq_next);
 
     static sequence_t GetSeqNext(const Napi::CallbackInfo& info);
 
@@ -81,7 +86,6 @@ private:
     sequence_t pending_seq_consumer;
     sequence_t pending_seq_cursor;
 
-    // For testing only
     Napi::Value GetConsumers(const Napi::CallbackInfo& info);
     Napi::Value GetCursor(const Napi::CallbackInfo& info);
     Napi::Value GetNext(const Napi::CallbackInfo& info);
@@ -144,16 +148,12 @@ struct AsyncBuffer
 {
     static AsyncBuffer New(Napi::Env, T* data, size_t length)
     {
-        AsyncBuffer r;
-        r.data = data;
-        r.length = length;
-        r.seq_next_set = false;
-        return r;
+        return AsyncBuffer{data, length};
     }
 
     static AsyncBuffer New(Napi::Env env, size_t length)
     {
-        return New(env, nullptr, length);
+        return AsyncBuffer{nullptr, length};
     }
 
     void Set(const char* /* "seq_next" */, sequence_t value)
@@ -190,8 +190,8 @@ struct AsyncBuffer
 
     T* data;
     size_t length;
-    sequence_t seq_next;
-    bool seq_next_set;
+    sequence_t seq_next = 0;
+    bool seq_next_set = false;
 };
 
 template<typename T>
@@ -199,9 +199,7 @@ struct AsyncArray
 {
     static AsyncArray New(Napi::Env)
     {
-        AsyncArray r;
-        r.elements = std::make_unique<std::vector<T>>();
-        return r;
+        return AsyncArray{std::make_unique<std::vector<T>>()};
     }
 
     void Set(uint32_t index, T el)
@@ -237,9 +235,7 @@ struct AsyncBoolean
 {
     static AsyncBoolean New(Napi::Env, bool b)
     {
-        AsyncBoolean r;
-        r.b = b;
-        return r;
+        return AsyncBoolean{b};
     }
 
     Napi::Value ToValue(Napi::Env env)
@@ -460,7 +456,12 @@ protected:
     }
 };
 
-Napi::Value Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
+void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
+{
+    (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))->Queue();
+}
+
+Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
 {
     Napi::Array r = ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env(), false);
     if (r.Length() > 0)
@@ -468,7 +469,7 @@ Napi::Value Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))->Queue();
+    ConsumeNewAsync(info);
     return info.Env().Undefined();
 }
 
@@ -571,7 +572,12 @@ protected:
     }
 };
 
-Napi::Value Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
+void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
+{
+    (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))->Queue();
+}
+
+Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo& info)
 {
     Napi::Buffer<uint8_t> r = ProduceClaimSync<Napi::Buffer, Napi::Number>(info.Env(), false);
     if (r.Length() > 0)
@@ -579,7 +585,7 @@ Napi::Value Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))->Queue();
+    ProduceClaimAsync(info);
     return info.Env().Undefined();
 }
 
@@ -642,7 +648,18 @@ private:
     sequence_t seq_next;
 };
 
-Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
+void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info,
+                                   sequence_t seq_next)
+{
+    (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next))->Queue();
+}
+
+void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
+{
+    ProduceCommitAsync(info, Disruptor::GetSeqNext(info));
+}
+
+Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo& info)
 {
     sequence_t seq_next = Disruptor::GetSeqNext(info);
 
@@ -652,12 +669,9 @@ Napi::Value Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
         return r;
     }
 
-    (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next))->Queue();
+    ProduceCommitAsync(info, seq_next);
     return info.Env().Undefined();
 }
-
-// ==========
-// For testing only
 
 Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo& info)
 {
@@ -684,19 +698,17 @@ Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));
 }
 
-// ==========
-
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
     {
         InstanceMethod("release", &Disruptor::Release),
-        InstanceMethod("consumeNew", &Disruptor::ConsumeNewAsync),
+        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
         InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
-        InstanceMethod("produceClaim", &Disruptor::ProduceClaimAsync),
+        InstanceMethod("produceClaim", &Disruptor::ProduceClaim),
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
-        InstanceMethod("produceCommit", &Disruptor::ProduceCommitAsync),
+        InstanceMethod("produceCommit", &Disruptor::ProduceCommit),
         InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
 
         // For testing only
@@ -704,7 +716,10 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceAccessor("cursor", &Disruptor::GetCursor, nullptr),
         InstanceAccessor("next", &Disruptor::GetNext, nullptr),
         InstanceAccessor("elements", &Disruptor::GetElements, nullptr),
-        InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr)
+        InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr),
+        InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
+        InstanceMethod("produceClaimAsync", &Disruptor::ProduceClaimAsync),
+        InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),
     }));
 }
 
