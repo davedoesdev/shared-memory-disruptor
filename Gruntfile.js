@@ -41,7 +41,7 @@ module.exports = function (grunt)
             },
 
             cover_check: {
-                cmd: './node_modules/.bin/nyc check-coverage --statements 100 --branches 100 --functions 100 --lines 100'
+                cmd: "if lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep -o '[0-9.]\\+%' | grep -qv 100%; then exit 1; fi"
             },
 
             coveralls: {

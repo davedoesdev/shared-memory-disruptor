@@ -275,7 +275,7 @@ tests(false);
 tests(true, '');
 tests(true, 'Async');
 
-// Get code coverage of JS and C++ working
+// throw error
 // set bounds etc to fill in code coverage
 // strings
 // spin
