@@ -101,7 +101,11 @@ Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
 {
     if (info.Length() > cb_arg)
     {
-        return info[cb_arg].As<Napi::Function>();
+        Napi::Value cb = info[cb_arg];
+        if (cb.IsFunction())
+        {
+            return cb.As<Napi::Function>();
+        }
     }
 
     return Napi::Function::New(info.Env(), NullCallback);
@@ -313,7 +317,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // Note: ftruncate initializes to null bytes.
     if (init && (ftruncate(*shm_fd, shm_size) < 0))
     {
-        ThrowErrnoError(info, "Failed to size shared memory");
+        ThrowErrnoError(info, "Failed to size shared memory"); //LCOV_EXCL_LINE
     }
 
     // Map the shared memory
@@ -324,7 +328,8 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
                    0);
     if (shm_buf == MAP_FAILED)
     {
-        ThrowErrnoError(info, "Failed to map shared memory");
+        ThrowErrnoError(info, "Failed to map shared memory"); //LCOV_EXCL_LINE
+
     }
 
     consumers = static_cast<sequence_t*>(shm_buf);
@@ -363,7 +368,8 @@ void Disruptor::Release(const Napi::CallbackInfo& info)
 {
     if (Release() < 0)
     {
-        ThrowErrnoError(info, "Failed to unmap shared memory");
+        ThrowErrnoError(info, "Failed to unmap shared memory"); //LCOV_EXCL_LINE
+
     }
 }
 

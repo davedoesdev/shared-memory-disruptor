@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-09-06 23:44:58</td>
+            <td class="headerValue">2017-09-07 22:49:47</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">4</td>
@@ -73,9 +73,9 @@
 <span class="lineNum">       2 </span>                :            : 
 <span class="lineNum">       3 </span>                :            : function check(r, cb)
 <span class="lineNum">       4 </span>                :            : {
-<span class="lineNum">       5 </span>[<span class="branchCov" title="Branch 0 was taken 1091 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1095 times"> + </span><span class="branchCov" title="Branch 1 was taken 1091 times"> + </span>]:<span class="lineCov">       1095 :     if ((r !== undefined) &amp;&amp; cb)</span>
+<span class="lineNum">       5 </span>[<span class="branchCov" title="Branch 0 was taken 1616 times"> + </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1627 times"> + </span><span class="branchCov" title="Branch 1 was taken 1617 times"> + </span>]:<span class="lineCov">       1627 :     if ((r !== undefined) &amp;&amp; cb)</span>
 <span class="lineNum">       6 </span>                :            :     {
-<span class="lineNum">       7 </span>                :<span class="lineCov">       1091 :         process.nextTick(cb, null, r);</span>
+<span class="lineNum">       7 </span>                :<span class="lineCov">       1616 :         process.nextTick(cb, null, r);</span>
 <span class="lineNum">       8 </span>                :            :     }
 <span class="lineNum">       9 </span>                :            : }
 <span class="lineNum">      10 </span>                :            : 
@@ -83,17 +83,17 @@
 <span class="lineNum">      12 </span>                :            : {
 <span class="lineNum">      13 </span>                :            :     consumeNew(cb)
 <span class="lineNum">      14 </span>                :            :     {
-<span class="lineNum">      15 </span>                :<span class="lineCov">          6 :         check(super.consumeNew(cb), cb);</span>
+<span class="lineNum">      15 </span>                :<span class="lineCov">          9 :         check(super.consumeNew(cb), cb);</span>
 <a name="16"><span class="lineNum">      16 </span>                :            :     }</a>
 <span class="lineNum">      17 </span>                :            : 
 <span class="lineNum">      18 </span>                :            :     produceClaim(cb)
 <span class="lineNum">      19 </span>                :            :     {
-<span class="lineNum">      20 </span>                :<span class="lineCov">        546 :         check(super.produceClaim(cb), cb);</span>
+<span class="lineNum">      20 </span>                :<span class="lineCov">        811 :         check(super.produceClaim(cb), cb);</span>
 <a name="21"><span class="lineNum">      21 </span>                :            :     }</a>
 <span class="lineNum">      22 </span>                :            : 
 <span class="lineNum">      23 </span>                :            :     produceCommit(b, cb)
 <span class="lineNum">      24 </span>                :            :     {
-<span class="lineNum">      25 </span>                :<span class="lineCov">        543 :         check(super.produceCommit(b, cb), cb);</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">        807 :         check(super.produceCommit(b, cb), cb);</span>
 <span class="lineNum">      26 </span>                :            :     }
 <span class="lineNum">      27 </span>                :            : }
 <span class="lineNum">      28 </span>                :            : 
