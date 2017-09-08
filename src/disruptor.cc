@@ -119,7 +119,7 @@ public:
                          const Napi::Function& callback) :
         Napi::AsyncWorker(callback),
         retry(false),
-        disruptor(disruptor),
+        disruptor(disruptor), // disruptor_ref keeps this around
         disruptor_ref(Napi::Persistent(disruptor->Value()))
     {
     }
