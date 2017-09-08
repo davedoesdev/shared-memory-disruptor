@@ -45,7 +45,16 @@ module.exports = function (grunt)
             },
 
             cover_check: {
-                cmd: "if lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep -o '[0-9.]\\+%' | grep -qv 100%; then exit 1; fi"
+                // lines% functions% branches%
+                // Functions aren't 100% because gcov says
+                // DisruptorAsyncWorker<>::~DisruptorAsyncWorker() isn't called
+                // even though (a) the child classes' destructors are and
+                // (b) if I define them and then log from them, the functions
+                // are called. Some kind of bug with gcov and virtual
+                // destructors, maybe in combination with templates.
+                // Branches for C++ are disabled because gcov results are
+                // messed up by exceptions.
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 96.5% 100% ' ]; then exit 1; fi"
             },
 
             coveralls: {
