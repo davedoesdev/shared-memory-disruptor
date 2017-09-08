@@ -28,8 +28,8 @@ module.exports = function (grunt)
                 cmd: 'node-gyp rebuild --debug --coverage=true'
 			},
 
-            cover_reset: {
-                cmd: 'lcov --rc lcov_branch_coverage=1 --zerocounters --directory build'
+            cover_init: {
+                cmd: 'lcov --rc lcov_branch_coverage=1 --zerocounters --directory build && lcov --rc lcov_branch_coverage=1 --capture --init --directory build -o coverage/lcov_base.info'
             },
 
             cover: {
@@ -37,7 +37,7 @@ module.exports = function (grunt)
             },
 
             cover_lcov: {
-                cmd: "./node_modules/.bin/nyc report -r lcovonly && lcov --rc lcov_branch_coverage=1 --capture --directory build --output-file coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=1 --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_addon.info --output-file coverage/lcov.info && rm -f coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=1 --remove coverage/lcov.info '/usr/*' $PWD/'node_modules/*' --output-file coverage/lcov.info"
+                cmd: "./node_modules/.bin/nyc report -r lcovonly && lcov --rc lcov_branch_coverage=1 --capture --directory build --output-file coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=1 --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_base.info --add-tracefile coverage/lcov_addon.info --output-file coverage/lcov.info && lcov --rc lcov_branch_coverage=1 --remove coverage/lcov.info '/usr/*' $PWD/'node_modules/*' --output-file coverage/lcov.info"
             },
 
             cover_report: {
@@ -62,7 +62,7 @@ module.exports = function (grunt)
     grunt.registerTask('build', 'exec:build');
     grunt.registerTask('test', 'mochaTest');
     grunt.registerTask('coverage', ['exec:cover_build',
-                                    'exec:cover_reset',
+                                    'exec:cover_init',
                                     'exec:cover',
                                     'exec:cover_lcov',
                                     'exec:cover_report',

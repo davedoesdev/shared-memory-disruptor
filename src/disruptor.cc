@@ -419,13 +419,8 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env, bool retry)
             UpdatePending(seq_consumer, seq_cursor);
             break;
         }
-
-        if (!retry)
-        {
-            break;
-        }
     }
-    while (true);
+    while (retry);
 
     return r;
 }
@@ -534,13 +529,10 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env, bool retry)
 
             return r;
         }
-
-        if (!retry)
-        {
-            return Buffer<uint8_t>::New(env, 0);
-        }
     }
-    while (true);
+    while (retry);
+
+    return Buffer<uint8_t>::New(env, 0);
 }
 
 Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
@@ -600,13 +592,10 @@ Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
         {
             return Boolean::New(env, true);
         }
-
-        if (!retry)
-        {
-            return Boolean::New(env, false);
-        }
     }
-    while (true);
+    while (retry);
+
+    return Boolean::New(env, false);
 }
 
 sequence_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info)
