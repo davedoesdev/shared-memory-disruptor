@@ -150,14 +150,14 @@ private:
 template<typename T>
 struct AsyncBuffer
 {
-    static AsyncBuffer New(Napi::Env, T* data, size_t length)
+    static AsyncBuffer<T> New(Napi::Env, T* data, size_t length)
     {
-        return AsyncBuffer{data, length};
+        return AsyncBuffer<T>{data, length};
     }
 
-    static AsyncBuffer New(Napi::Env env, size_t length)
+    static AsyncBuffer<T> New(Napi::Env env, size_t length)
     {
-        return AsyncBuffer{nullptr, length};
+        return AsyncBuffer<T>{nullptr, length};
     }
 
     void Set(const char* /* "seq_next" */, sequence_t value)
@@ -201,9 +201,9 @@ struct AsyncBuffer
 template<typename T>
 struct AsyncArray
 {
-    static AsyncArray New(Napi::Env)
+    static AsyncArray<T> New(Napi::Env)
     {
-        return AsyncArray{std::make_unique<std::vector<T>>()};
+        return AsyncArray<T>{std::make_unique<std::vector<T>>()};
     }
 
     void Set(uint32_t index, T el)
@@ -355,7 +355,7 @@ int Disruptor::Release()
 
         if (r < 0)
         {
-            return r;
+            return r; //LCOV_EXCL_LINE
         }
 
         shm_buf = MAP_FAILED;
@@ -382,15 +382,13 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env, bool retry)
     ConsumeCommit();
 
     Array r = Array::New(env);
-    sequence_t seq_consumer, pos_consumer;
-    sequence_t seq_cursor, pos_cursor;
 
     do
     {
-        seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
-        seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
-        pos_consumer = seq_consumer % num_elements;
-        pos_cursor = seq_cursor % num_elements;
+        sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
+        sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
+        sequence_t pos_consumer = seq_consumer % num_elements;
+        sequence_t pos_cursor = seq_cursor % num_elements;
 
         if (pos_cursor > pos_consumer)
         {
@@ -505,21 +503,17 @@ void Disruptor::ConsumeCommit()
 template<template<typename> typename Buffer, typename Number>
 Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env, bool retry)
 {
-    sequence_t seq_next, pos_next;
-    sequence_t seq_consumer, pos_consumer;
-    bool can_claim;
-
     do
     {
-        seq_next = __sync_val_compare_and_swap(next, 0, 0);
-        pos_next = seq_next % num_elements;
+        sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);
+        sequence_t pos_next = seq_next % num_elements;
 
-        can_claim = true;
+        bool can_claim = true;
 
         for (uint32_t i = 0; i < num_consumers; ++i)
         {
-            seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
-            pos_consumer = seq_consumer % num_elements;
+            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
+            sequence_t pos_consumer = seq_consumer % num_elements;
 
             if ((pos_consumer == pos_next) && (seq_consumer != seq_next))
             {

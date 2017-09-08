@@ -25,8 +25,12 @@ module.exports = function (grunt)
             },
 
 			cover_build: {
-                cmd: 'node-gyp rebuild --coverage=true'
+                cmd: 'node-gyp rebuild --debug --coverage=true'
 			},
+
+            cover_reset: {
+                cmd: 'lcov --rc lcov_branch_coverage=1 --zerocounters --directory build'
+            },
 
             cover: {
                 cmd: "./node_modules/.bin/nyc -x Gruntfile.js -x 'test/**' node --napi-modules ./node_modules/.bin/grunt test"
@@ -58,6 +62,7 @@ module.exports = function (grunt)
     grunt.registerTask('build', 'exec:build');
     grunt.registerTask('test', 'mochaTest');
     grunt.registerTask('coverage', ['exec:cover_build',
+                                    'exec:cover_reset',
                                     'exec:cover',
                                     'exec:cover_lcov',
                                     'exec:cover_report',
