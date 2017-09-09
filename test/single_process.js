@@ -393,6 +393,56 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
             });
         });
     });
+
+    it('should read and write strings', function (done)
+    {
+        produceClaim(d, function (err, b)
+        {
+            if (err) { return done(err); }
+            expect(b.equals(Buffer.alloc(8))).to.be.true;
+            expect(b.slice(0, 8).write('hello', 0, 6)).to.equal(5); // slice not necessary but check doesn't copy
+            // To know the size of the string, one option is null terminator:
+            b[5] = 0;
+            // Or we could write the number of bytes written at the end or start
+            // (which is why we limited the write to 6 characters above)
+            b.writeUInt16LE(5, 6);
+            expect(d.cursor).to.equal(0);
+            expect(d.next).to.equal(1);
+            expect(d.consumer).to.equal(0);
+            produceCommit(d, b, function (err, v)
+            {
+                if (err) { return done(err); }
+                expect(v).to.be.true;
+                expect(d.cursor).to.equal(1);
+                expect(d.next).to.equal(1);
+                expect(d.consumer).to.equal(0);
+                consumeNew(d, function (err, b2)
+                {
+                    if (err) { return done(err); }
+                    expect(b2.length).to.equal(1);
+                    let buf = b2[0];
+                    expect(buf.length).to.equal(8);
+                    buf = buf.slice(0, 8); // If > 8 we'd slice it
+                    expect(buf.equals(Buffer.from([0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x05, 0x00]))).to.be.true;
+                    expect(buf.toString()).to.equal('hello\0\x05\0');
+                    expect(buf.indexOf(0)).to.equal(5);
+                    expect(buf.indexOf('l')).to.equal(2);
+                    expect(buf.indexOf(0x6c)).to.equal(2);
+                    expect(buf.toString('utf8', 0, 2)).to.equal('he');
+                    expect(buf.readUInt16LE(6, true)).to.equal(5);
+                    expect(d.cursor).to.equal(1);
+                    expect(d.next).to.equal(1);
+                    expect(d.consumer).to.equal(0);
+                    consumeCommit(d);
+                    expect(d.cursor).to.equal(1);
+                    expect(d.next).to.equal(1);
+                    expect(d.consumer).to.equal(1);
+                    done();
+                });
+            });
+        });
+
+    });
 });
 }
 
@@ -510,7 +560,6 @@ describe('async spin', function ()
     });
 });
 
-// strings
 // > 1 consumer, producer
 // spin (multi-process)
 // do multi-process test
