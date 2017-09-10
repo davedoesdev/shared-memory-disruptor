@@ -1,6 +1,5 @@
-/* jshint expr: true */
-
-let Disruptor = require('..').Disruptor,
+let crypto = require('crypto'),
+    Disruptor = require('..').Disruptor,
     expect = require('chai').expect,
     async = require('async');
 
@@ -87,11 +86,11 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                 expect(d.cursor).to.equal(1);
                 expect(d.next).to.equal(1);
                 expect(d.consumer).to.equal(0);
-                consumeNew(d, function (err, b2)
+                consumeNew(d, function (err, bs)
                 {
                     if (err) { return done(err); }
-                    expect(b2.length).to.equal(1);
-                    expect(b2[0].equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
+                    expect(bs.length).to.equal(1);
+                    expect(bs[0].equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
                     expect(d.cursor).to.equal(1);
                     expect(d.next).to.equal(1);
                     expect(d.consumer).to.equal(0);
@@ -107,10 +106,10 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
 
     it('should return empty array if nothing to consume', function (done)
     {
-        consumeNew(d, function (err, b)
+        consumeNew(d, function (err, bs)
         {
             if (err) { return done(err); }
-            expect(b).to.eql([]);
+            expect(bs).to.eql([]);
             expect(d.consumer).to.equal(0);
             done();
         });
@@ -309,10 +308,10 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
 
     it('should return empty array if consume when empty', function (done)
     {
-        consumeNew(d, function (err, b)
+        consumeNew(d, function (err, bs)
         {
             if (err) { return done(err); }
-            expect(b.length).to.equal(0);
+            expect(bs.length).to.equal(0);
             done();
         });
     });
@@ -416,11 +415,11 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                 expect(d.cursor).to.equal(1);
                 expect(d.next).to.equal(1);
                 expect(d.consumer).to.equal(0);
-                consumeNew(d, function (err, b2)
+                consumeNew(d, function (err, bs)
                 {
                     if (err) { return done(err); }
-                    expect(b2.length).to.equal(1);
-                    let buf = b2[0];
+                    expect(bs.length).to.equal(1);
+                    let buf = bs[0];
                     expect(buf.length).to.equal(8);
                     buf = buf.slice(0, 8); // If > 8 we'd slice it
                     expect(buf.equals(Buffer.from([0x68, 0x65, 0x6c, 0x6c, 0x6f, 0x00, 0x05, 0x00]))).to.be.true;
@@ -481,7 +480,7 @@ describe('async spin', function ()
                     if (err) { return done(err); }
                     expect(v).to.be.true;
                     expect(called).to.be.false;
-                    d.consumeNew(function (err, b)
+                    d.consumeNew(function (err, bs)
                     {
                         if (err) { return done(err); }
                         expect(b.length).to.equal(1);
@@ -499,7 +498,7 @@ describe('async spin', function ()
 
         let called = false;
 
-        d.consumeNew(function (err, b)
+        d.consumeNew(function (err, bs)
         {
             if (err) { return done(err); }
             called = true;
@@ -560,7 +559,118 @@ describe('async spin', function ()
     });
 });
 
-// > 1 consumer, producer
-// spin (multi-process)
-// do multi-process test
+function many(num_producers, num_consumers, num_elements_to_write)
+{
+describe('many-to-many (producers: ' + num_producers + ', consumers: ' + num_consumers + ', elements to write: ' + num_elements_to_write + ')', function ()
+{
+    this.timeout(5 * 60 * 1000);
 
+    it('should transfer data', function (done)
+    {
+        // In single process we have to do this async (we can't spin and hold
+        // up the main thread because we'd deadlock).
+        // libuv uses a threadpool which limits the concurrency.
+        // Its default size is 4 but can be changed by setting the 
+        // UV_THREADPOOL_SIZE environment variable, max 128.
+        // Even then, with a large number of writes, contention for threads
+        // slows things down.
+
+        let num_disruptors = Math.max(num_producers, num_consumers),
+            disruptors = [],
+            sum = 0;
+
+        for (let i = 0; i < num_disruptors; i += 1)
+        {
+            disruptors.push(new Disruptor('/test', 100000, 256, num_consumers, i % num_consumers, i === 0, true));
+        }
+
+        // Each consumer should read until it gets P*N elements
+        async.times(num_consumers, async.ensureAsync(function (n, next)
+        {
+            let d = disruptors[n];
+            let count = 0;
+            let csum = 0;
+            async.until(function ()
+            {
+                return count == num_producers * num_elements_to_write;
+            }, function (cb)
+            {
+                d.consumeNew(function (err, bs)
+                {
+                    if (err) { return done(err); }
+
+                    for (let b of bs)
+                    {
+                        count += b.length / 256;
+                        for (let i = 0; i < b.length; i += 1)
+                        {
+                            csum += b[i];
+                        }
+                    }
+
+                    d.consumeCommit();
+                    cb();
+                });
+            }, function (err)
+            {
+                if (err) { return done(err); }
+                next(null, csum);
+            });
+        }), function (err, sums)
+        {
+            if (err) { return done(err); }
+
+            for (let s of sums)
+            {
+                expect(s).to.equal(sum);
+            }
+
+            for (let d of disruptors)
+            {
+                d.release();
+            }
+
+            done();
+        });
+
+        // Each producer should write N elements
+        async.times(num_producers, async.ensureAsync(function (n, next)
+        {
+            let d = disruptors[n];
+            async.timesSeries(num_elements_to_write, async.ensureAsync(function (i, next)
+            {
+                d.produceClaim(function (err, b)
+                {
+                    if (err) { return done(err); }
+
+                    crypto.randomFill(b, function (err)
+                    {
+                        if (err) { return done(err); }
+
+                        for (let j = 0; j < b.length; j += 1)
+                        {
+                            sum += b[j];
+                        }
+
+                        d.produceCommit(b, next);
+                    });
+                });
+            }), next);
+        }, function (err)
+        {
+            if (err) { return done(err); }
+        }));
+    });
+});
+}
+
+for (let num_producers of [1, 2, 10, 100])
+{
+    for (let num_consumers of [1, 2, 10, 100])
+    {
+        for (let num_elements_to_write of [1, 2, 10, 100, 1000])
+        {
+            many(num_producers, num_consumers, num_elements_to_write);
+        }
+    }
+}

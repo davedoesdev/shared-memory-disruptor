@@ -38,7 +38,8 @@
     "grunt-exec": "~3.0.0",
     "grunt-mocha-test": "~0.13.2",
     "mocha": "~3.5.0",
-    "nyc": "~11.1.0"
+    "nyc": "~11.1.0",
+    "yargs": "~8.0.2"
   },
   "engines": {
     "node": ">=8"

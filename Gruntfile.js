@@ -8,7 +8,8 @@ module.exports = function (grunt)
             src: [ 'lib/**/*.js', 'test/**/*.js' ],
             options: {
                 node: true,
-                esversion: 6
+                esversion: 6,
+                expr: true
             }
         },
 
