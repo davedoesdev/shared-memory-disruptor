@@ -484,7 +484,7 @@ describe('async spin', function ()
                     {
                         if (err) { return done(err); }
                         expect(b.length).to.equal(1);
-                        expect(b[0].equals(Buffer.from([90]))).to.be.true;
+                        expect(bs[0].equals(Buffer.from([90]))).to.be.true;
                         d.consumeCommit();
                     });
                 });
@@ -668,7 +668,7 @@ for (let num_producers of [1, 2, 10, 100])
 {
     for (let num_consumers of [1, 2, 10, 100])
     {
-        for (let num_elements_to_write of [1, 2, 10, 100, 1000])
+        for (let num_elements_to_write of [1, 2, 10, 100])
         {
             many(num_producers, num_consumers, num_elements_to_write);
         }
