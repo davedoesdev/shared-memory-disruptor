@@ -1,6 +1,6 @@
 let argv = require('yargs').argv,
     Disruptor = require('../..').Disruptor;
-    d = new Disruptor('/test', 100000, 256, argv.num_consumers, argv.n, false, true),
+    d = new Disruptor('/test', 1000, 256, argv.num_consumers, argv.n, false, true),
     count = 0,
     sum = 0;
 

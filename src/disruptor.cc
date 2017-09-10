@@ -91,6 +91,8 @@ private:
     Napi::Value GetNext(const Napi::CallbackInfo& info);
     Napi::Value GetElements(const Napi::CallbackInfo& info);
     Napi::Value GetConsumer(const Napi::CallbackInfo& info);
+    Napi::Value GetPendingSeqConsumer(const Napi::CallbackInfo& info);
+    Napi::Value GetPendingSeqCursor(const Napi::CallbackInfo& info);
 };
 
 void NullCallback(const Napi::CallbackInfo& info)
@@ -687,6 +689,16 @@ Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));
 }
 
+Napi::Value Disruptor::GetPendingSeqConsumer(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), pending_seq_consumer);
+}
+
+Napi::Value Disruptor::GetPendingSeqCursor(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), pending_seq_cursor);
+}
+
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
@@ -706,6 +718,8 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceAccessor("next", &Disruptor::GetNext, nullptr),
         InstanceAccessor("elements", &Disruptor::GetElements, nullptr),
         InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr),
+        InstanceAccessor("pending_seq_consumer", &Disruptor::GetPendingSeqConsumer, nullptr),
+        InstanceAccessor("pending_seq_cursor", &Disruptor::GetPendingSeqCursor, nullptr),
         InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
         InstanceMethod("produceClaimAsync", &Disruptor::ProduceClaimAsync),
         InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),

@@ -12,7 +12,7 @@ describe('multi-process many-to-many (producers: ' + num_producers + ', consumer
 
     it('should transfer data', function (done)
     {
-        (new Disruptor('/test', 100000, 256, num_consumers, 0, true, true)).release();
+        (new Disruptor('/test', 1000, 256, num_consumers, 0, true, true)).release();
 
         let csums = null, psums = null;
 
@@ -37,12 +37,14 @@ describe('multi-process many-to-many (producers: ' + num_producers + ', consumer
 
         async.times(num_consumers, async.ensureAsync(function (n, next)
         {
-            child_process.fork(
+            let cp = child_process.fork(
                     path.join(__dirname, 'fixtures', 'consumer.js'),
                     ['--num_producers', num_producers,
                      '--num_consumers', num_consumers,
                      '--num_elements_to_write', num_elements_to_write,
-                     '--n', n]).on('message', function (sum)
+                     '--n', n]);
+
+            cp.on('message', function (sum)
             {
                 next(null, sum);
             });
@@ -55,10 +57,12 @@ describe('multi-process many-to-many (producers: ' + num_producers + ', consumer
 
         async.times(num_producers, async.ensureAsync(function (n, next)
         {
-            child_process.fork(
+            let cp = child_process.fork(
                     path.join(__dirname, 'fixtures', 'producer.js'),
                     ['--num_consumers', num_consumers,
-                     '--num_elements_to_write', num_elements_to_write]).on('message', function (sum)
+                     '--num_elements_to_write', num_elements_to_write]);
+
+            cp.on('message', function (sum)
             {
                 next(null, sum);
             });
@@ -76,7 +80,7 @@ for (let num_producers of [1, 2, 4])
 {
     for (let num_consumers of [1, 2, 4])
     {
-        for (let num_elements_to_write of [1, 2, 10, 100, 1000])
+        for (let num_elements_to_write of [1, 2, 10, 100, 1000, 10000])
         {
             many(num_producers, num_consumers, num_elements_to_write);
         }
