@@ -66,6 +66,8 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         expect(d.consumer).to.equal(0);
         expect(d.consumers.equals(Buffer.alloc(8))).to.be.true;
         expect(d.elements.equals(Buffer.alloc(256 * 8))).to.be.true;
+        expect(d.pending_seq_consumer).to.equal(0);
+        expect(d.pending_seq_cursor).to.equal(0);
     });
 
     it('should write and read single value', function (done)
@@ -86,6 +88,8 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                 expect(d.cursor).to.equal(1);
                 expect(d.next).to.equal(1);
                 expect(d.consumer).to.equal(0);
+                expect(d.pending_seq_consumer).to.equal(0);
+                expect(d.pending_seq_cursor).to.equal(0);
                 consumeNew(d, function (err, bs)
                 {
                     if (err) { return done(err); }
@@ -94,10 +98,14 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                     expect(d.cursor).to.equal(1);
                     expect(d.next).to.equal(1);
                     expect(d.consumer).to.equal(0);
+                    expect(d.pending_seq_consumer).to.equal(0);
+                    expect(d.pending_seq_cursor).to.equal(1);
                     consumeCommit(d);
                     expect(d.cursor).to.equal(1);
                     expect(d.next).to.equal(1);
                     expect(d.consumer).to.equal(1);
+                    expect(d.pending_seq_consumer).to.equal(0);
+                    expect(d.pending_seq_cursor).to.equal(0);
                     done();
                 });
             });
