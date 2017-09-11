@@ -5,7 +5,7 @@
 :toc-placement: preamble
 
 This is an implementation of the
-https://lmax-exchange.github.io/disruptor/[LMAX Disruptor] in Node.js. 
+https://lmax-exchange.github.io/disruptor/[LMAX Disruptor] for Node.js. 
 
 The LMAX Disruptor is a lock-free data structure and algorithm for fast
 message passing. The
