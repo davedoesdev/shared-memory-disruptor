@@ -50,6 +50,9 @@ We'll initialize the Disruptor and spin when the Disruptor is full.
 <2> Grab an elements in the Disruptor to fill in.
 <3> Tell the Disruptor we've filled in the elements.
 
+Here's another program which reads a million random numbers from the same
+Disruptor. Run this in a second terminal.
+
 [source,javascript]
 .consumer.js
 ----
