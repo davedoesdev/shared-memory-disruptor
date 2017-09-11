@@ -81,7 +81,7 @@ console.log(sum);
 ----
 <1> Use the Disruptor that <<producer>> initialized on the shared memory object
 `/example`. We must specify the same number of elements (1000) of the same
-size (4 bytes), and the same number of consumers (1). We'll be the ony consumer
+size (4 bytes), and the same number of consumers (1). We'll be the only consumer
 (index 0), won't initialize the Disruptor and will spin when the Disruptor is
 empty.
 <2> Read new data from the Disruptor. We get an array of
