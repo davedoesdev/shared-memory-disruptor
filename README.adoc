@@ -1,0 +1,118 @@
+= shared-memory-disruptor{nbsp}{nbsp}{nbsp}image:https://circleci.com/gh/davedoesdev/shared-memory-disruptor.svg?style=svg[Build Status,link=https://circleci.com/gh/davedoesdev/shared-memory-disruptor] image:https://coveralls.io/repos/github/davedoesdev/shared-memory-disruptor/badge.svg[Coverage Status,link=https://coveralls.io/github/davedoesdev/shared-memory-disruptor] image:https://img.shields.io/npm/v/shared-memory-disruptor.svg[NPM version,link=https://www.npmjs.com/package/shared-memory-disruptor]
+:prewrap!:
+:toc:
+:toclevels: 3
+:toc-placement: preamble
+
+This is an implementation of the
+https://lmax-exchange.github.io/disruptor/[LMAX Disruptor] in Node.js. 
+
+The LMAX Disruptor is a lock-free data structure and algorithm for fast
+message passing. The
+https://github.com/LMAX-Exchange/disruptor[reference implementation] is written
+in Java and supports passing messages between threads.
+
+The implementation here supports passing messages between Node.js processes.
+It's written in C++ as a Node Addon which is callable from Javascript.
+
+A set of tests is provided for single and multiple processes.
+
+API documentation is available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-disruptor/master/docs/index.html[here].
+
+== Example
+
+Here's a program which writes a million random numbers to a Disruptor.
+Run this first in one terminal.
+
+[[producer]]
+[source,javascript]
+.producer.js
+----
+let Disruptor = require('shared-memory-disruptor').Disruptor;
+let d = new Disruptor('/example', 1000, 4, 1, -1, true, true); <1>
+let sum = 0;
+
+for (let i = 0; i < 1000000; i += 1)
+{
+    let n = Math.floor(Math.random() * 100);
+    let buf = d.produceClaimSync(); <2>
+    buf.writeUInt32LE(n, 0, true);
+    d.produceCommitSync(buf); <3>
+    sum += n;
+}
+
+console.log(sum);
+----
+<1> Use a Disruptor on the shared memory object `/example`. The Disruptor has
+1000 elements of 4 bytes each. It has 1 consumer, and because we're only going
+to produce data, we give an invalid a consumer index (-1) which won't be used.
+We'll initialize the Disruptor and spin when the Disruptor is full.
+<2> Grab an elements in the Disruptor to fill in.
+<3> Tell the Disruptor we've filled in the elements.
+
+[source,javascript]
+.consumer.js
+----
+let Disruptor = require('shared-memory-disruptor').Disruptor;
+let d = new Disruptor('/example', 1000, 4, 1, 0, false, true); <1>
+let sum = 0;
+let i = 0;
+
+while (i < 1000000)
+{
+    let bufs = d.consumeNewSync(); <2>
+
+    for (let buf of bufs)
+    {
+        for (let j = 0; j < buf.length; j += 4)
+        {
+            sum += buf.readUInt32LE(j, true);
+            i += 1;
+        }
+    }
+
+    d.consumeCommit(); <3>
+}
+
+console.log(sum);
+----
+<1> Use the Disruptor that <<producer>> initialized on the shared memory object
+`/example`. We must specify the same number of elements (1000) of the same
+size (4 bytes), and the same number of consumers (1). We'll be the ony consumer
+(index 0), won't initialize the Disruptor and will spin when the Disruptor is
+empty.
+<2> Read new data from the Disruptor. We get an array of
+https://nodejs.org/dist/latest-v8.x/docs/api/buffer.html[Buffer]s, each
+Buffer containing a whole number of elements.
+<3> Tell the Disruptor we've finished processing the data.
+
+Both programs print the same result.
+
+== Install
+
+[source,bash]
+----
+npm install shared-memory-disruptor
+----
+
+== Licence
+
+link:LICENCE[MIT]
+
+== Test
+
+[source,bash]
+----
+grunt test
+----
+
+== Coverage
+
+[source,bash]
+----
+grunt coverage
+----
+
+LCOV results are available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-controller/master/coverage/lcov-report/index.html[here].
+
+Coveralls page is https://coveralls.io/r/davedoesdev/shared-memory-controller[here].
