@@ -55,11 +55,15 @@ module.exports = function (grunt)
                 // destructors, maybe in combination with templates.
                 // Branches for C++ are disabled because gcov results are
                 // messed up by exceptions.
-                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 96.6% 100% ' ]; then exit 1; fi"
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 97.3% 100% ' ]; then exit 1; fi"
             },
 
             coveralls: {
                 cmd: 'cat coverage/lcov.info | ./node_modules/.bin/coveralls'
+            },
+
+            documentation: {
+                cmd: './node_modules/.bin/documentation build -f html -o docs docs.js'
             }
         }
     })
@@ -77,4 +81,5 @@ module.exports = function (grunt)
                                     'exec:cover_lcov',
                                     'exec:cover_report',
                                     'exec:cover_check']);
+    grunt.registerTask('docs', 'exec:documentation');
 };

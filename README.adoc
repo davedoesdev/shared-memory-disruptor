@@ -19,6 +19,8 @@ A set of tests is provided for single and multiple processes.
 
 API documentation is available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-disruptor/master/docs/index.html[here].
 
+Currently only POSIX shared memory is supported.
+
 == Example
 
 Here's a program which writes a million random numbers to a Disruptor.

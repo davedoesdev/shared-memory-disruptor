@@ -7,6 +7,7 @@
 #include <napi.h>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 typedef uint64_t sequence_t;
 
@@ -32,6 +33,10 @@ public:
     Napi::Value ProduceClaim(const Napi::CallbackInfo& info);
     Napi::Value ProduceClaimSync(const Napi::CallbackInfo& info);
 
+    // Claim multiple slots for writing values
+    Napi::Value ProduceClaimMany(const Napi::CallbackInfo& info);
+    Napi::Value ProduceClaimManySync(const Napi::CallbackInfo& info);
+
     // Commit a claimed slot.
     Napi::Value ProduceCommit(const Napi::CallbackInfo& info);
     Napi::Value ProduceCommitSync(const Napi::CallbackInfo& info);
@@ -44,6 +49,7 @@ public:
 private:
     friend class ConsumeNewAsyncWorker;
     friend class ProduceClaimAsyncWorker;
+    friend class ProduceClaimManyAsyncWorker;
     friend class ProduceCommitAsyncWorker;
 
     int Release();
@@ -60,13 +66,25 @@ private:
     Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env, bool retry);
     void ProduceClaimAsync(const Napi::CallbackInfo& info);
 
+    template<typename Array, template<typename> typename Buffer, typename Number>
+    Array ProduceClaimManySync(const Napi::Env& env, uint32_t n, bool retry);
+    void ProduceClaimManyAsync(const Napi::CallbackInfo& info);
+    void ProduceClaimManyAsync(const Napi::CallbackInfo& info,
+                               uint32_t n);
+
     template<typename Boolean>
-    Boolean ProduceCommitSync(const Napi::Env& env, sequence_t seq_next, bool retry);
+    Boolean ProduceCommitSync(const Napi::Env& env,
+                              sequence_t seq_next,
+                              sequence_t seq_next_n,
+                              bool retry);
     void ProduceCommitAsync(const Napi::CallbackInfo& info);
     void ProduceCommitAsync(const Napi::CallbackInfo& info,
-                            sequence_t seq_next);
+                            sequence_t seq_next,
+                            sequence_t seq_next_n);
 
-    static sequence_t GetSeqNext(const Napi::CallbackInfo& info);
+    static void GetSeqNext(const Napi::CallbackInfo& info,
+                           sequence_t& seq_next,
+                           sequence_t& seq_next_n);
 
     uint32_t num_elements;
     uint32_t element_size;
@@ -149,23 +167,57 @@ private:
     Napi::ObjectReference disruptor_ref;
 };
 
-template<typename T>
-struct AsyncBuffer
+class AsyncObject
 {
+public:
+    void Set(const char* name, sequence_t value)
+    {
+        (*props)[name] = value;
+    }
+
+    void GetSeqNext(Napi::Env env, Napi::Object& obj)
+    {
+        auto it = props->find("seq_next");
+        if (it != props->end())
+        {
+            obj.Set("seq_next", Napi::Number::New(env, it->second));
+        }
+
+        it = props->find("seq_next_n");
+        if (it != props->end())
+        {
+            obj.Set("seq_next_n", Napi::Number::New(env, it->second));
+        }
+    }
+
+protected:
+    AsyncObject() :
+        props(std::make_unique<std::unordered_map<std::string, sequence_t>>())
+    {
+    }
+
+private:
+    std::unique_ptr<std::unordered_map<std::string, sequence_t>> props;
+};
+
+template<typename T>
+class AsyncBuffer : public AsyncObject
+{
+public:
+    AsyncBuffer() :
+        data(nullptr),
+        length(0)
+    {
+    }
+
     static AsyncBuffer<T> New(Napi::Env, T* data, size_t length)
     {
-        return AsyncBuffer<T>{data, length};
+        return AsyncBuffer<T>(data, length);
     }
 
-    static AsyncBuffer<T> New(Napi::Env env, size_t length)
+    static AsyncBuffer<T> New(Napi::Env, size_t length)
     {
-        return AsyncBuffer<T>{nullptr, length};
-    }
-
-    void Set(const char* /* "seq_next" */, sequence_t value)
-    {
-        seq_next = value;
-        seq_next_set = true;
+        return AsyncBuffer<T>(nullptr, length);
     }
 
     Napi::Value ToValue(Napi::Env env)
@@ -181,11 +233,7 @@ struct AsyncBuffer
             r = Napi::Buffer<T>::New(env, length);
         }
 
-        if (seq_next_set)
-        {
-            r.Set("seq_next", Napi::Number::New(env, seq_next));
-        }
-
+        GetSeqNext(env, r);
         return r;
     }
 
@@ -194,18 +242,29 @@ struct AsyncBuffer
         return length;
     }
 
+private:
+    AsyncBuffer(T* data, size_t length) :
+        data(data),
+        length(length)
+    {
+    }
+
     T* data;
     size_t length;
-    sequence_t seq_next = 0;
-    bool seq_next_set = false;
 };
 
 template<typename T>
-struct AsyncArray
+class AsyncArray : public AsyncObject
 {
+public:
+    AsyncArray() :
+        elements(std::make_unique<std::vector<T>>())
+    {
+    }
+
     static AsyncArray<T> New(Napi::Env)
     {
-        return AsyncArray<T>{std::make_unique<std::vector<T>>()};
+        return AsyncArray<T>();
     }
 
     void Set(uint32_t index, T el)
@@ -215,7 +274,7 @@ struct AsyncArray
             elements->resize(index + 1);
         }
 
-        (*elements)[index] = el;
+        (*elements)[index] = std::move(el);
     }
 
     Napi::Value ToValue(Napi::Env env)
@@ -226,6 +285,7 @@ struct AsyncArray
         {
             r[i] = (*elements)[i].ToValue(env);
         }
+        GetSeqNext(env, r);
         return r;
     }
 
@@ -234,14 +294,26 @@ struct AsyncArray
         return elements->size();
     }
 
+    void Set(const char* name, sequence_t value)
+    {
+        AsyncObject::Set(name, value);
+    }
+
+private:
     std::unique_ptr<std::vector<T>> elements;
 };
 
-struct AsyncBoolean
+class AsyncBoolean
 {
+public:
+    AsyncBoolean() :
+        b(false)
+    {
+    }
+
     static AsyncBoolean New(Napi::Env, bool b)
     {
-        return AsyncBoolean{b};
+        return AsyncBoolean(b);
     }
 
     Napi::Value ToValue(Napi::Env env)
@@ -254,19 +326,27 @@ struct AsyncBoolean
         return b;
     }
 
+private:
+    AsyncBoolean(bool b) :
+        b(b)
+    {
+    }
+
     bool b;
 };
 
-struct AsyncNumber
+class AsyncNumber
 {
+public:
     static sequence_t New(Napi::Env, sequence_t n)
     {
         return n;
     }
 };
 
-struct CloseFD
+class CloseFD
 {
+public:
     void operator()(int *fd)
     {
         close(*fd);
@@ -503,16 +583,14 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env, bool retry)
     do
     {
         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);
-        sequence_t pos_next = seq_next % num_elements;
 
         bool can_claim = true;
 
         for (uint32_t i = 0; i < num_consumers; ++i)
         {
             sequence_t seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
-            sequence_t pos_consumer = seq_consumer % num_elements;
 
-            if ((pos_consumer == pos_next) && (seq_consumer != seq_next))
+            if ((seq_next - seq_consumer) >= num_elements)
             {
                 can_claim = false;
                 break;
@@ -524,10 +602,11 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env, bool retry)
         {
             Buffer<uint8_t> r = Buffer<uint8_t>::New(
                 env,
-                elements + pos_next * element_size,
+                elements + (seq_next % num_elements) * element_size,
                 element_size);
 
             r.Set("seq_next", Number::New(env, seq_next));
+            r.Set("seq_next_n", Number::New(env, seq_next));
 
             return r;
         }
@@ -583,14 +662,136 @@ Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
+template<typename Array, template<typename> typename Buffer, typename Number>
+Array Disruptor::ProduceClaimManySync(const Napi::Env& env, uint32_t n, bool retry)
+{
+    Array r = Array::New(env);
+
+    do
+    {
+        sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);
+        sequence_t seq_next_n = seq_next + n - 1;
+
+        bool can_claim = true;
+
+        for (uint32_t i = 0; i < num_consumers; ++i)
+        {
+            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
+
+            if ((seq_next_n - seq_consumer) >= num_elements)
+            {
+                can_claim = false;
+                break;
+            }
+        }
+
+        if (can_claim &&
+            __sync_bool_compare_and_swap(next, seq_next, seq_next_n + 1))
+        {
+            sequence_t pos_next = seq_next % num_elements;
+            sequence_t pos_next_n = seq_next_n % num_elements;
+
+            if (pos_next_n < pos_next)
+            {
+                r.Set(0U, Buffer<uint8_t>::New(
+                    env,
+                    elements + pos_next * element_size,
+                    (num_elements - pos_next) * element_size));
+
+                r.Set(1U, Buffer<uint8_t>::New(
+                    env,
+                    elements,
+                    (pos_next_n + 1) * element_size));
+            }
+            else
+            {
+                r.Set(0U, Buffer<uint8_t>::New(
+                    env,
+                    elements + pos_next * element_size,
+                    (pos_next_n - pos_next + 1) * element_size));
+            }
+
+            r.Set("seq_next", Number::New(env, seq_next));
+            r.Set("seq_next_n", Number::New(env, seq_next_n));
+
+            break;
+        }
+    }
+    while (retry);
+
+    return r;
+}
+
+Napi::Value Disruptor::ProduceClaimManySync(const Napi::CallbackInfo& info)
+{
+    return ProduceClaimManySync<Napi::Array, Napi::Buffer, Napi::Number>(
+        info.Env(), info[0].As<Napi::Number>(), spin);
+}
+
+class ProduceClaimManyAsyncWorker :
+    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>>
+{
+public:
+    ProduceClaimManyAsyncWorker(Disruptor *disruptor,
+                                const Napi::Function& callback,
+                                uint32_t n) :
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>>(
+            disruptor, callback),
+        n(n)
+        {
+        }
+
+protected:
+    void Execute() override
+    {
+        // Remember: don't access any V8 stuff in worker thread
+        result = disruptor->ProduceClaimManySync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer, AsyncNumber>(Env(), n, false);
+        retry = result.Length() == 0;
+    }
+
+    void Retry() override
+    {
+        (new ProduceClaimManyAsyncWorker(disruptor, Callback().Value(), n))->Queue();
+    }
+
+private:
+    uint32_t n;
+};
+
+void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo& info,
+                                      uint32_t n)
+{
+    (new ProduceClaimManyAsyncWorker(this, GetCallback(info, 1), n))->Queue();
+}
+
+void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo& info)
+{
+    ProduceClaimManyAsync(info, info[0].As<Napi::Number>());
+}
+
+Napi::Value Disruptor::ProduceClaimMany(const Napi::CallbackInfo& info)
+{
+    uint32_t n = info[0].As<Napi::Number>();
+    Napi::Array r = ProduceClaimManySync<Napi::Array, Napi::Buffer, Napi::Number>(
+        info.Env(), n, false);
+    if (r.Length() > 0)
+    {
+        return r;
+    }
+
+    ProduceClaimManyAsync(info, n);
+    return info.Env().Undefined();
+}
+
 template<typename Boolean>
 Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
                                      sequence_t seq_next,
+                                     sequence_t seq_next_n,
                                      bool retry)
 {
     do
     {
-        if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next + 1))
+        if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next_n + 1))
         {
             return Boolean::New(env, true);
         }
@@ -600,14 +801,20 @@ Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
     return Boolean::New(env, false);
 }
 
-sequence_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info)
+void Disruptor::GetSeqNext(const Napi::CallbackInfo& info,
+                           sequence_t& seq_next,
+                           sequence_t& seq_next_n)
 {
-    return info[0].As<Napi::Object>().Get("seq_next").As<Napi::Number>().Int64Value();
+    Napi::Object obj = info[0].As<Napi::Object>();
+    seq_next = obj.Get("seq_next").As<Napi::Number>().Int64Value();
+    seq_next_n = obj.Get("seq_next_n").As<Napi::Number>().Int64Value();
 }
 
 Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo& info)
 {
-    return ProduceCommitSync<Napi::Boolean>(info.Env(), GetSeqNext(info), spin);
+    sequence_t seq_next, seq_next_n;
+    GetSeqNext(info, seq_next, seq_next_n);
+    return ProduceCommitSync<Napi::Boolean>(info.Env(), seq_next, seq_next_n, spin);
 }
 
 class ProduceCommitAsyncWorker :
@@ -616,9 +823,11 @@ class ProduceCommitAsyncWorker :
 public:
     ProduceCommitAsyncWorker(Disruptor *disruptor,
                              const Napi::Function& callback,
-                             sequence_t seq_next) :
+                             sequence_t seq_next,
+                             sequence_t seq_next_n) :
         DisruptorAsyncWorker<AsyncBoolean>(disruptor, callback),
-        seq_next(seq_next)
+        seq_next(seq_next),
+        seq_next_n(seq_next_n)
     {
     }
 
@@ -626,41 +835,45 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), seq_next, false);
+        result = disruptor->ProduceCommitSync<AsyncBoolean>(Env(), seq_next, seq_next_n, false);
         retry = !result;
     }
 
     void Retry() override
     {
-        (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next))->Queue();
+        (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next, seq_next_n))->Queue();
     }
 
 private:
-    sequence_t seq_next;
+    sequence_t seq_next, seq_next_n;
 };
 
 void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info,
-                                   sequence_t seq_next)
+                                   sequence_t seq_next,
+                                   sequence_t seq_next_n)
 {
-    (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next))->Queue();
+    (new ProduceCommitAsyncWorker(this, GetCallback(info, 1), seq_next, seq_next_n))->Queue();
 }
 
 void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo& info)
 {
-    ProduceCommitAsync(info, Disruptor::GetSeqNext(info));
+    sequence_t seq_next, seq_next_n;
+    GetSeqNext(info, seq_next, seq_next_n);
+    ProduceCommitAsync(info, seq_next, seq_next_n);
 }
 
 Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo& info)
 {
-    sequence_t seq_next = Disruptor::GetSeqNext(info);
+    sequence_t seq_next, seq_next_n;
+    GetSeqNext(info, seq_next, seq_next_n);
 
-    Napi::Boolean r = ProduceCommitSync<Napi::Boolean>(info.Env(), seq_next, false);
+    Napi::Boolean r = ProduceCommitSync<Napi::Boolean>(info.Env(), seq_next, seq_next_n, false);
     if (r)
     {
         return r;
     }
 
-    ProduceCommitAsync(info, seq_next);
+    ProduceCommitAsync(info, seq_next, seq_next_n);
     return info.Env().Undefined();
 }
 
@@ -709,6 +922,8 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
         InstanceMethod("produceClaim", &Disruptor::ProduceClaim),
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
+        InstanceMethod("produceClaimMany", &Disruptor::ProduceClaimMany),
+        InstanceMethod("produceClaimManySync", &Disruptor::ProduceClaimManySync),
         InstanceMethod("produceCommit", &Disruptor::ProduceCommit),
         InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
 
@@ -722,6 +937,7 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceAccessor("pending_seq_cursor", &Disruptor::GetPendingSeqCursor, nullptr),
         InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
         InstanceMethod("produceClaimAsync", &Disruptor::ProduceClaimAsync),
+        InstanceMethod("produceClaimManyAsync", &Disruptor::ProduceClaimManyAsync),
         InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),
     }));
 }
