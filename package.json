@@ -31,7 +31,7 @@
   ],
   "dependencies": {
     "bindings": "~1.3.0",
-    "node-addon-api": "~0.6.3"
+    "node-addon-api": "davedoesdev/node-addon-api#fix-objectwrap-crash"
   },
   "devDependencies": {
     "async": "^2.5.0",
