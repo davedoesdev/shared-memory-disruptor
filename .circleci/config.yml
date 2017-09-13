@@ -8,10 +8,9 @@ jobs:
       - run:
           name: install
           command: |
-            sudo apt-get -y install software-properties-common
-            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            sudo bash -c 'echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list.d/unstable.list'
             sudo apt-get -y update
-            sudo apt-get -y install g++-6
+            sudo apt-get -y install -t unstable g++-6
             npm install
       - run:
           name: test
