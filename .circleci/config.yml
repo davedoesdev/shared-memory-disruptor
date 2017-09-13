@@ -8,6 +8,7 @@ jobs:
       - run:
           name: install
           command: |
+            sudo add-apt-repository -y -qq ppa:ubuntu-toolchain-r/test
             sudo apt-get -y -qq update
             sudo apt-get -y -qq install g++-6
             npm install
