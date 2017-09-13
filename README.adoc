@@ -118,6 +118,6 @@ grunt test
 grunt coverage
 ----
 
-LCOV results are available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-controller/master/coverage/lcov-report/index.html[here].
+LCOV results are available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-disruptor/master/coverage/lcov-report/index.html[here].
 
-Coveralls page is https://coveralls.io/r/davedoesdev/shared-memory-controller[here].
+Coveralls page is https://coveralls.io/r/davedoesdev/shared-memory-disruptor[here].
