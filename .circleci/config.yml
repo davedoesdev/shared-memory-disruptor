@@ -15,3 +15,5 @@ jobs:
       - run:
           name: test
           command: npm test
+          environment:
+            CXX: g++-6
