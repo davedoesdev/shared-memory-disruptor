@@ -62,10 +62,6 @@ module.exports = function (grunt)
                 cmd: 'cat coverage/lcov.info | ./node_modules/.bin/coveralls'
             },
 
-            coveralls: {
-                cmd: 'cat coverage/lcov.info | ./node_modules/.bin/coveralls'
-            },
-
             documentation: {
                 cmd: './node_modules/.bin/documentation build -f html -o docs docs.js'
             },
