@@ -19,7 +19,7 @@
   "main": "lib/disruptor.js",
   "scripts": {
     "test": "node --napi-modules ./node_modules/.bin/grunt lint test",
-    "ci-coverage": "node --napi-modules ./node_modules/.bin/grunt lint coverage coveralls"
+    "ci-coverage": "node --napi-modules ./node_modules/.bin/grunt lint coverage codecov"
   },
   "directories": {
     "lib": "lib",
@@ -36,13 +36,13 @@
   "devDependencies": {
     "async": "^2.5.0",
     "chai": "~4.1.2",
-    "coveralls": "~2.13.1",
     "grunt": "~1.0.1",
     "grunt-contrib-jshint": "~1.1.0",
     "grunt-exec": "~3.0.0",
     "grunt-mocha-test": "~0.13.2",
     "mocha": "~3.5.0",
     "nyc": "~11.1.0",
+    "codecov": "~2.3.0",
     "yargs": "~8.0.2",
     "documentation": "~5.3.1"
   },
