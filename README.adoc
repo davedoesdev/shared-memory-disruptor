@@ -1,4 +1,4 @@
-= shared-memory-disruptor{nbsp}{nbsp}{nbsp}image:https://circleci.com/gh/davedoesdev/shared-memory-disruptor.svg?style=svg[Build Status,link=https://circleci.com/gh/davedoesdev/shared-memory-disruptor] image:https://coveralls.io/repos/github/davedoesdev/shared-memory-disruptor/badge.svg[Coverage Status,link=https://coveralls.io/github/davedoesdev/shared-memory-disruptor] image:https://img.shields.io/npm/v/shared-memory-disruptor.svg[NPM version,link=https://www.npmjs.com/package/shared-memory-disruptor]
+= shared-memory-disruptor{nbsp}{nbsp}{nbsp}image:https://circleci.com/gh/davedoesdev/shared-memory-disruptor.svg?style=svg[Build Status,link=https://circleci.com/gh/davedoesdev/shared-memory-disruptor] image:https://codecov.io/gh/davedoesdev/shared-memory-disruptor/branch/master/graph/badge.svg[Coverage Status,link=https://codecov.io/gh/davedoesdev/shared-memory-disruptor] image:https://img.shields.io/npm/v/shared-memory-disruptor.svg[NPM version,link=https://www.npmjs.com/package/shared-memory-disruptor]
 :prewrap!:
 :toc:
 :toclevels: 3
@@ -120,4 +120,4 @@ grunt coverage
 
 LCOV results are available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-disruptor/master/coverage/lcov-report/index.html[here].
 
-Coveralls page is https://coveralls.io/r/davedoesdev/shared-memory-disruptor[here].
+Codecov page is https://codecov.io/gh/davedoesdev/shared-memory-disruptor[here].
