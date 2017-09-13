@@ -11,9 +11,7 @@ jobs:
             sudo bash -c 'echo "deb http://ftp.us.debian.org/debian unstable main contrib non-free" >> /etc/apt/sources.list.d/unstable.list'
             sudo apt-get -y update
             sudo apt-get -y install -t unstable g++-6
-            npm install
+            CXX=g++-6 npm install
       - run:
           name: test
           command: npm test
-          environment:
-            CXX: g++-6
