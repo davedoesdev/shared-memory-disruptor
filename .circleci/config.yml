@@ -8,8 +8,8 @@ jobs:
       - run:
           name: install
           command: |
-            apt-get -y -qq update
-            apt-get -y -qq install g++-6
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install g++-6
             npm install
       - run:
           name: test
