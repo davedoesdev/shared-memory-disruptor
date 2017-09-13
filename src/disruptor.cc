@@ -451,7 +451,6 @@ void Disruptor::Release(const Napi::CallbackInfo& info)
     if (Release() < 0)
     {
         ThrowErrnoError(info, "Failed to unmap shared memory"); //LCOV_EXCL_LINE
-
     }
 }
 
@@ -916,16 +915,16 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
     {
-        InstanceMethod("release", &Disruptor::Release),
-        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
-        InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
-        InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
         InstanceMethod("produceClaim", &Disruptor::ProduceClaim),
         InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
         InstanceMethod("produceClaimMany", &Disruptor::ProduceClaimMany),
         InstanceMethod("produceClaimManySync", &Disruptor::ProduceClaimManySync),
         InstanceMethod("produceCommit", &Disruptor::ProduceCommit),
         InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
+        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
+        InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
+        InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
+        InstanceMethod("release", &Disruptor::Release),
 
         // For testing only
         InstanceAccessor("consumers", &Disruptor::GetConsumers, nullptr),

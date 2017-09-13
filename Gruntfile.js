@@ -64,6 +64,10 @@ module.exports = function (grunt)
 
             documentation: {
                 cmd: './node_modules/.bin/documentation build -f html -o docs docs.js'
+            },
+
+            serve_documentation: {
+                cmd: './node_modules/.bin/documentation serve -w docs.js'
             }
         }
     })
@@ -82,4 +86,5 @@ module.exports = function (grunt)
                                     'exec:cover_report',
                                     'exec:cover_check']);
     grunt.registerTask('docs', 'exec:documentation');
+    grunt.registerTask('serve_docs', 'exec:serve_documentation');
 };
