@@ -13,5 +13,5 @@ jobs:
             sudo apt-get -y install -t unstable g++-6
             CXX=g++-6 npm install
       - run:
-          name: test
-          command: npm test
+          name: coverage
+          command: npm run ci-coverage
