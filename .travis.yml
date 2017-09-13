@@ -1,0 +1,10 @@
+sudo: false
+language: node_js
+node_js:
+  - 8
+env:
+  matrix:
+    - TARGET=test
+    - TARGET=travis-coverage
+script:
+  - npm run $TARGET
