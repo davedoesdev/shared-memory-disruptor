@@ -7,7 +7,10 @@ jobs:
       - checkout
       - run:
           name: install
-          command: npm install
+          command: |
+            apt-get -y -qq update
+            apt-get -y -qq install g++-6
+            npm install
       - run:
           name: test
           command: npm test
