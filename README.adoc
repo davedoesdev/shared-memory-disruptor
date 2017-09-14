@@ -49,7 +49,7 @@ console.log(sum);
 1000 elements of 4 bytes each. It has 1 consumer, and because we're only going
 to produce data, we give an invalid a consumer index (-1) which won't be used.
 We'll initialize the Disruptor and spin when the Disruptor is full.
-<2> Grab an elements in the Disruptor to fill in.
+<2> Grab an element in the Disruptor to fill in.
 <3> Tell the Disruptor we've filled in the elements.
 
 Here's another program which reads a million random numbers from the same
