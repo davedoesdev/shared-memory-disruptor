@@ -59,10 +59,11 @@ class Disruptor
       Commit data to the Disruptor. Call this once you've finished writing data
       to buffers you reserved.
 
-      @param {Buffer|Buffer[]} buf_or_bufs - Buffer or buffers you reserved by calling {@link produceClaim}, {@link produceClaimSync}, {@link produceClaimMany} or {@link produceClaimManySync}.
+      @param {integer} [claimStart] - Specifies the start of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link prevClaimStart} is used.
+      @param {integer} [claimEnd] - Specifies the end of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link prevClaimEnd} is used.
       @param {produceCommitCallback} cb - Called once the elements in the buffers have been committed to the Disruptor, or `spin` (see the {@link Disruptor|constructor}) is `false` and the elements couldn't be committed (because other producers haven't committed their data yet). No copying occurs during the operation.
      */
-    produceCommit(buf_or_bufs, cb)
+    produceCommit(claimStart, claimEnd, cb)
     {
     }
 
@@ -70,10 +71,11 @@ class Disruptor
       Commit data to the Disruptor. Call this once you've finished writing data
       to buffers you reserved.
 
-      @param {Buffer|Buffer[]} buf_or_bufs - Buffer or buffers you reserved by calling {@link produceClaim}, {@link produceClaimSync}, {@link produceClaimMany} or {@link produceClaimManySync}.
+      @param {integer} [claimStart] - Specifies the start of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link prevClaimStart} is used.
+      @param {integer} [claimEnd] - Specifies the end of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link prevClaimEnd} is used.
       @returns {boolean} - Whether the data was committed to the Disruptor. If some elements reserved before `buf_or_bufs` remain uncommitted and `spin` (see the {@link Disruptor|constructor}) is `false`, the return value will be `false`. Otherwise the data was committed and the return value will be `true`.
       */
-    produceCommitSync(buf_or_bufs)
+    produceCommitSync(claimStart, claimEnd)
     {
     }
 
@@ -114,8 +116,20 @@ class Disruptor
 
       This is called by {@link consumeNew} and {@link consumeNewSync} before
       they check for new data.
+
+      @return {boolean} - Whether the Disruptor was in the expected state. This will always return `true` unless your application incorrectly uses objects with the same consumer ID to access the Disruptor concurrently.
      */
     consumeCommit()
+    {
+    }
+
+    /**
+      Reserve elements you've reserved before.
+
+      @param {integer} claimStart - Specifies the start of the buffer you want to reserve. You can pass a value you received via {@link produceClaimCallback}, {@link produceClaimManyCallback} or {@link prevClaimStart}.
+      @param {integer} claimEnd - Specifies the end of the buffer you want to reserve. You can pass a value you received via {@link produceClaimCallback}, {@link produceClaimManyCallback} or {@link prevClaimEnd}.
+     */
+    produceRecover(claimStart, claimEnd)
     {
     }
 
@@ -130,6 +144,27 @@ class Disruptor
     release()
     {
     }
+
+    /**
+      @returns {integer} - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced _before_ the previous call to {@link produceClaim}, {@link produceClaimSync}, {@link produceClaimMany} or {@link produceClaimManySync}.
+     */
+    get prevClaimStart()
+    {
+    }
+
+    /**
+      @returns {integer} - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced _after_ the previous call to {@link produceClaim}, {@link produceClaimSync}, {@link produceClaimMany} or {@link produceClaimManySync}, minus 1.
+     */
+    get prevClaimEnd()
+    {
+    }
+
+    /**
+      @returns {integer} - The Disruptor maintains a strictly increasing count of the total number of elements consumed since it was created. This is the how many elements were consumed _before_ the previous call to {@link consumeNew} or {@link consumeNewSync}.
+     */
+    get prevConsumeStart()
+    {
+    }
 }
 
 /**
@@ -137,8 +172,10 @@ class Disruptor
 
   @param {?Error} err - Error, if one occurred.
   @param {Buffer} buf - Buffer for writing data to the Disruptor. If the Disruptor was full and `spin` (see the {@link Disruptor|constructor}) is `false`, `buf` will be empty. Otherwise its length will be `element_size`. `buf` is backed by shared memory so may be overwritten after you call {@link produceCommit} or {@link produceCommitSync}.
+  @param {integer} claimStart - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced before `buf` was reserved.
+  @param {integer} claimEnd - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced after `buf` was reserved, minus 1.
  */
-function produceClaimCallback(err, buf)
+function produceClaimCallback(err, buf, claimStart, claimEnd)
 {
 }
 
@@ -147,8 +184,10 @@ function produceClaimCallback(err, buf)
 
   @param {?Error} err - Error, if one occurred.
   @param {Buffer[]} bufs - Array of buffers for writing data to the Disruptor. If the Disruptor didn't have enought free elements and `spin` (see the {@link Disruptor|constructor}) is `false`, `bufs` will be empty. Otherwise, it will contain at least one buffer and each buffer will be a multiple of `element_size` in length. The total size of the buffers in `bufs` will be `n * element_size`. The buffers are backed by shared memory so may be overwritten after you call {@link produceCommit} or {@link produceCommitSync}.
+  @param {integer} claimStart - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced before `buf` was reserved.
+  @param {integer} claimEnd - The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced after `buf` was reserved, minus 1.
  */
-function produceClaimManyCallback(err, bufs)
+function produceClaimManyCallback(err, bufs, claimStart, claimEnd)
 {
 }
 
@@ -167,7 +206,8 @@ function produceCommitCallback(err, committed)
 
   @param {?Error} err - Error, if one occurred.
   @param {Buffer[]} bufs - Array of buffers containing new data ready to read from the Disruptor. If no new data was available and `spin` (see the {@link Disruptor|constructor}) is `false`, the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of `element_size` in length. The buffers are backed by shared memory so may be overwritten after you call {@link consumeCommit}.
+  @param {integer} start - The Disruptor maintains a strictly increasing count of the total number of elements consumed since it was created. This is how many elements were consumed before `bufs` was read (if `bufs` isn't empty).
  */
-function consumeNewCallback(err, bufs)
+function consumeNewCallback(err, bufs, start)
 {
 }

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>shared-memory-disruptor 0.0.1 | Documentation</title>
+  <title>shared-memory-disruptor 0.0.3 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>shared-memory-disruptor</h3>
-          <div class='mb1'><code>0.0.1</code></div>
+          <div class='mb1'><code>0.0.3</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -92,9 +92,33 @@
                       </a></li>
                       
                       <li><a
+                        href='#disruptorproducerecover'
+                        class='regular pre-open'>
+                        #produceRecover
+                      </a></li>
+                      
+                      <li><a
                         href='#disruptorrelease'
                         class='regular pre-open'>
                         #release
+                      </a></li>
+                      
+                      <li><a
+                        href='#disruptorprevclaimstart'
+                        class='regular pre-open'>
+                        #prevClaimStart
+                      </a></li>
+                      
+                      <li><a
+                        href='#disruptorprevclaimend'
+                        class='regular pre-open'>
+                        #prevClaimEnd
+                      </a></li>
+                      
+                      <li><a
+                        href='#disruptorprevconsumestart'
+                        class='regular pre-open'>
+                        #prevConsumeStart
                       </a></li>
                       
                     </ul>
@@ -575,7 +599,7 @@ to store data in shared memory.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>produceCommit(buf_or_bufs, cb)</span>
+            <span class='code strong strong truncate'>produceCommit(claimStart?, claimEnd?, cb)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -587,7 +611,7 @@ to store data in shared memory.</p>
 to buffers you reserved.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceCommit(buf_or_bufs: (<a href="https://nodejs.org/api/buffer.html">Buffer</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>), cb: <a href="#producecommitcallback">produceCommitCallback</a>)</div>
+  <div class='pre p1 fill-light mt0'>produceCommit(claimStart: integer?, claimEnd: integer?, cb: <a href="#producecommitcallback">produceCommitCallback</a>)</div>
   
   
 
@@ -604,16 +628,29 @@ to buffers you reserved.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>buf_or_bufs</span> <code class='quiet'>((<a href="https://nodejs.org/api/buffer.html">Buffer</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>))</code>
-	    Buffer or buffers you reserved by calling 
-<a href="produceClaim">produceClaim</a>
-, 
-<a href="produceClaimSync">produceClaimSync</a>
-, 
-<a href="produceClaimMany">produceClaimMany</a>
+            <span class='code bold'>claimStart</span> <code class='quiet'>(integer?)</code>
+	    Specifies the start of the buffer you want to commit. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
  or 
-<a href="produceClaimManySync">produceClaimManySync</a>
-.
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+. If you don't specify a value, 
+<a href="prevClaimStart">prevClaimStart</a>
+ is used.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimEnd</span> <code class='quiet'>(integer?)</code>
+	    Specifies the end of the buffer you want to commit. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
+ or 
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+. If you don't specify a value, 
+<a href="prevClaimEnd">prevClaimEnd</a>
+ is used.
 
           </div>
           
@@ -659,7 +696,7 @@ to buffers you reserved.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>produceCommitSync(buf_or_bufs)</span>
+            <span class='code strong strong truncate'>produceCommitSync(claimStart?, claimEnd?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -671,7 +708,7 @@ to buffers you reserved.</p>
 to buffers you reserved.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceCommitSync(buf_or_bufs: (<a href="https://nodejs.org/api/buffer.html">Buffer</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+  <div class='pre p1 fill-light mt0'>produceCommitSync(claimStart: integer?, claimEnd: integer?): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -688,16 +725,29 @@ to buffers you reserved.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>buf_or_bufs</span> <code class='quiet'>((<a href="https://nodejs.org/api/buffer.html">Buffer</a> | <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>))</code>
-	    Buffer or buffers you reserved by calling 
-<a href="produceClaim">produceClaim</a>
-, 
-<a href="produceClaimSync">produceClaimSync</a>
-, 
-<a href="produceClaimMany">produceClaimMany</a>
+            <span class='code bold'>claimStart</span> <code class='quiet'>(integer?)</code>
+	    Specifies the start of the buffer you want to commit. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
  or 
-<a href="produceClaimManySync">produceClaimManySync</a>
-.
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+. If you don't specify a value, 
+<a href="prevClaimStart">prevClaimStart</a>
+ is used.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimEnd</span> <code class='quiet'>(integer?)</code>
+	    Specifies the end of the buffer you want to commit. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
+ or 
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+. If you don't specify a value, 
+<a href="prevClaimEnd">prevClaimEnd</a>
+ is used.
 
           </div>
           
@@ -901,7 +951,7 @@ finished with buffers returned by <a href="consumeNew">consumeNew</a> or
 they check for new data.</p>
 
 
-  <div class='pre p1 fill-light mt0'>consumeCommit()</div>
+  <div class='pre p1 fill-light mt0'>consumeCommit(): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -912,6 +962,97 @@ they check for new data.</p>
   
   
 
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+        Whether the Disruptor was in the expected state. This will always return 
+<code>true</code>
+ unless your application incorrectly uses objects with the same consumer ID to access the Disruptor concurrently.
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='disruptorproducerecover'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>produceRecover(claimStart, claimEnd)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Reserve elements you've reserved before.</p>
+
+
+  <div class='pre p1 fill-light mt0'>produceRecover(claimStart: integer, claimEnd: integer)</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimStart</span> <code class='quiet'>(integer)</code>
+	    Specifies the start of the buffer you want to reserve. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
+, 
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+ or 
+<a href="prevClaimStart">prevClaimStart</a>
+.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimEnd</span> <code class='quiet'>(integer)</code>
+	    Specifies the end of the buffer you want to reserve. You can pass a value you received via 
+<a href="#produceclaimcallback">produceClaimCallback</a>
+, 
+<a href="#produceclaimmanycallback">produceClaimManyCallback</a>
+ or 
+<a href="prevClaimEnd">prevClaimEnd</a>
+.
+
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -981,6 +1122,191 @@ you can force the shared memory to be unmapped by calling this function.</p>
       </div>
     </div>
   
+    <div class='border-bottom' id='disruptorprevclaimstart'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>prevClaimStart</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>prevClaimStart</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>integer</code>:
+        The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced 
+<em>before</em>
+ the previous call to 
+<a href="produceClaim">produceClaim</a>
+, 
+<a href="produceClaimSync">produceClaimSync</a>
+, 
+<a href="produceClaimMany">produceClaimMany</a>
+ or 
+<a href="produceClaimManySync">produceClaimManySync</a>
+.
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='disruptorprevclaimend'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>prevClaimEnd</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>prevClaimEnd</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>integer</code>:
+        The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced 
+<em>after</em>
+ the previous call to 
+<a href="produceClaim">produceClaim</a>
+, 
+<a href="produceClaimSync">produceClaimSync</a>
+, 
+<a href="produceClaimMany">produceClaimMany</a>
+ or 
+<a href="produceClaimManySync">produceClaimManySync</a>
+, minus 1.
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='disruptorprevconsumestart'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>prevConsumeStart</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+
+  <div class='pre p1 fill-light mt0'>prevConsumeStart</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>integer</code>:
+        The Disruptor maintains a strictly increasing count of the total number of elements consumed since it was created. This is the how many elements were consumed 
+<em>before</em>
+ the previous call to 
+<a href="consumeNew">consumeNew</a>
+ or 
+<a href="consumeNewSync">consumeNewSync</a>
+.
+
+      
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
 </div>
 
   
@@ -1007,7 +1333,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reserving a single element in the Disruptor for writing.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>)</div>
+  <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1056,6 +1382,28 @@ you can force the shared memory to be unmapped by calling this function.</p>
           
         </div>
       
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimStart</span> <code class='quiet'>(integer)</code>
+	    The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced before 
+<code>buf</code>
+ was reserved.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimEnd</span> <code class='quiet'>(integer)</code>
+	    The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced after 
+<code>buf</code>
+ was reserved, minus 1.
+
+          </div>
+          
+        </div>
+      
     </div>
   
 
@@ -1093,7 +1441,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reserving a number of elements in the Disruptor for writing.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</div>
+  <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1139,6 +1487,28 @@ you can force the shared memory to be unmapped by calling this function.</p>
  or 
 <a href="produceCommitSync">produceCommitSync</a>
 .
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimStart</span> <code class='quiet'>(integer)</code>
+	    The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced before 
+<code>buf</code>
+ was reserved.
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>claimEnd</span> <code class='quiet'>(integer)</code>
+	    The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced after 
+<code>buf</code>
+ was reserved, minus 1.
 
           </div>
           
@@ -1267,7 +1637,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reading new data from the Disruptor</p>
 
 
-  <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</div>
+  <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, start: integer)</div>
   
   
 
@@ -1305,6 +1675,19 @@ you can force the shared memory to be unmapped by calling this function.</p>
  in length. The buffers are backed by shared memory so may be overwritten after you call 
 <a href="consumeCommit">consumeCommit</a>
 .
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>start</span> <code class='quiet'>(integer)</code>
+	    The Disruptor maintains a strictly increasing count of the total number of elements consumed since it was created. This is how many elements were consumed before 
+<code>bufs</code>
+ was read (if 
+<code>bufs</code>
+ isn't empty).
 
           </div>
           

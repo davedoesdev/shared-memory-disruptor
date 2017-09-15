@@ -7,7 +7,7 @@ for (let i = 0; i < 1000000; i += 1)
     let n = Math.floor(Math.random() * 100);
     let buf = d.produceClaimSync();
     buf.writeUInt32LE(n, 0, true);
-    d.produceCommitSync(buf);
+    d.produceCommitSync();
     sum += n;
 }
 
