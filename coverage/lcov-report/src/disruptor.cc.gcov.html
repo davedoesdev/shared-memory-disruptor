@@ -31,17 +31,17 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">409</td>
-            <td class="headerCovTableEntry">409</td>
+            <td class="headerCovTableEntry">412</td>
+            <td class="headerCovTableEntry">412</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-09-15 22:40:38</td>
+            <td class="headerValue">2017-09-16 08:29:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">104</td>
-            <td class="headerCovTableEntry">108</td>
+            <td class="headerCovTableEntry">105</td>
+            <td class="headerCovTableEntry">109</td>
             <td class="headerCovTableEntryHi">96.3 %</td>
           </tr>
           <tr>
@@ -115,9 +115,9 @@
 <span class="lineNum">      44 </span>                :            :     // Get slots previously claimed but not committed
 <a name="45"><span class="lineNum">      45 </span>                :            :     Napi::Value ProduceRecover(const Napi::CallbackInfo&amp; info);</a>
 <span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">    3393341 :     inline bool Spin()</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">    3462920 :     inline bool Spin()</span>
 <span class="lineNum">      48 </span>                :            :     {
-<span class="lineNum">      49 </span>                :<span class="lineCov">    3393341 :         return spin;</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">    3462920 :         return spin;</span>
 <span class="lineNum">      50 </span>                :            :     }
 <span class="lineNum">      51 </span>                :            : 
 <span class="lineNum">      52 </span>                :            : private:
@@ -210,14 +210,14 @@
 <span class="lineNum">     139 </span>                :            : {
 <a name="140"><span class="lineNum">     140 </span>                :<span class="lineCov">          1 : }</span></a>
 <span class="lineNum">     141 </span>                :            : 
-<span class="lineNum">     142 </span>                :<span class="lineCov">     322089 : Napi::Function GetCallback(const Napi::CallbackInfo&amp; info, uint32_t cb_arg)</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">     321079 : Napi::Function GetCallback(const Napi::CallbackInfo&amp; info, uint32_t cb_arg)</span>
 <span class="lineNum">     143 </span>                :            : {
-<span class="lineNum">     144 </span>                :<span class="lineCov">     322089 :     if (info.Length() &gt; cb_arg)</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">     321079 :     if (info.Length() &gt; cb_arg)</span>
 <span class="lineNum">     145 </span>                :            :     {
-<span class="lineNum">     146 </span>                :<span class="lineCov">     322089 :         Napi::Value cb = info[cb_arg];</span>
-<span class="lineNum">     147 </span>                :<span class="lineCov">     322089 :         if (cb.IsFunction())</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">     321079 :         Napi::Value cb = info[cb_arg];</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">     321079 :         if (cb.IsFunction())</span>
 <span class="lineNum">     148 </span>                :            :         {
-<span class="lineNum">     149 </span>                :<span class="lineCov">     322088 :             return cb.As&lt;Napi::Function&gt;();</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">     321078 :             return cb.As&lt;Napi::Function&gt;();</span>
 <span class="lineNum">     150 </span>                :            :         }
 <span class="lineNum">     151 </span>                :            :     }
 <span class="lineNum">     152 </span>                :            : 
@@ -228,92 +228,92 @@
 <span class="lineNum">     157 </span>                :            : class AsyncBuffer
 <a name="158"><span class="lineNum">     158 </span>                :            : {</a>
 <span class="lineNum">     159 </span>                :            : public:
-<span class="lineNum">     160 </span>                :<span class="lineCov">     605018 :     AsyncBuffer() :</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">     610307 :     AsyncBuffer() :</span>
 <span class="lineNum">     161 </span>                :            :         data(nullptr),
-<span class="lineNum">     162 </span>                :<span class="lineCov">     605018 :         length(0)</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">     610307 :         length(0)</span>
 <span class="lineNum">     163 </span>                :            :     {
-<a name="164"><span class="lineNum">     164 </span>                :<span class="lineCov">     605018 :     }</span></a>
+<a name="164"><span class="lineNum">     164 </span>                :<span class="lineCov">     610307 :     }</span></a>
 <span class="lineNum">     165 </span>                :            : 
-<span class="lineNum">     166 </span>                :<span class="lineCov">     275231 :     static AsyncBuffer&lt;T&gt; New(Napi::Env, T* data, size_t length)</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">     273080 :     static AsyncBuffer&lt;T&gt; New(Napi::Env, T* data, size_t length)</span>
 <span class="lineNum">     167 </span>                :            :     {
-<span class="lineNum">     168 </span>                :<span class="lineCov">     275231 :         return AsyncBuffer&lt;T&gt;(data, length);</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">     273080 :         return AsyncBuffer&lt;T&gt;(data, length);</span>
 <a name="169"><span class="lineNum">     169 </span>                :            :     }</a>
 <span class="lineNum">     170 </span>                :            : 
-<span class="lineNum">     171 </span>                :<span class="lineCov">     329804 :     static AsyncBuffer&lt;T&gt; New(Napi::Env, size_t length)</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">     337241 :     static AsyncBuffer&lt;T&gt; New(Napi::Env, size_t length)</span>
 <span class="lineNum">     172 </span>                :            :     {
-<span class="lineNum">     173 </span>                :<span class="lineCov">     329804 :         return AsyncBuffer&lt;T&gt;(nullptr, length);</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">     337241 :         return AsyncBuffer&lt;T&gt;(nullptr, length);</span>
 <a name="174"><span class="lineNum">     174 </span>                :            :     }</a>
 <span class="lineNum">     175 </span>                :            : 
-<span class="lineNum">     176 </span>                :<span class="lineCov">     275261 :     Napi::Value ToValue(Napi::Env env)</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">     273113 :     Napi::Value ToValue(Napi::Env env)</span>
 <span class="lineNum">     177 </span>                :            :     {
-<span class="lineNum">     178 </span>                :<span class="lineCov">     275261 :         Napi::Buffer&lt;T&gt; r;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">     273113 :         Napi::Buffer&lt;T&gt; r;</span>
 <span class="lineNum">     179 </span>                :            : 
-<span class="lineNum">     180 </span>                :<span class="lineCov">     275261 :         if (data)</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">     273113 :         if (data)</span>
 <span class="lineNum">     181 </span>                :            :         {
-<span class="lineNum">     182 </span>                :<span class="lineCov">     275253 :             r = Napi::Buffer&lt;T&gt;::New(env, data, length);</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">     273105 :             r = Napi::Buffer&lt;T&gt;::New(env, data, length);</span>
 <span class="lineNum">     183 </span>                :            :         }
 <span class="lineNum">     184 </span>                :            :         else
 <span class="lineNum">     185 </span>                :            :         {
 <span class="lineNum">     186 </span>                :<span class="lineCov">          8 :             r = Napi::Buffer&lt;T&gt;::New(env, length);</span>
 <span class="lineNum">     187 </span>                :            :         }
 <span class="lineNum">     188 </span>                :            : 
-<span class="lineNum">     189 </span>                :<span class="lineCov">     275261 :         return r;</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">     273113 :         return r;</span>
 <a name="190"><span class="lineNum">     190 </span>                :            :     }</a>
 <span class="lineNum">     191 </span>                :            : 
-<span class="lineNum">     192 </span>                :<span class="lineCov">     330609 :     size_t Length()</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">     338046 :     size_t Length()</span>
 <span class="lineNum">     193 </span>                :            :     {
-<span class="lineNum">     194 </span>                :<span class="lineCov">     330609 :         return length;</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">     338046 :         return length;</span>
 <span class="lineNum">     195 </span>                :            :     }
 <a name="196"><span class="lineNum">     196 </span>                :            : </a>
 <span class="lineNum">     197 </span>                :            : private:
-<span class="lineNum">     198 </span>                :<span class="lineCov">     605002 :     AsyncBuffer(T* data, size_t length) :</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">     610249 :     AsyncBuffer(T* data, size_t length) :</span>
 <span class="lineNum">     199 </span>                :            :         data(data),
-<span class="lineNum">     200 </span>                :<span class="lineCov">     605002 :         length(length)</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">     610249 :         length(length)</span>
 <span class="lineNum">     201 </span>                :            :     {
-<span class="lineNum">     202 </span>                :<span class="lineCov">     605002 :     }</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">     610249 :     }</span>
 <span class="lineNum">     203 </span>                :            : 
 <span class="lineNum">     204 </span>                :            :     T* data;
 <span class="lineNum">     205 </span>                :            :     size_t length;
 <span class="lineNum">     206 </span>                :            : };
 <a name="207"><span class="lineNum">     207 </span>                :            : </a>
 <span class="lineNum">     208 </span>                :            : template&lt;typename T&gt;
-<span class="lineNum">     209 </span>                :<span class="lineCov">    3304138 : class AsyncArray</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">    3328026 : class AsyncArray</span>
 <a name="210"><span class="lineNum">     210 </span>                :            : {</a>
 <span class="lineNum">     211 </span>                :            : public:
-<span class="lineNum">     212 </span>                :<span class="lineCov">    2207927 :     AsyncArray() :</span>
-<span class="lineNum">     213 </span>                :<span class="lineCov">    2207927 :         elements(std::make_unique&lt;std::vector&lt;T&gt;&gt;())</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">    2225329 :     AsyncArray() :</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">    2225329 :         elements(std::make_unique&lt;std::vector&lt;T&gt;&gt;())</span>
 <span class="lineNum">     214 </span>                :            :     {
-<a name="215"><span class="lineNum">     215 </span>                :<span class="lineCov">    2212503 :     }</span></a>
+<a name="215"><span class="lineNum">     215 </span>                :<span class="lineCov">    2229349 :     }</span></a>
 <span class="lineNum">     216 </span>                :            : 
-<span class="lineNum">     217 </span>                :<span class="lineCov">    1107702 :     static AsyncArray&lt;T&gt; New(Napi::Env)</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">    1116333 :     static AsyncArray&lt;T&gt; New(Napi::Env)</span>
 <span class="lineNum">     218 </span>                :            :     {
-<span class="lineNum">     219 </span>                :<span class="lineCov">    1107702 :         return AsyncArray&lt;T&gt;();</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">    1116333 :         return AsyncArray&lt;T&gt;();</span>
 <a name="220"><span class="lineNum">     220 </span>                :            :     }</a>
 <span class="lineNum">     221 </span>                :            : 
-<span class="lineNum">     222 </span>                :<span class="lineCov">     274407 :     void Set(uint32_t index, T el)</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">     272203 :     void Set(uint32_t index, T el)</span>
 <span class="lineNum">     223 </span>                :            :     {
-<span class="lineNum">     224 </span>                :<span class="lineCov">     274407 :         if (elements-&gt;size() &lt;= index)</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">     272203 :         if (elements-&gt;size() &lt;= index)</span>
 <span class="lineNum">     225 </span>                :            :         {
-<span class="lineNum">     226 </span>                :<span class="lineCov">     274430 :             elements-&gt;resize(index + 1);</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">     272288 :             elements-&gt;resize(index + 1);</span>
 <span class="lineNum">     227 </span>                :            :         }
 <span class="lineNum">     228 </span>                :            : 
-<span class="lineNum">     229 </span>                :<span class="lineCov">     274419 :         (*elements)[index] = std::move(el);</span>
-<a name="230"><span class="lineNum">     230 </span>                :<span class="lineCov">     274440 :     }</span></a>
+<span class="lineNum">     229 </span>                :<span class="lineCov">     272274 :         (*elements)[index] = std::move(el);</span>
+<a name="230"><span class="lineNum">     230 </span>                :<span class="lineCov">     272294 :     }</span></a>
 <span class="lineNum">     231 </span>                :            : 
-<span class="lineNum">     232 </span>                :<span class="lineCov">     274455 :     Napi::Value ToValue(Napi::Env env)</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">     272307 :     Napi::Value ToValue(Napi::Env env)</span>
 <span class="lineNum">     233 </span>                :            :     {
-<span class="lineNum">     234 </span>                :<span class="lineCov">     274455 :         size_t length = elements-&gt;size();</span>
-<span class="lineNum">     235 </span>                :<span class="lineCov">     274455 :         Napi::Array r = Napi::Array::New(env);</span>
-<span class="lineNum">     236 </span>                :<span class="lineCov">     548903 :         for (size_t i = 0; i &lt; length; ++i)</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">     272307 :         size_t length = elements-&gt;size();</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">     272307 :         Napi::Array r = Napi::Array::New(env);</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">     544607 :         for (size_t i = 0; i &lt; length; ++i)</span>
 <span class="lineNum">     237 </span>                :            :         {
-<span class="lineNum">     238 </span>                :<span class="lineCov">     274448 :             r[i] = (*elements)[i].ToValue(env);</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">     272300 :             r[i] = (*elements)[i].ToValue(env);</span>
 <span class="lineNum">     239 </span>                :            :         }
-<span class="lineNum">     240 </span>                :<span class="lineCov">     274455 :         return r;</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">     272307 :         return r;</span>
 <a name="241"><span class="lineNum">     241 </span>                :            :     }</a>
 <span class="lineNum">     242 </span>                :            : 
-<span class="lineNum">     243 </span>                :<span class="lineCov">    1107683 :     size_t Length()</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">    1116319 :     size_t Length()</span>
 <span class="lineNum">     244 </span>                :            :     {
-<span class="lineNum">     245 </span>                :<span class="lineCov">    1107683 :         return elements-&gt;size();</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">    1116319 :         return elements-&gt;size();</span>
 <span class="lineNum">     246 </span>                :            :     }
 <span class="lineNum">     247 </span>                :            : 
 <span class="lineNum">     248 </span>                :            : private:
@@ -323,31 +323,31 @@
 <span class="lineNum">     252 </span>                :            : class AsyncBoolean
 <a name="253"><span class="lineNum">     253 </span>                :            : {</a>
 <span class="lineNum">     254 </span>                :            : public:
-<span class="lineNum">     255 </span>                :<span class="lineCov">    1955006 :     AsyncBoolean() :</span>
-<span class="lineNum">     256 </span>                :<span class="lineCov">    1955006 :         b(false)</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">    2008524 :     AsyncBoolean() :</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">    2008524 :         b(false)</span>
 <span class="lineNum">     257 </span>                :            :     {
-<a name="258"><span class="lineNum">     258 </span>                :<span class="lineCov">    1955006 :     }</span></a>
+<a name="258"><span class="lineNum">     258 </span>                :<span class="lineCov">    2008524 :     }</span></a>
 <span class="lineNum">     259 </span>                :            : 
-<span class="lineNum">     260 </span>                :<span class="lineCov">    1954924 :     static AsyncBoolean New(Napi::Env, bool b)</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">    2008432 :     static AsyncBoolean New(Napi::Env, bool b)</span>
 <span class="lineNum">     261 </span>                :            :     {
-<span class="lineNum">     262 </span>                :<span class="lineCov">    1954924 :         return AsyncBoolean(b);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">    2008432 :         return AsyncBoolean(b);</span>
 <a name="263"><span class="lineNum">     263 </span>                :            :     }</a>
 <span class="lineNum">     264 </span>                :            : 
-<span class="lineNum">     265 </span>                :<span class="lineCov">      46821 :     Napi::Value ToValue(Napi::Env env)</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">      47959 :     Napi::Value ToValue(Napi::Env env)</span>
 <span class="lineNum">     266 </span>                :            :     {
-<span class="lineNum">     267 </span>                :<span class="lineCov">      46821 :         return Napi::Boolean::New(env, b);</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">      47959 :         return Napi::Boolean::New(env, b);</span>
 <a name="268"><span class="lineNum">     268 </span>                :            :     }</a>
 <span class="lineNum">     269 </span>                :            : 
-<span class="lineNum">     270 </span>                :<span class="lineCov">    1954871 :     operator bool() const</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">    2008360 :     operator bool() const</span>
 <span class="lineNum">     271 </span>                :            :     {
-<span class="lineNum">     272 </span>                :<span class="lineCov">    1954871 :         return b;</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">    2008360 :         return b;</span>
 <span class="lineNum">     273 </span>                :            :     }
 <a name="274"><span class="lineNum">     274 </span>                :            : </a>
 <span class="lineNum">     275 </span>                :            : private:
-<span class="lineNum">     276 </span>                :<span class="lineCov">    1954901 :     AsyncBoolean(bool b) :</span>
-<span class="lineNum">     277 </span>                :<span class="lineCov">    1954901 :         b(b)</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">    2008412 :     AsyncBoolean(bool b) :</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">    2008412 :         b(b)</span>
 <span class="lineNum">     278 </span>                :            :     {
-<span class="lineNum">     279 </span>                :<span class="lineCov">    1954901 :     }</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">    2008412 :     }</span>
 <span class="lineNum">     280 </span>                :            : 
 <span class="lineNum">     281 </span>                :            :     bool b;
 <span class="lineNum">     282 </span>                :            : };
@@ -356,49 +356,49 @@
 <span class="lineNum">     285 </span>                :            : {
 <a name="286"><span class="lineNum">     286 </span>                :            : };</a>
 <span class="lineNum">     287 </span>                :            : 
-<span class="lineNum">     288 </span>                :<span class="lineCov">     276096 : Napi::Number ToValue(const Napi::Env&amp; env, sequence_t n)</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">     273948 : Napi::Number ToValue(const Napi::Env&amp; env, sequence_t n)</span>
 <span class="lineNum">     289 </span>                :            : {
-<span class="lineNum">     290 </span>                :<span class="lineCov">     276096 :     return Napi::Number::New(env, n);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">     273948 :     return Napi::Number::New(env, n);</span>
 <a name="291"><span class="lineNum">     291 </span>                :            : }</a>
 <span class="lineNum">     292 </span>                :            : 
-<span class="lineNum">     293 </span>                :<span class="lineCov">     368082 : Napi::Value ToValue(const Napi::Env&amp; env, const AsyncUndefined&amp;)</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">     368210 : Napi::Value ToValue(const Napi::Env&amp; env, const AsyncUndefined&amp;)</span>
 <span class="lineNum">     294 </span>                :            : {
-<span class="lineNum">     295 </span>                :<span class="lineCov">     368082 :     return env.Undefined();</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">     368210 :     return env.Undefined();</span>
 <span class="lineNum">     296 </span>                :            : }
 <a name="297"><span class="lineNum">     297 </span>                :            : </a>
 <span class="lineNum">     298 </span>                :            : template &lt;typename Result, typename Arg1, typename Arg2&gt;
-<span class="lineNum">     299 </span>                :<span class="lineCov">    3393341 : class DisruptorAsyncWorker : public Napi::AsyncWorker</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">    3462920 : class DisruptorAsyncWorker : public Napi::AsyncWorker</span>
 <a name="300"><span class="lineNum">     300 </span>                :            : {</a>
 <span class="lineNum">     301 </span>                :            : public:
-<span class="lineNum">     302 </span>                :<span class="lineCov">    3393341 :     DisruptorAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">    3462920 :     DisruptorAsyncWorker(Disruptor *disruptor,</span>
 <span class="lineNum">     303 </span>                :            :                          const Napi::Function&amp; callback) :
 <span class="lineNum">     304 </span>                :            :         Napi::AsyncWorker(callback),
 <span class="lineNum">     305 </span>                :            :         retry(false),
 <span class="lineNum">     306 </span>                :            :         disruptor(disruptor), // disruptor_ref keeps this around
-<span class="lineNum">     307 </span>                :<span class="lineCov">    3393341 :         disruptor_ref(Napi::Persistent(disruptor-&gt;Value()))</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">    3462920 :         disruptor_ref(Napi::Persistent(disruptor-&gt;Value()))</span>
 <span class="lineNum">     308 </span>                :            :     {
-<span class="lineNum">     309 </span>                :<span class="lineCov">    3393341 :     }</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">    3462920 :     }</span>
 <span class="lineNum">     310 </span>                :            : 
 <span class="lineNum">     311 </span>                :            : protected:
 <a name="312"><span class="lineNum">     312 </span>                :            :     virtual void Retry() = 0;</a>
 <span class="lineNum">     313 </span>                :            : 
-<span class="lineNum">     314 </span>                :<span class="lineCov">    3393341 :     void OnOK() override</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">    3462920 :     void OnOK() override</span>
 <span class="lineNum">     315 </span>                :            :     {
-<span class="lineNum">     316 </span>                :<span class="lineCov">    3393341 :         if (disruptor-&gt;Spin() &amp;&amp; retry)</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">    3462920 :         if (disruptor-&gt;Spin() &amp;&amp; retry)</span>
 <span class="lineNum">     317 </span>                :            :         {
-<span class="lineNum">     318 </span>                :<span class="lineCov">    3071252 :             return Retry();</span>
+<span class="lineNum">     318 </span>                :<span class="lineCov">    3141841 :             return Retry();</span>
 <span class="lineNum">     319 </span>                :            :         }
 <span class="lineNum">     320 </span>                :            : 
-<span class="lineNum">     321 </span>                :<span class="lineCov">     322089 :         Napi::Env env = Env();</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">     321079 :         Napi::Env env = Env();</span>
 <span class="lineNum">     322 </span>                :            : 
-<span class="lineNum">     323 </span>                :<span class="lineCov">    1610445 :         Callback().MakeCallback(</span>
-<span class="lineNum">     324 </span>                :<span class="lineCov">     322089 :             Receiver().Value(),</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">    1605395 :         Callback().MakeCallback(</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">     321079 :             Receiver().Value(),</span>
 <span class="lineNum">     325 </span>                :            :             std::initializer_list&lt;napi_value&gt;
 <span class="lineNum">     326 </span>                :            :             {
-<span class="lineNum">     327 </span>                :<span class="lineCov">     644178 :                 env.Null(),</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">     642158 :                 env.Null(),</span>
 <span class="lineNum">     328 </span>                :            :                 result.ToValue(env),
-<span class="lineNum">     329 </span>                :<span class="lineCov">     644178 :                 ToValue(env, arg1),</span>
-<span class="lineNum">     330 </span>                :<span class="lineCov">     644178 :                 ToValue(env, arg2)</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">     642158 :                 ToValue(env, arg1),</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">     642158 :                 ToValue(env, arg2)</span>
 <span class="lineNum">     331 </span>                :            :             });
 <span class="lineNum">     332 </span>                :            :     }
 <span class="lineNum">     333 </span>                :            : 
@@ -415,11 +415,11 @@
 <span class="lineNum">     344 </span>                :            : class CloseFD
 <a name="345"><span class="lineNum">     345 </span>                :            : {</a>
 <span class="lineNum">     346 </span>                :            : public:
-<span class="lineNum">     347 </span>                :<span class="lineCov">       3389 :     void operator()(int *fd)</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">       3395 :     void operator()(int *fd)</span>
 <span class="lineNum">     348 </span>                :            :     {
-<span class="lineNum">     349 </span>                :<span class="lineCov">       3389 :         close(*fd);</span>
-<span class="lineNum">     350 </span>                :<span class="lineCov">       3389 :         delete fd;</span>
-<span class="lineNum">     351 </span>                :<span class="lineCov">       3389 :     }</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">       3395 :         close(*fd);</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">       3395 :         delete fd;</span>
+<span class="lineNum">     351 </span>                :<span class="lineCov">       3395 :     }</span>
 <a name="352"><span class="lineNum">     352 </span>                :            : };</a>
 <span class="lineNum">     353 </span>                :            : 
 <span class="lineNum">     354 </span>                :<span class="lineCov">          3 : void ThrowErrnoError(const Napi::CallbackInfo&amp; info, const char *msg)</span>
@@ -433,25 +433,25 @@
 <span class="lineNum">     362 </span>                :<span class="lineCov">          9 :         std::string(msg) + &quot;: &quot; + (errmsg ? errmsg : std::to_string(errnum)));</span>
 <a name="363"><span class="lineNum">     363 </span>                :            : }</a>
 <span class="lineNum">     364 </span>                :            : 
-<span class="lineNum">     365 </span>                :<span class="lineCov">       3389 : Disruptor::Disruptor(const Napi::CallbackInfo&amp; info) :</span>
+<span class="lineNum">     365 </span>                :<span class="lineCov">       3395 : Disruptor::Disruptor(const Napi::CallbackInfo&amp; info) :</span>
 <span class="lineNum">     366 </span>                :            :     Napi::ObjectWrap&lt;Disruptor&gt;(info),
-<span class="lineNum">     367 </span>                :<span class="lineCov">       3392 :     shm_buf(MAP_FAILED)</span>
+<span class="lineNum">     367 </span>                :<span class="lineCov">       3398 :     shm_buf(MAP_FAILED)</span>
 <span class="lineNum">     368 </span>                :            : {
 <span class="lineNum">     369 </span>                :            :     // Arguments
-<span class="lineNum">     370 </span>                :<span class="lineCov">       3389 :     Napi::String shm_name = info[0].As&lt;Napi::String&gt;();</span>
-<span class="lineNum">     371 </span>                :<span class="lineCov">       3389 :     num_elements = info[1].As&lt;Napi::Number&gt;();</span>
-<span class="lineNum">     372 </span>                :<span class="lineCov">       3389 :     element_size = info[2].As&lt;Napi::Number&gt;();</span>
-<span class="lineNum">     373 </span>                :<span class="lineCov">       3389 :     num_consumers = info[3].As&lt;Napi::Number&gt;();</span>
-<span class="lineNum">     374 </span>                :<span class="lineCov">       3389 :     consumer = info[4].As&lt;Napi::Number&gt;();</span>
-<span class="lineNum">     375 </span>                :<span class="lineCov">       3389 :     bool init = info[5].As&lt;Napi::Boolean&gt;();</span>
-<span class="lineNum">     376 </span>                :<span class="lineCov">       3389 :     spin = info[6].As&lt;Napi::Boolean&gt;();</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">       3395 :     Napi::String shm_name = info[0].As&lt;Napi::String&gt;();</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">       3395 :     num_elements = info[1].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     372 </span>                :<span class="lineCov">       3395 :     element_size = info[2].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">       3395 :     num_consumers = info[3].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">       3395 :     consumer = info[4].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     375 </span>                :<span class="lineCov">       3395 :     bool init = info[5].As&lt;Napi::Boolean&gt;();</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">       3395 :     spin = info[6].As&lt;Napi::Boolean&gt;();</span>
 <span class="lineNum">     377 </span>                :            : 
 <span class="lineNum">     378 </span>                :            :     // Open shared memory object
 <span class="lineNum">     379 </span>                :            :     std::unique_ptr&lt;int, CloseFD&gt; shm_fd(new int(
-<span class="lineNum">     380 </span>                :<span class="lineCov">       6778 :         shm_open(shm_name.Utf8Value().c_str(),</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">       6790 :         shm_open(shm_name.Utf8Value().c_str(),</span>
 <span class="lineNum">     381 </span>                :            :                  O_CREAT | O_RDWR | (init ? O_TRUNC : 0),
-<span class="lineNum">     382 </span>                :<span class="lineCov">       6778 :                  S_IRUSR | S_IWUSR)));</span>
-<span class="lineNum">     383 </span>                :<span class="lineCov">       3389 :     if (*shm_fd &lt; 0)</span>
+<span class="lineNum">     382 </span>                :<span class="lineCov">       6790 :                  S_IRUSR | S_IWUSR)));</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">       3395 :     if (*shm_fd &lt; 0)</span>
 <span class="lineNum">     384 </span>                :            :     {
 <span class="lineNum">     385 </span>                :<span class="lineCov">          3 :         ThrowErrnoError(info, &quot;Failed to open shared memory object&quot;);</span>
 <span class="lineNum">     386 </span>                :            :     }
@@ -460,104 +460,104 @@
 <span class="lineNum">     389 </span>                :            :     // a sequence number for each consumer,
 <span class="lineNum">     390 </span>                :            :     // the cursor sequence number (last filled slot) and
 <span class="lineNum">     391 </span>                :            :     // the next sequence number (first free slot).
-<span class="lineNum">     392 </span>                :<span class="lineCov">       6772 :     shm_size = (num_consumers + 2) * sizeof(sequence_t) +</span>
-<span class="lineNum">     393 </span>                :<span class="lineCov">       3386 :                num_elements * element_size;</span>
+<span class="lineNum">     392 </span>                :<span class="lineCov">       6784 :     shm_size = (num_consumers + 2) * sizeof(sequence_t) +</span>
+<span class="lineNum">     393 </span>                :<span class="lineCov">       3392 :                num_elements * element_size;</span>
 <span class="lineNum">     394 </span>                :            : 
 <span class="lineNum">     395 </span>                :            :     // Resize the shared memory if we're initializing it.
 <span class="lineNum">     396 </span>                :            :     // Note: ftruncate initializes to null bytes.
-<span class="lineNum">     397 </span>                :<span class="lineCov">       3386 :     if (init &amp;&amp; (ftruncate(*shm_fd, shm_size) &lt; 0))</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">       3392 :     if (init &amp;&amp; (ftruncate(*shm_fd, shm_size) &lt; 0))</span>
 <span class="lineNum">     398 </span>                :            :     {
 <span class="lineNum">     399 </span>                :            :         ThrowErrnoError(info, &quot;Failed to size shared memory&quot;); //LCOV_EXCL_LINE
 <span class="lineNum">     400 </span>                :            :     }
 <span class="lineNum">     401 </span>                :            : 
 <span class="lineNum">     402 </span>                :            :     // Map the shared memory
-<span class="lineNum">     403 </span>                :<span class="lineCov">       3386 :     shm_buf = mmap(NULL,</span>
+<span class="lineNum">     403 </span>                :<span class="lineCov">       3392 :     shm_buf = mmap(NULL,</span>
 <span class="lineNum">     404 </span>                :            :                    shm_size,
 <span class="lineNum">     405 </span>                :            :                    PROT_READ | PROT_WRITE, MAP_SHARED,
-<span class="lineNum">     406 </span>                :<span class="lineCov">       3386 :                    *shm_fd,</span>
+<span class="lineNum">     406 </span>                :<span class="lineCov">       3392 :                    *shm_fd,</span>
 <span class="lineNum">     407 </span>                :            :                    0);
-<span class="lineNum">     408 </span>                :<span class="lineCov">       3386 :     if (shm_buf == MAP_FAILED)</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">       3392 :     if (shm_buf == MAP_FAILED)</span>
 <span class="lineNum">     409 </span>                :            :     {
 <span class="lineNum">     410 </span>                :            :         ThrowErrnoError(info, &quot;Failed to map shared memory&quot;); //LCOV_EXCL_LINE
 <span class="lineNum">     411 </span>                :            : 
 <span class="lineNum">     412 </span>                :            :     }
 <span class="lineNum">     413 </span>                :            : 
-<span class="lineNum">     414 </span>                :<span class="lineCov">       3386 :     consumers = static_cast&lt;sequence_t*&gt;(shm_buf);</span>
-<span class="lineNum">     415 </span>                :<span class="lineCov">       3386 :     cursor = &amp;consumers[num_consumers];</span>
-<span class="lineNum">     416 </span>                :<span class="lineCov">       3386 :     next = &amp;cursor[1];</span>
-<span class="lineNum">     417 </span>                :<span class="lineCov">       3386 :     elements = reinterpret_cast&lt;uint8_t*&gt;(&amp;next[1]);</span>
-<span class="lineNum">     418 </span>                :<span class="lineCov">       3386 :     ptr_consumer = &amp;consumers[consumer];</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">       3392 :     consumers = static_cast&lt;sequence_t*&gt;(shm_buf);</span>
+<span class="lineNum">     415 </span>                :<span class="lineCov">       3392 :     cursor = &amp;consumers[num_consumers];</span>
+<span class="lineNum">     416 </span>                :<span class="lineCov">       3392 :     next = &amp;cursor[1];</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">       3392 :     elements = reinterpret_cast&lt;uint8_t*&gt;(&amp;next[1]);</span>
+<span class="lineNum">     418 </span>                :<span class="lineCov">       3392 :     ptr_consumer = &amp;consumers[consumer];</span>
 <span class="lineNum">     419 </span>                :            : 
-<span class="lineNum">     420 </span>                :<span class="lineCov">       3386 :     pending_seq_consumer = 0;</span>
-<span class="lineNum">     421 </span>                :<span class="lineCov">       3386 :     pending_seq_cursor = 0;</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">       3392 :     pending_seq_consumer = 0;</span>
+<span class="lineNum">     421 </span>                :<span class="lineCov">       3392 :     pending_seq_cursor = 0;</span>
 <span class="lineNum">     422 </span>                :            : 
-<span class="lineNum">     423 </span>                :<span class="lineCov">       3386 :     pending_seq_next = 0;</span>
-<span class="lineNum">     424 </span>                :<span class="lineCov">       3386 :     pending_seq_next_n = 0;</span>
-<a name="425"><span class="lineNum">     425 </span>                :<span class="lineCov">       3386 : }</span></a>
+<span class="lineNum">     423 </span>                :<span class="lineCov">       3392 :     pending_seq_next = 1;</span>
+<span class="lineNum">     424 </span>                :<span class="lineCov">       3392 :     pending_seq_next_n = 0;</span>
+<a name="425"><span class="lineNum">     425 </span>                :<span class="lineCov">       3392 : }</span></a>
 <span class="lineNum">     426 </span>                :            : 
-<span class="lineNum">     427 </span>                :<span class="lineCov">       5868 : Disruptor::~Disruptor()</span>
+<span class="lineNum">     427 </span>                :<span class="lineCov">       5480 : Disruptor::~Disruptor()</span>
 <span class="lineNum">     428 </span>                :            : {
-<span class="lineNum">     429 </span>                :<span class="lineCov">       2934 :     Release();</span>
-<a name="430"><span class="lineNum">     430 </span>                :<span class="lineCov">       2934 : }</span></a>
+<span class="lineNum">     429 </span>                :<span class="lineCov">       2740 :     Release();</span>
+<a name="430"><span class="lineNum">     430 </span>                :<span class="lineCov">       2740 : }</span></a>
 <span class="lineNum">     431 </span>                :            : 
-<span class="lineNum">     432 </span>                :<span class="lineCov">       6068 : int Disruptor::Release()</span>
+<span class="lineNum">     432 </span>                :<span class="lineCov">       5880 : int Disruptor::Release()</span>
 <span class="lineNum">     433 </span>                :            : {
-<span class="lineNum">     434 </span>                :<span class="lineCov">       6068 :     if (shm_buf != MAP_FAILED)</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">       5880 :     if (shm_buf != MAP_FAILED)</span>
 <span class="lineNum">     435 </span>                :            :     {
-<span class="lineNum">     436 </span>                :<span class="lineCov">       3134 :         int r = munmap(shm_buf, shm_size);</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">       3140 :         int r = munmap(shm_buf, shm_size);</span>
 <span class="lineNum">     437 </span>                :            : 
-<span class="lineNum">     438 </span>                :<span class="lineCov">       3134 :         if (r &lt; 0)</span>
+<span class="lineNum">     438 </span>                :<span class="lineCov">       3140 :         if (r &lt; 0)</span>
 <span class="lineNum">     439 </span>                :            :         {
 <span class="lineNum">     440 </span>                :            :             return r; //LCOV_EXCL_LINE
 <span class="lineNum">     441 </span>                :            :         }
 <span class="lineNum">     442 </span>                :            : 
-<span class="lineNum">     443 </span>                :<span class="lineCov">       3134 :         shm_buf = MAP_FAILED;</span>
+<span class="lineNum">     443 </span>                :<span class="lineCov">       3140 :         shm_buf = MAP_FAILED;</span>
 <span class="lineNum">     444 </span>                :            :     }
 <span class="lineNum">     445 </span>                :            : 
-<span class="lineNum">     446 </span>                :<span class="lineCov">       6068 :     return 0;</span>
+<span class="lineNum">     446 </span>                :<span class="lineCov">       5880 :     return 0;</span>
 <a name="447"><span class="lineNum">     447 </span>                :            : }</a>
 <span class="lineNum">     448 </span>                :            : 
-<span class="lineNum">     449 </span>                :<span class="lineCov">       3134 : void Disruptor::Release(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">       3140 : void Disruptor::Release(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     450 </span>                :            : {
-<span class="lineNum">     451 </span>                :<span class="lineCov">       3134 :     if (Release() &lt; 0)</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">       3140 :     if (Release() &lt; 0)</span>
 <span class="lineNum">     452 </span>                :            :     {
 <span class="lineNum">     453 </span>                :            :         ThrowErrnoError(info, &quot;Failed to unmap shared memory&quot;); //LCOV_EXCL_LINE
 <span class="lineNum">     454 </span>                :            :     }
-<span class="lineNum">     455 </span>                :<span class="lineCov">       3134 : }</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">       3140 : }</span>
 <a name="456"><span class="lineNum">     456 </span>                :            : </a>
 <span class="lineNum">     457 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
-<span class="lineNum">     458 </span>                :<span class="lineCov">    1461598 : Array Disruptor::ConsumeNewSync(const Napi::Env&amp; env,</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">    1461451 : Array Disruptor::ConsumeNewSync(const Napi::Env&amp; env,</span>
 <span class="lineNum">     459 </span>                :            :                                 bool retry,
 <span class="lineNum">     460 </span>                :            :                                 sequence_t &amp;start)
 <span class="lineNum">     461 </span>                :            : {
 <span class="lineNum">     462 </span>                :            :     // Return all elements [&amp;consumers[consumer], cursor)
 <span class="lineNum">     463 </span>                :            : 
 <span class="lineNum">     464 </span>                :            :     // Commit previous consume
-<span class="lineNum">     465 </span>                :<span class="lineCov">    1461598 :     ConsumeCommit();</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">    1461451 :     ConsumeCommit();</span>
 <span class="lineNum">     466 </span>                :            : 
-<span class="lineNum">     467 </span>                :<span class="lineCov">    1461600 :     start = 0;</span>
-<span class="lineNum">     468 </span>                :<span class="lineCov">    1461600 :     Array r = Array::New(env);</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">    1461454 :     start = 0;</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">    1461454 :     Array r = Array::New(env);</span>
 <span class="lineNum">     469 </span>                :            : 
-<span class="lineNum">     470 </span>                :<span class="lineCov">  430611663 :     do</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">  275346115 :     do</span>
 <span class="lineNum">     471 </span>                :            :     {
-<span class="lineNum">     472 </span>                :<span class="lineCov">  431242322 :         sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);</span>
-<span class="lineNum">     473 </span>                :<span class="lineCov">  431242322 :         sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);</span>
-<span class="lineNum">     474 </span>                :<span class="lineCov">  431242322 :         sequence_t pos_consumer = seq_consumer % num_elements;</span>
-<span class="lineNum">     475 </span>                :<span class="lineCov">  431242322 :         sequence_t pos_cursor = seq_cursor % num_elements;</span>
+<span class="lineNum">     472 </span>                :<span class="lineCov">  275975077 :         sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);</span>
+<span class="lineNum">     473 </span>                :<span class="lineCov">  275975077 :         sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);</span>
+<span class="lineNum">     474 </span>                :<span class="lineCov">  275975077 :         sequence_t pos_consumer = seq_consumer % num_elements;</span>
+<span class="lineNum">     475 </span>                :<span class="lineCov">  275975077 :         sequence_t pos_cursor = seq_cursor % num_elements;</span>
 <span class="lineNum">     476 </span>                :            : 
-<span class="lineNum">     477 </span>                :<span class="lineCov">  431242322 :         if (pos_cursor &gt; pos_consumer)</span>
+<span class="lineNum">     477 </span>                :<span class="lineCov">  275975077 :         if (pos_cursor &gt; pos_consumer)</span>
 <span class="lineNum">     478 </span>                :            :         {
-<span class="lineNum">     479 </span>                :<span class="lineCov">    1260216 :             r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     479 </span>                :<span class="lineCov">    1256822 :             r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
 <span class="lineNum">     480 </span>                :            :                 env,
-<span class="lineNum">     481 </span>                :<span class="lineCov">     630108 :                 elements + pos_consumer * element_size,</span>
-<span class="lineNum">     482 </span>                :<span class="lineCov">     630108 :                 (pos_cursor - pos_consumer) * element_size));</span>
+<span class="lineNum">     481 </span>                :<span class="lineCov">     628411 :                 elements + pos_consumer * element_size,</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">     628411 :                 (pos_cursor - pos_consumer) * element_size));</span>
 <span class="lineNum">     483 </span>                :            : 
-<span class="lineNum">     484 </span>                :<span class="lineCov">     630102 :             UpdatePending(seq_consumer, seq_cursor);</span>
-<span class="lineNum">     485 </span>                :<span class="lineCov">     630082 :             start = seq_consumer;</span>
-<span class="lineNum">     486 </span>                :<span class="lineCov">     630082 :             break;</span>
+<span class="lineNum">     484 </span>                :<span class="lineCov">     628421 :             UpdatePending(seq_consumer, seq_cursor);</span>
+<span class="lineNum">     485 </span>                :<span class="lineCov">     628395 :             start = seq_consumer;</span>
+<span class="lineNum">     486 </span>                :<span class="lineCov">     628395 :             break;</span>
 <span class="lineNum">     487 </span>                :            :         }
 <span class="lineNum">     488 </span>                :            : 
-<span class="lineNum">     489 </span>                :<span class="lineCov">  430612214 :         if (seq_cursor != seq_consumer)</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">  275346666 :         if (seq_cursor != seq_consumer)</span>
 <span class="lineNum">     490 </span>                :            :         {
 <span class="lineNum">     491 </span>                :<span class="lineCov">       1102 :             r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
 <span class="lineNum">     492 </span>                :            :                 env,
@@ -566,10 +566,10 @@
 <span class="lineNum">     495 </span>                :            : 
 <span class="lineNum">     496 </span>                :<span class="lineCov">        551 :             if (pos_cursor &gt; 0)</span>
 <span class="lineNum">     497 </span>                :            :             {
-<span class="lineNum">     498 </span>                :<span class="lineCov">        419 :                 r.Set(1U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">        394 :                 r.Set(1U, Buffer&lt;uint8_t&gt;::New(</span>
 <span class="lineNum">     499 </span>                :            :                     env,
 <span class="lineNum">     500 </span>                :            :                     elements,
-<span class="lineNum">     501 </span>                :<span class="lineCov">        419 :                     pos_cursor * element_size));</span>
+<span class="lineNum">     501 </span>                :<span class="lineCov">        394 :                     pos_cursor * element_size));</span>
 <span class="lineNum">     502 </span>                :            :             }
 <span class="lineNum">     503 </span>                :            : 
 <span class="lineNum">     504 </span>                :<span class="lineCov">        551 :             UpdatePending(seq_consumer, seq_cursor);</span>
@@ -579,116 +579,116 @@
 <span class="lineNum">     508 </span>                :            :     }
 <span class="lineNum">     509 </span>                :            :     while (retry);
 <span class="lineNum">     510 </span>                :            : 
-<span class="lineNum">     511 </span>                :<span class="lineCov">    1461555 :     return r;</span>
+<span class="lineNum">     511 </span>                :<span class="lineCov">    1461422 :     return r;</span>
 <a name="512"><span class="lineNum">     512 </span>                :            : }</a>
 <span class="lineNum">     513 </span>                :            : 
-<span class="lineNum">     514 </span>                :<span class="lineCov">      83009 : Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     514 </span>                :<span class="lineCov">      85863 : Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     515 </span>                :            : {
 <span class="lineNum">     516 </span>                :            :     sequence_t start;
-<span class="lineNum">     517 </span>                :<span class="lineCov">      83009 :     return ConsumeNewSync&lt;Napi::Array, Napi::Buffer&gt;(info.Env(), spin, start);</span>
+<span class="lineNum">     517 </span>                :<span class="lineCov">      85863 :     return ConsumeNewSync&lt;Napi::Array, Napi::Buffer&gt;(info.Env(), spin, start);</span>
 <a name="518"><span class="lineNum">     518 </span>                :            : }</a>
 <span class="lineNum">     519 </span>                :            : 
-<span class="lineNum">     520 </span>                :<span class="lineCov">    1661882 : class ConsumeNewAsyncWorker :</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">    1664966 : class ConsumeNewAsyncWorker :</span>
 <span class="lineNum">     521 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
 <span class="lineNum">     522 </span>                :            :                                 sequence_t,
 <span class="lineNum">     523 </span>                :            :                                 AsyncUndefined&gt;
 <a name="524"><span class="lineNum">     524 </span>                :            : {</a>
 <span class="lineNum">     525 </span>                :            : public:
-<span class="lineNum">     526 </span>                :<span class="lineCov">     830941 :     ConsumeNewAsyncWorker(Disruptor *disruptor,</span>
-<span class="lineNum">     527 </span>                :<span class="lineCov">     830941 :                           const Napi::Function&amp; callback) :</span>
+<span class="lineNum">     526 </span>                :<span class="lineCov">     832483 :     ConsumeNewAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     527 </span>                :<span class="lineCov">     832483 :                           const Napi::Function&amp; callback) :</span>
 <span class="lineNum">     528 </span>                :            :         DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
 <span class="lineNum">     529 </span>                :            :                              sequence_t,
 <span class="lineNum">     530 </span>                :            :                              AsyncUndefined&gt;(
-<span class="lineNum">     531 </span>                :<span class="lineCov">     830941 :             disruptor, callback)</span>
+<span class="lineNum">     531 </span>                :<span class="lineCov">     832483 :             disruptor, callback)</span>
 <span class="lineNum">     532 </span>                :            :     {
-<span class="lineNum">     533 </span>                :<span class="lineCov">     830941 :         arg1 = 0;</span>
-<span class="lineNum">     534 </span>                :<span class="lineCov">     830941 :     }</span>
+<span class="lineNum">     533 </span>                :<span class="lineCov">     832483 :         arg1 = 0;</span>
+<span class="lineNum">     534 </span>                :<span class="lineCov">     832483 :     }</span>
 <a name="535"><span class="lineNum">     535 </span>                :            : </a>
 <span class="lineNum">     536 </span>                :            : protected:
-<span class="lineNum">     537 </span>                :<span class="lineCov">     830938 :     void Execute() override</span>
+<span class="lineNum">     537 </span>                :<span class="lineCov">     832478 :     void Execute() override</span>
 <span class="lineNum">     538 </span>                :            :     {
 <span class="lineNum">     539 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
-<span class="lineNum">     540 </span>                :<span class="lineCov">     830938 :         result = disruptor-&gt;ConsumeNewSync&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;, AsyncBuffer&gt;(Env(), false, arg1);</span>
-<span class="lineNum">     541 </span>                :<span class="lineCov">     830921 :         retry = result.Length() == 0;</span>
-<a name="542"><span class="lineNum">     542 </span>                :<span class="lineCov">     830931 :     }</span></a>
+<span class="lineNum">     540 </span>                :<span class="lineCov">     832478 :         result = disruptor-&gt;ConsumeNewSync&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;, AsyncBuffer&gt;(Env(), false, arg1);</span>
+<span class="lineNum">     541 </span>                :<span class="lineCov">     832451 :         retry = result.Length() == 0;</span>
+<a name="542"><span class="lineNum">     542 </span>                :<span class="lineCov">     832473 :     }</span></a>
 <span class="lineNum">     543 </span>                :            : 
-<span class="lineNum">     544 </span>                :<span class="lineCov">     556501 :     void Retry() override</span>
+<span class="lineNum">     544 </span>                :<span class="lineCov">     560191 :     void Retry() override</span>
 <span class="lineNum">     545 </span>                :            :     {
-<span class="lineNum">     546 </span>                :<span class="lineCov">     556501 :         (new ConsumeNewAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
-<span class="lineNum">     547 </span>                :<span class="lineCov">     556501 :     }</span>
+<span class="lineNum">     546 </span>                :<span class="lineCov">     560191 :         (new ConsumeNewAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
+<span class="lineNum">     547 </span>                :<span class="lineCov">     560191 :     }</span>
 <a name="548"><span class="lineNum">     548 </span>                :            : };</a>
 <span class="lineNum">     549 </span>                :            : 
-<span class="lineNum">     550 </span>                :<span class="lineCov">     274440 : void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     550 </span>                :<span class="lineCov">     272292 : void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     551 </span>                :            : {
-<span class="lineNum">     552 </span>                :<span class="lineCov">     274440 :     (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
-<a name="553"><span class="lineNum">     553 </span>                :<span class="lineCov">     274440 : }</span></a>
+<span class="lineNum">     552 </span>                :<span class="lineCov">     272292 :     (new ConsumeNewAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
+<a name="553"><span class="lineNum">     553 </span>                :<span class="lineCov">     272292 : }</span></a>
 <span class="lineNum">     554 </span>                :            : 
-<span class="lineNum">     555 </span>                :<span class="lineCov">     547657 : Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">     543112 : Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     556 </span>                :            : {
 <span class="lineNum">     557 </span>                :            :     sequence_t start;
 <span class="lineNum">     558 </span>                :            :     Napi::Array r = ConsumeNewSync&lt;Napi::Array, Napi::Buffer&gt;(
-<span class="lineNum">     559 </span>                :<span class="lineCov">     547657 :         info.Env(), false, start);</span>
+<span class="lineNum">     559 </span>                :<span class="lineCov">     543112 :         info.Env(), false, start);</span>
 <span class="lineNum">     560 </span>                :            : 
-<span class="lineNum">     561 </span>                :<span class="lineCov">     547657 :     if (r.Length() &gt; 0)</span>
+<span class="lineNum">     561 </span>                :<span class="lineCov">     543112 :     if (r.Length() &gt; 0)</span>
 <span class="lineNum">     562 </span>                :            :     {
-<span class="lineNum">     563 </span>                :<span class="lineCov">     273229 :         return r;</span>
+<span class="lineNum">     563 </span>                :<span class="lineCov">     270832 :         return r;</span>
 <span class="lineNum">     564 </span>                :            :     }
 <span class="lineNum">     565 </span>                :            : 
-<span class="lineNum">     566 </span>                :<span class="lineCov">     274428 :     ConsumeNewAsync(info);</span>
-<span class="lineNum">     567 </span>                :<span class="lineCov">     274428 :     return info.Env().Undefined();</span>
+<span class="lineNum">     566 </span>                :<span class="lineCov">     272280 :     ConsumeNewAsync(info);</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">     272280 :     return info.Env().Undefined();</span>
 <a name="568"><span class="lineNum">     568 </span>                :            : }</a>
 <span class="lineNum">     569 </span>                :            : 
-<span class="lineNum">     570 </span>                :<span class="lineCov">     630668 : Napi::Value Disruptor::ConsumeCommit(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     570 </span>                :<span class="lineCov">     628980 : Napi::Value Disruptor::ConsumeCommit(const Napi::CallbackInfo&amp; info)</span>
 <span class="lineNum">     571 </span>                :            : {
-<span class="lineNum">     572 </span>                :<span class="lineCov">     630668 :     return Napi::Boolean::New(info.Env(), ConsumeCommit());</span>
+<span class="lineNum">     572 </span>                :<span class="lineCov">     628980 :     return Napi::Boolean::New(info.Env(), ConsumeCommit());</span>
 <a name="573"><span class="lineNum">     573 </span>                :            : }</a>
 <span class="lineNum">     574 </span>                :            : 
-<span class="lineNum">     575 </span>                :<span class="lineCov">     630645 : void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)</span>
+<span class="lineNum">     575 </span>                :<span class="lineCov">     628960 : void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)</span>
 <span class="lineNum">     576 </span>                :            : {
-<span class="lineNum">     577 </span>                :<span class="lineCov">     630645 :     pending_seq_consumer = seq_consumer;</span>
-<span class="lineNum">     578 </span>                :<span class="lineCov">     630645 :     pending_seq_cursor = seq_cursor;</span>
-<a name="579"><span class="lineNum">     579 </span>                :<span class="lineCov">     630645 : }</span></a>
+<span class="lineNum">     577 </span>                :<span class="lineCov">     628960 :     pending_seq_consumer = seq_consumer;</span>
+<span class="lineNum">     578 </span>                :<span class="lineCov">     628960 :     pending_seq_cursor = seq_cursor;</span>
+<a name="579"><span class="lineNum">     579 </span>                :<span class="lineCov">     628960 : }</span></a>
 <span class="lineNum">     580 </span>                :            : 
-<span class="lineNum">     581 </span>                :<span class="lineCov">    2092266 : bool Disruptor::ConsumeCommit()</span>
+<span class="lineNum">     581 </span>                :<span class="lineCov">    2090432 : bool Disruptor::ConsumeCommit()</span>
 <span class="lineNum">     582 </span>                :            : {
-<span class="lineNum">     583 </span>                :<span class="lineCov">    2092266 :     bool r = true;</span>
+<span class="lineNum">     583 </span>                :<span class="lineCov">    2090432 :     bool r = true;</span>
 <span class="lineNum">     584 </span>                :            : 
-<span class="lineNum">     585 </span>                :<span class="lineCov">    2092266 :     if (pending_seq_cursor)</span>
+<span class="lineNum">     585 </span>                :<span class="lineCov">    2090432 :     if (pending_seq_cursor)</span>
 <span class="lineNum">     586 </span>                :            :     {
-<span class="lineNum">     587 </span>                :<span class="lineCov">     630671 :         r = __sync_bool_compare_and_swap(ptr_consumer,</span>
+<span class="lineNum">     587 </span>                :<span class="lineCov">     628980 :         r = __sync_bool_compare_and_swap(ptr_consumer,</span>
 <span class="lineNum">     588 </span>                :            :                                          pending_seq_consumer,
-<span class="lineNum">     589 </span>                :<span class="lineCov">     630671 :                                          pending_seq_cursor);</span>
-<span class="lineNum">     590 </span>                :<span class="lineCov">     630671 :         pending_seq_cursor = 0;</span>
+<span class="lineNum">     589 </span>                :<span class="lineCov">     628980 :                                          pending_seq_cursor);</span>
+<span class="lineNum">     590 </span>                :<span class="lineCov">     628980 :         pending_seq_cursor = 0;</span>
 <span class="lineNum">     591 </span>                :            :     }
 <span class="lineNum">     592 </span>                :            : 
-<span class="lineNum">     593 </span>                :<span class="lineCov">    2092266 :     return r;</span>
+<span class="lineNum">     593 </span>                :<span class="lineCov">    2090432 :     return r;</span>
 <span class="lineNum">     594 </span>                :            : }
 <a name="595"><span class="lineNum">     595 </span>                :            : </a>
 <span class="lineNum">     596 </span>                :            : template&lt;template&lt;typename&gt; typename Buffer&gt;
-<span class="lineNum">     597 </span>                :<span class="lineCov">   33935809 : Buffer&lt;uint8_t&gt; Disruptor::ProduceClaimSync(const Napi::Env&amp; env,</span>
+<span class="lineNum">     597 </span>                :<span class="lineCov">   38256896 : Buffer&lt;uint8_t&gt; Disruptor::ProduceClaimSync(const Napi::Env&amp; env,</span>
 <span class="lineNum">     598 </span>                :            :                                             bool retry,
 <span class="lineNum">     599 </span>                :            :                                             sequence_t&amp; out_next,
 <span class="lineNum">     600 </span>                :            :                                             sequence_t&amp; out_next_n)
 <span class="lineNum">     601 </span>                :            : {
-<span class="lineNum">     602 </span>                :<span class="lineCov">   33648943 :     do</span>
+<span class="lineNum">     602 </span>                :<span class="lineCov">   37970030 :     do</span>
 <span class="lineNum">     603 </span>                :            :     {
-<span class="lineNum">     604 </span>                :<span class="lineCov">   33935809 :         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);</span>
+<span class="lineNum">     604 </span>                :<span class="lineCov">   38256896 :         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);</span>
 <span class="lineNum">     605 </span>                :            : 
-<span class="lineNum">     606 </span>                :<span class="lineCov">   33935809 :         bool can_claim = true;</span>
+<span class="lineNum">     606 </span>                :<span class="lineCov">   38256896 :         bool can_claim = true;</span>
 <span class="lineNum">     607 </span>                :            : 
-<span class="lineNum">     608 </span>                :<span class="lineCov">   44388365 :         for (uint32_t i = 0; i &lt; num_consumers; ++i)</span>
+<span class="lineNum">     608 </span>                :<span class="lineCov">   48657317 :         for (uint32_t i = 0; i &lt; num_consumers; ++i)</span>
 <span class="lineNum">     609 </span>                :            :         {
-<span class="lineNum">     610 </span>                :<span class="lineCov">   44087125 :             sequence_t seq_consumer = __sync_val_compare_and_swap(&amp;consumers[i], 0, 0);</span>
+<span class="lineNum">     610 </span>                :<span class="lineCov">   48357286 :             sequence_t seq_consumer = __sync_val_compare_and_swap(&amp;consumers[i], 0, 0);</span>
 <span class="lineNum">     611 </span>                :            : 
-<span class="lineNum">     612 </span>                :<span class="lineCov">   44087125 :             if ((seq_next - seq_consumer) &gt;= num_elements)</span>
+<span class="lineNum">     612 </span>                :<span class="lineCov">   48357286 :             if ((seq_next - seq_consumer) &gt;= num_elements)</span>
 <span class="lineNum">     613 </span>                :            :             {
-<span class="lineNum">     614 </span>                :<span class="lineCov">   33634569 :                 can_claim = false;</span>
-<span class="lineNum">     615 </span>                :<span class="lineCov">   33634569 :                 break;</span>
+<span class="lineNum">     614 </span>                :<span class="lineCov">   37956865 :                 can_claim = false;</span>
+<span class="lineNum">     615 </span>                :<span class="lineCov">   37956865 :                 break;</span>
 <span class="lineNum">     616 </span>                :            :             }
 <span class="lineNum">     617 </span>                :            :         }
 <span class="lineNum">     618 </span>                :            : 
-<span class="lineNum">     619 </span>                :<span class="lineCov">   34237049 :         if (can_claim &amp;&amp;</span>
-<span class="lineNum">     620 </span>                :<span class="lineCov">     301240 :             __sync_bool_compare_and_swap(next, seq_next, seq_next + 1))</span>
+<span class="lineNum">     619 </span>                :<span class="lineCov">   38556927 :         if (can_claim &amp;&amp;</span>
+<span class="lineNum">     620 </span>                :<span class="lineCov">     300031 :             __sync_bool_compare_and_swap(next, seq_next, seq_next + 1))</span>
 <span class="lineNum">     621 </span>                :            :         {
 <span class="lineNum">     622 </span>                :<span class="lineCov">     573732 :             Buffer&lt;uint8_t&gt; r = Buffer&lt;uint8_t&gt;::New(</span>
 <span class="lineNum">     623 </span>                :            :                 env,
@@ -704,422 +704,426 @@
 <span class="lineNum">     633 </span>                :            :     }
 <span class="lineNum">     634 </span>                :            :     while (retry);
 <span class="lineNum">     635 </span>                :            : 
-<span class="lineNum">     636 </span>                :<span class="lineCov">     329813 :     out_next = 0;</span>
-<span class="lineNum">     637 </span>                :<span class="lineCov">     329813 :     out_next_n = 0;</span>
-<span class="lineNum">     638 </span>                :<span class="lineCov">     329813 :     return Buffer&lt;uint8_t&gt;::New(env, 0);</span>
-<a name="639"><span class="lineNum">     639 </span>                :            : }</a>
-<span class="lineNum">     640 </span>                :            : 
-<span class="lineNum">     641 </span>                :<span class="lineCov">     234181 : Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     642 </span>                :            : {
-<span class="lineNum">     643 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     644 </span>                :<span class="lineCov">     468362 :     return ProduceClaimSync&lt;Napi::Buffer&gt;(</span>
-<span class="lineNum">     645 </span>                :<span class="lineCov">     702543 :         info.Env(), spin, seq_next, seq_next_n);</span>
-<a name="646"><span class="lineNum">     646 </span>                :            : }</a>
-<span class="lineNum">     647 </span>                :            : 
-<span class="lineNum">     648 </span>                :<span class="lineCov">     661218 : class ProduceClaimAsyncWorker :</span>
-<span class="lineNum">     649 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;, sequence_t, sequence_t&gt;
-<a name="650"><span class="lineNum">     650 </span>                :            : {</a>
-<span class="lineNum">     651 </span>                :            : public:
-<span class="lineNum">     652 </span>                :<span class="lineCov">     330609 :     ProduceClaimAsyncWorker(Disruptor *disruptor,</span>
-<span class="lineNum">     653 </span>                :<span class="lineCov">     330609 :                             const Napi::Function&amp; callback) :</span>
-<span class="lineNum">     654 </span>                :            :         DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;, sequence_t, sequence_t&gt;(
-<span class="lineNum">     655 </span>                :<span class="lineCov">     330609 :             disruptor, callback)</span>
-<span class="lineNum">     656 </span>                :            :     {
-<span class="lineNum">     657 </span>                :<span class="lineCov">     330609 :         arg1 = 0;</span>
-<span class="lineNum">     658 </span>                :<span class="lineCov">     330609 :         arg2 = 0;</span>
-<span class="lineNum">     659 </span>                :<span class="lineCov">     330609 :     }</span>
-<a name="660"><span class="lineNum">     660 </span>                :            : </a>
-<span class="lineNum">     661 </span>                :            : protected:
-<span class="lineNum">     662 </span>                :<span class="lineCov">     330609 :     void Execute() override</span>
-<span class="lineNum">     663 </span>                :            :     {
-<span class="lineNum">     664 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
-<span class="lineNum">     665 </span>                :<span class="lineCov">     330609 :         result = disruptor-&gt;ProduceClaimSync&lt;AsyncBuffer&gt;(</span>
-<span class="lineNum">     666 </span>                :<span class="lineCov">     661218 :             Env(), false, arg1, arg2);</span>
-<span class="lineNum">     667 </span>                :<span class="lineCov">     330609 :         retry = result.Length() == 0;</span>
-<a name="668"><span class="lineNum">     668 </span>                :<span class="lineCov">     330609 :     }</span></a>
-<span class="lineNum">     669 </span>                :            : 
-<span class="lineNum">     670 </span>                :<span class="lineCov">     329796 :     void Retry() override</span>
-<span class="lineNum">     671 </span>                :            :     {
-<span class="lineNum">     672 </span>                :<span class="lineCov">     329796 :         (new ProduceClaimAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
-<span class="lineNum">     673 </span>                :<span class="lineCov">     329796 :     }</span>
-<a name="674"><span class="lineNum">     674 </span>                :            : };</a>
-<span class="lineNum">     675 </span>                :            : 
-<span class="lineNum">     676 </span>                :<span class="lineCov">        813 : void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     677 </span>                :            : {
-<span class="lineNum">     678 </span>                :<span class="lineCov">        813 :     (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
-<a name="679"><span class="lineNum">     679 </span>                :<span class="lineCov">        813 : }</span></a>
-<span class="lineNum">     680 </span>                :            : 
-<span class="lineNum">     681 </span>                :<span class="lineCov">      51889 : Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     682 </span>                :            : {
-<span class="lineNum">     683 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     684 </span>                :            :     Napi::Buffer&lt;uint8_t&gt; r = ProduceClaimSync&lt;Napi::Buffer&gt;(
-<span class="lineNum">     685 </span>                :<span class="lineCov">      51889 :         info.Env(), false, seq_next, seq_next_n);</span>
-<span class="lineNum">     686 </span>                :<span class="lineCov">      51889 :     if (r.Length() &gt; 0)</span>
-<span class="lineNum">     687 </span>                :            :     {
-<span class="lineNum">     688 </span>                :<span class="lineCov">      51884 :         return r;</span>
-<span class="lineNum">     689 </span>                :            :     }
-<span class="lineNum">     690 </span>                :            : 
-<span class="lineNum">     691 </span>                :<span class="lineCov">          5 :     ProduceClaimAsync(info);</span>
-<span class="lineNum">     692 </span>                :<span class="lineCov">          5 :     return info.Env().Undefined();</span>
-<span class="lineNum">     693 </span>                :            : }
-<a name="694"><span class="lineNum">     694 </span>                :            : </a>
-<span class="lineNum">     695 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
-<span class="lineNum">     696 </span>                :<span class="lineCov">         41 : void Disruptor::ProduceGetBuffers(const Napi::Env&amp; env,</span>
-<span class="lineNum">     697 </span>                :            :                                   sequence_t seq_next,
-<span class="lineNum">     698 </span>                :            :                                   sequence_t seq_next_n,
-<span class="lineNum">     699 </span>                :            :                                   Array&amp; r)
-<span class="lineNum">     700 </span>                :            : {
-<span class="lineNum">     701 </span>                :<span class="lineCov">         41 :     sequence_t pos_next = seq_next % num_elements;</span>
-<span class="lineNum">     702 </span>                :<span class="lineCov">         41 :     sequence_t pos_next_n = seq_next_n % num_elements;</span>
-<span class="lineNum">     703 </span>                :            : 
-<span class="lineNum">     704 </span>                :<span class="lineCov">         41 :     if (pos_next_n &lt; pos_next)</span>
-<span class="lineNum">     705 </span>                :            :     {
-<span class="lineNum">     706 </span>                :<span class="lineCov">          6 :         r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
-<span class="lineNum">     707 </span>                :            :             env,
-<span class="lineNum">     708 </span>                :<span class="lineCov">          3 :             elements + pos_next * element_size,</span>
-<span class="lineNum">     709 </span>                :<span class="lineCov">          3 :             (num_elements - pos_next) * element_size));</span>
-<span class="lineNum">     710 </span>                :            : 
-<span class="lineNum">     711 </span>                :<span class="lineCov">          3 :         r.Set(1U, Buffer&lt;uint8_t&gt;::New(</span>
-<span class="lineNum">     712 </span>                :            :             env,
-<span class="lineNum">     713 </span>                :            :             elements,
-<span class="lineNum">     714 </span>                :<span class="lineCov">          3 :             (pos_next_n + 1) * element_size));</span>
-<span class="lineNum">     715 </span>                :            :     }
-<span class="lineNum">     716 </span>                :            :     else
-<span class="lineNum">     717 </span>                :            :     {
-<span class="lineNum">     718 </span>                :<span class="lineCov">         76 :         r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
-<span class="lineNum">     719 </span>                :            :             env,
-<span class="lineNum">     720 </span>                :<span class="lineCov">         38 :             elements + pos_next * element_size,</span>
-<span class="lineNum">     721 </span>                :<span class="lineCov">         38 :             (pos_next_n - pos_next + 1) * element_size));</span>
-<span class="lineNum">     722 </span>                :            :     }
-<span class="lineNum">     723 </span>                :            : 
-<span class="lineNum">     724 </span>                :<span class="lineCov">         41 :     UpdateSeqNext(seq_next, seq_next_n);</span>
-<span class="lineNum">     725 </span>                :<span class="lineCov">         41 : }</span>
-<a name="726"><span class="lineNum">     726 </span>                :            : </a>
-<span class="lineNum">     727 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
-<span class="lineNum">     728 </span>                :<span class="lineCov">     276809 : Array Disruptor::ProduceClaimManySync(const Napi::Env&amp; env,</span>
-<span class="lineNum">     729 </span>                :            :                                       uint32_t n,
-<span class="lineNum">     730 </span>                :            :                                       bool retry,
-<span class="lineNum">     731 </span>                :            :                                       sequence_t&amp; out_next,
-<span class="lineNum">     732 </span>                :            :                                       sequence_t&amp; out_next_n)
-<span class="lineNum">     733 </span>                :            : {
-<span class="lineNum">     734 </span>                :<span class="lineCov">     276809 :     out_next = 0;</span>
-<span class="lineNum">     735 </span>                :<span class="lineCov">     276809 :     out_next_n = 0;</span>
-<span class="lineNum">     736 </span>                :<span class="lineCov">     276809 :     Array r = Array::New(env);</span>
-<span class="lineNum">     737 </span>                :            : 
-<span class="lineNum">     738 </span>                :<span class="lineCov">     276783 :     do</span>
-<span class="lineNum">     739 </span>                :            :     {
-<span class="lineNum">     740 </span>                :<span class="lineCov">     276809 :         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);</span>
-<span class="lineNum">     741 </span>                :<span class="lineCov">     276809 :         sequence_t seq_next_n = seq_next + n - 1;</span>
-<span class="lineNum">     742 </span>                :            : 
-<span class="lineNum">     743 </span>                :<span class="lineCov">     276809 :         bool can_claim = true;</span>
-<span class="lineNum">     744 </span>                :            : 
-<span class="lineNum">     745 </span>                :<span class="lineCov">     276835 :         for (uint32_t i = 0; i &lt; num_consumers; ++i)</span>
-<span class="lineNum">     746 </span>                :            :         {
-<span class="lineNum">     747 </span>                :<span class="lineCov">     276809 :             sequence_t seq_consumer = __sync_val_compare_and_swap(&amp;consumers[i], 0, 0);</span>
-<span class="lineNum">     748 </span>                :            : 
-<span class="lineNum">     749 </span>                :<span class="lineCov">     276809 :             if ((seq_next_n - seq_consumer) &gt;= num_elements)</span>
-<span class="lineNum">     750 </span>                :            :             {
-<span class="lineNum">     751 </span>                :<span class="lineCov">     276783 :                 can_claim = false;</span>
-<span class="lineNum">     752 </span>                :<span class="lineCov">     276783 :                 break;</span>
-<span class="lineNum">     753 </span>                :            :             }
-<span class="lineNum">     754 </span>                :            :         }
-<span class="lineNum">     755 </span>                :            : 
-<span class="lineNum">     756 </span>                :<span class="lineCov">     276835 :         if (can_claim &amp;&amp;</span>
-<span class="lineNum">     757 </span>                :<span class="lineCov">         26 :             __sync_bool_compare_and_swap(next, seq_next, seq_next_n + 1))</span>
-<span class="lineNum">     758 </span>                :            :         {
-<span class="lineNum">     759 </span>                :<span class="lineCov">         26 :             ProduceGetBuffers&lt;Array, Buffer&gt;(env, seq_next, seq_next_n, r);</span>
-<span class="lineNum">     760 </span>                :<span class="lineCov">         26 :             out_next = seq_next;</span>
-<span class="lineNum">     761 </span>                :<span class="lineCov">         26 :             out_next_n = seq_next_n;</span>
-<span class="lineNum">     762 </span>                :<span class="lineCov">         26 :             break;</span>
-<span class="lineNum">     763 </span>                :            :         }
-<span class="lineNum">     764 </span>                :            :     }
-<span class="lineNum">     765 </span>                :            :     while (retry);
-<span class="lineNum">     766 </span>                :            : 
-<span class="lineNum">     767 </span>                :<span class="lineCov">     276809 :     return r;</span>
-<a name="768"><span class="lineNum">     768 </span>                :            : }</a>
-<span class="lineNum">     769 </span>                :            : 
-<span class="lineNum">     770 </span>                :<span class="lineCov">         11 : Napi::Value Disruptor::ProduceClaimManySync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     771 </span>                :            : {
-<span class="lineNum">     772 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     773 </span>                :<span class="lineCov">         22 :     return ProduceClaimManySync&lt;Napi::Array, Napi::Buffer&gt;(</span>
-<span class="lineNum">     774 </span>                :<span class="lineCov">         33 :         info.Env(), info[0].As&lt;Napi::Number&gt;(), spin, seq_next, seq_next_n);</span>
-<a name="775"><span class="lineNum">     775 </span>                :            : }</a>
-<span class="lineNum">     776 </span>                :            : 
-<span class="lineNum">     777 </span>                :<span class="lineCov">     553570 : class ProduceClaimManyAsyncWorker :</span>
-<span class="lineNum">     778 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
-<span class="lineNum">     779 </span>                :            :                                 sequence_t,
-<span class="lineNum">     780 </span>                :            :                                 sequence_t&gt;
-<a name="781"><span class="lineNum">     781 </span>                :            : {</a>
-<span class="lineNum">     782 </span>                :            : public:
-<span class="lineNum">     783 </span>                :<span class="lineCov">     276785 :     ProduceClaimManyAsyncWorker(Disruptor *disruptor,</span>
-<span class="lineNum">     784 </span>                :            :                                 const Napi::Function&amp; callback,
-<span class="lineNum">     785 </span>                :<span class="lineCov">     276785 :                                 uint32_t n) :</span>
-<span class="lineNum">     786 </span>                :            :         DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
-<span class="lineNum">     787 </span>                :            :                              sequence_t,
-<span class="lineNum">     788 </span>                :            :                              sequence_t&gt;(
-<span class="lineNum">     789 </span>                :            :             disruptor, callback),
-<span class="lineNum">     790 </span>                :<span class="lineCov">     276785 :         n(n)</span>
-<span class="lineNum">     791 </span>                :            :     {
-<span class="lineNum">     792 </span>                :<span class="lineCov">     276785 :         arg1 = 0;</span>
-<span class="lineNum">     793 </span>                :<span class="lineCov">     276785 :         arg2 = 0;</span>
-<span class="lineNum">     794 </span>                :<span class="lineCov">     276785 :     }</span>
-<a name="795"><span class="lineNum">     795 </span>                :            : </a>
-<span class="lineNum">     796 </span>                :            : protected:
-<span class="lineNum">     797 </span>                :<span class="lineCov">     276785 :     void Execute() override</span>
-<span class="lineNum">     798 </span>                :            :     {
-<span class="lineNum">     799 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
-<span class="lineNum">     800 </span>                :<span class="lineCov">     830355 :         result = disruptor-&gt;ProduceClaimManySync&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;, AsyncBuffer&gt;(</span>
-<span class="lineNum">     801 </span>                :<span class="lineCov">     830355 :             Env(), n, false, arg1, arg2);</span>
-<span class="lineNum">     802 </span>                :<span class="lineCov">     276785 :         retry = result.Length() == 0;</span>
-<a name="803"><span class="lineNum">     803 </span>                :<span class="lineCov">     276785 :     }</span></a>
-<span class="lineNum">     804 </span>                :            : 
-<span class="lineNum">     805 </span>                :<span class="lineCov">     276770 :     void Retry() override</span>
-<span class="lineNum">     806 </span>                :            :     {
-<span class="lineNum">     807 </span>                :<span class="lineCov">     276770 :         (new ProduceClaimManyAsyncWorker(disruptor, Callback().Value(), n))-&gt;Queue();</span>
-<span class="lineNum">     808 </span>                :<span class="lineCov">     276770 :     }</span>
-<span class="lineNum">     809 </span>                :            : 
-<span class="lineNum">     810 </span>                :            : private:
-<span class="lineNum">     811 </span>                :            :     uint32_t n;
-<a name="812"><span class="lineNum">     812 </span>                :            : };</a>
-<span class="lineNum">     813 </span>                :            : 
-<span class="lineNum">     814 </span>                :<span class="lineCov">         15 : void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo&amp; info,</span>
-<span class="lineNum">     815 </span>                :            :                                       uint32_t n)
-<span class="lineNum">     816 </span>                :            : {
-<span class="lineNum">     817 </span>                :<span class="lineCov">         15 :     (new ProduceClaimManyAsyncWorker(this, GetCallback(info, 1), n))-&gt;Queue();</span>
-<a name="818"><span class="lineNum">     818 </span>                :<span class="lineCov">         15 : }</span></a>
-<span class="lineNum">     819 </span>                :            : 
-<span class="lineNum">     820 </span>                :<span class="lineCov">         11 : void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     821 </span>                :            : {
-<span class="lineNum">     822 </span>                :<span class="lineCov">         11 :     ProduceClaimManyAsync(info, info[0].As&lt;Napi::Number&gt;());</span>
-<a name="823"><span class="lineNum">     823 </span>                :<span class="lineCov">         11 : }</span></a>
-<span class="lineNum">     824 </span>                :            : 
-<span class="lineNum">     825 </span>                :<span class="lineCov">         13 : Napi::Value Disruptor::ProduceClaimMany(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     826 </span>                :            : {
-<span class="lineNum">     827 </span>                :<span class="lineCov">         13 :     uint32_t n = info[0].As&lt;Napi::Number&gt;();</span>
-<span class="lineNum">     828 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     829 </span>                :            :     Napi::Array r = ProduceClaimManySync&lt;Napi::Array, Napi::Buffer&gt;(
-<span class="lineNum">     830 </span>                :<span class="lineCov">         13 :         info.Env(), n, false, seq_next, seq_next_n);</span>
-<span class="lineNum">     831 </span>                :<span class="lineCov">         13 :     if (r.Length() &gt; 0)</span>
-<span class="lineNum">     832 </span>                :            :     {
-<span class="lineNum">     833 </span>                :<span class="lineCov">          9 :         return r;</span>
-<span class="lineNum">     834 </span>                :            :     }
-<span class="lineNum">     835 </span>                :            : 
-<span class="lineNum">     836 </span>                :<span class="lineCov">          4 :     ProduceClaimManyAsync(info, n);</span>
-<span class="lineNum">     837 </span>                :<span class="lineCov">          4 :     return info.Env().Undefined();</span>
-<a name="838"><span class="lineNum">     838 </span>                :            : }</a>
-<span class="lineNum">     839 </span>                :            : 
-<span class="lineNum">     840 </span>                :<span class="lineCov">         57 : Napi::Value Disruptor::ProduceRecover(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     841 </span>                :            : {
-<span class="lineNum">     842 </span>                :<span class="lineCov">         57 :     sequence_t seq_next = info[0].As&lt;Napi::Number&gt;().Int64Value();</span>
-<span class="lineNum">     843 </span>                :<span class="lineCov">         57 :     sequence_t seq_next_n = info[1].As&lt;Napi::Number&gt;().Int64Value();</span>
-<span class="lineNum">     844 </span>                :            : 
-<span class="lineNum">     845 </span>                :<span class="lineCov">         57 :     Napi::Array r = Napi::Array::New(info.Env());</span>
-<span class="lineNum">     846 </span>                :            : 
-<span class="lineNum">     847 </span>                :<span class="lineCov">        105 :     if ((seq_next &lt;= seq_next_n) &amp;&amp;</span>
-<span class="lineNum">     848 </span>                :<span class="lineCov">         87 :         (__sync_val_compare_and_swap(cursor, 0, 0) &lt;= seq_next) &amp;&amp;</span>
-<span class="lineNum">     849 </span>                :<span class="lineCov">         30 :         (__sync_val_compare_and_swap(next, 0, 0) &gt; seq_next_n))</span>
-<span class="lineNum">     850 </span>                :            :     {
-<span class="lineNum">     851 </span>                :            :         ProduceGetBuffers&lt;Napi::Array, Napi::Buffer&gt;(
-<span class="lineNum">     852 </span>                :<span class="lineCov">         15 :             info.Env(), seq_next, seq_next_n, r);</span>
-<span class="lineNum">     853 </span>                :            :     }
-<span class="lineNum">     854 </span>                :            : 
-<span class="lineNum">     855 </span>                :<span class="lineCov">         57 :     return r;</span>
-<span class="lineNum">     856 </span>                :            : }
-<a name="857"><span class="lineNum">     857 </span>                :            : </a>
-<span class="lineNum">     858 </span>                :            : template&lt;typename Boolean&gt;
-<span class="lineNum">     859 </span>                :<span class="lineCov">  621527519 : Boolean Disruptor::ProduceCommitSync(const Napi::Env&amp; env,</span>
-<span class="lineNum">     860 </span>                :            :                                      sequence_t seq_next,
-<span class="lineNum">     861 </span>                :            :                                      sequence_t seq_next_n,
-<span class="lineNum">     862 </span>                :            :                                      bool retry)
-<span class="lineNum">     863 </span>                :            : {
-<span class="lineNum">     864 </span>                :<span class="lineCov">  621240641 :     do</span>
-<span class="lineNum">     865 </span>                :            :     {
-<span class="lineNum">     866 </span>                :<span class="lineCov">  621527519 :         if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next_n + 1))</span>
-<span class="lineNum">     867 </span>                :            :         {
-<span class="lineNum">     868 </span>                :<span class="lineCov">     286878 :             return Boolean::New(env, true);</span>
-<span class="lineNum">     869 </span>                :            :         }
-<span class="lineNum">     870 </span>                :            :     }
-<span class="lineNum">     871 </span>                :            :     while (retry);
-<span class="lineNum">     872 </span>                :            : 
-<span class="lineNum">     873 </span>                :<span class="lineCov">    1954109 :     return Boolean::New(env, false);</span>
-<a name="874"><span class="lineNum">     874 </span>                :            : }</a>
-<span class="lineNum">     875 </span>                :            : 
-<span class="lineNum">     876 </span>                :<span class="lineCov">     286907 : void Disruptor::UpdateSeqNext(sequence_t seq_next, sequence_t seq_next_n)</span>
-<span class="lineNum">     877 </span>                :            : {
-<span class="lineNum">     878 </span>                :<span class="lineCov">     286907 :     pending_seq_next = seq_next;</span>
-<span class="lineNum">     879 </span>                :<span class="lineCov">     286907 :     pending_seq_next_n = seq_next_n;</span>
-<a name="880"><span class="lineNum">     880 </span>                :<span class="lineCov">     286907 : }</span></a>
-<span class="lineNum">     881 </span>                :            : 
-<span class="lineNum">     882 </span>                :<span class="lineCov">     286881 : uint32_t Disruptor::GetSeqNext(const Napi::CallbackInfo&amp; info,</span>
-<span class="lineNum">     883 </span>                :            :                                sequence_t&amp; seq_next,
-<span class="lineNum">     884 </span>                :            :                                sequence_t&amp; seq_next_n)
-<span class="lineNum">     885 </span>                :            : {
-<span class="lineNum">     886 </span>                :<span class="lineCov">     286881 :     if (info.Length() &gt;= 2)</span>
-<span class="lineNum">     887 </span>                :            :     {
-<span class="lineNum">     888 </span>                :<span class="lineCov">          5 :         seq_next = info[0].As&lt;Napi::Number&gt;().Int64Value();</span>
-<span class="lineNum">     889 </span>                :<span class="lineCov">          5 :         seq_next_n = info[0].As&lt;Napi::Number&gt;().Int64Value();</span>
-<span class="lineNum">     890 </span>                :<span class="lineCov">          5 :         return 2;</span>
-<span class="lineNum">     891 </span>                :            :     }
-<span class="lineNum">     892 </span>                :            : 
-<span class="lineNum">     893 </span>                :<span class="lineCov">     286876 :     seq_next = pending_seq_next;</span>
-<span class="lineNum">     894 </span>                :<span class="lineCov">     286876 :     seq_next_n = pending_seq_next_n;</span>
-<span class="lineNum">     895 </span>                :<span class="lineCov">     286876 :     return 0;</span>
-<a name="896"><span class="lineNum">     896 </span>                :            : }</a>
-<span class="lineNum">     897 </span>                :            : 
-<span class="lineNum">     898 </span>                :<span class="lineCov">     234182 : Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     899 </span>                :            : {
-<span class="lineNum">     900 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     901 </span>                :<span class="lineCov">     234182 :     GetSeqNext(info, seq_next, seq_next_n);</span>
-<span class="lineNum">     902 </span>                :<span class="lineCov">     234182 :     return ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), seq_next, seq_next_n, spin);</span>
-<a name="903"><span class="lineNum">     903 </span>                :            : }</a>
-<span class="lineNum">     904 </span>                :            : 
-<span class="lineNum">     905 </span>                :<span class="lineCov">    3910012 : class ProduceCommitAsyncWorker :</span>
-<span class="lineNum">     906 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBoolean, AsyncUndefined, AsyncUndefined&gt;
-<a name="907"><span class="lineNum">     907 </span>                :            : {</a>
-<span class="lineNum">     908 </span>                :            : public:
-<span class="lineNum">     909 </span>                :<span class="lineCov">    1955006 :     ProduceCommitAsyncWorker(Disruptor *disruptor,</span>
-<span class="lineNum">     910 </span>                :            :                              const Napi::Function&amp; callback,
-<span class="lineNum">     911 </span>                :            :                              sequence_t seq_next,
-<span class="lineNum">     912 </span>                :<span class="lineCov">    1955006 :                              sequence_t seq_next_n) :</span>
-<span class="lineNum">     913 </span>                :            :         DisruptorAsyncWorker&lt;AsyncBoolean, AsyncUndefined, AsyncUndefined&gt;(
-<span class="lineNum">     914 </span>                :            :             disruptor, callback),
-<span class="lineNum">     915 </span>                :            :         seq_next(seq_next),
-<span class="lineNum">     916 </span>                :<span class="lineCov">    1955006 :         seq_next_n(seq_next_n)</span>
-<span class="lineNum">     917 </span>                :            :     {
-<span class="lineNum">     918 </span>                :<span class="lineCov">    1955006 :     }</span>
-<a name="919"><span class="lineNum">     919 </span>                :            : </a>
-<span class="lineNum">     920 </span>                :            : protected:
-<span class="lineNum">     921 </span>                :<span class="lineCov">    1954360 :     void Execute() override</span>
-<span class="lineNum">     922 </span>                :            :     {
-<span class="lineNum">     923 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
-<span class="lineNum">     924 </span>                :<span class="lineCov">    1954360 :         result = disruptor-&gt;ProduceCommitSync&lt;AsyncBoolean&gt;(Env(), seq_next, seq_next_n, false);</span>
-<span class="lineNum">     925 </span>                :<span class="lineCov">    1954876 :         retry = !result;</span>
-<a name="926"><span class="lineNum">     926 </span>                :<span class="lineCov">    1954876 :     }</span></a>
-<span class="lineNum">     927 </span>                :            : 
-<span class="lineNum">     928 </span>                :<span class="lineCov">    1908185 :     void Retry() override</span>
-<span class="lineNum">     929 </span>                :            :     {
-<span class="lineNum">     930 </span>                :<span class="lineCov">    1908185 :         (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next, seq_next_n))-&gt;Queue();</span>
-<span class="lineNum">     931 </span>                :<span class="lineCov">    1908185 :     }</span>
-<span class="lineNum">     932 </span>                :            : 
-<span class="lineNum">     933 </span>                :            : private:
-<span class="lineNum">     934 </span>                :            :     sequence_t seq_next, seq_next_n;
-<a name="935"><span class="lineNum">     935 </span>                :            : };</a>
+<span class="lineNum">     636 </span>                :<span class="lineCov">     337250 :     UpdateSeqNext(1, 0);</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">     337250 :     out_next = 1;</span>
+<span class="lineNum">     638 </span>                :<span class="lineCov">     337250 :     out_next_n = 0;</span>
+<span class="lineNum">     639 </span>                :<span class="lineCov">     337250 :     return Buffer&lt;uint8_t&gt;::New(env, 0);</span>
+<a name="640"><span class="lineNum">     640 </span>                :            : }</a>
+<span class="lineNum">     641 </span>                :            : 
+<span class="lineNum">     642 </span>                :<span class="lineCov">     234181 : Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     643 </span>                :            : {
+<span class="lineNum">     644 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     645 </span>                :<span class="lineCov">     468362 :     return ProduceClaimSync&lt;Napi::Buffer&gt;(</span>
+<span class="lineNum">     646 </span>                :<span class="lineCov">     702543 :         info.Env(), spin, seq_next, seq_next_n);</span>
+<a name="647"><span class="lineNum">     647 </span>                :            : }</a>
+<span class="lineNum">     648 </span>                :            : 
+<span class="lineNum">     649 </span>                :<span class="lineCov">     676092 : class ProduceClaimAsyncWorker :</span>
+<span class="lineNum">     650 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;, sequence_t, sequence_t&gt;
+<a name="651"><span class="lineNum">     651 </span>                :            : {</a>
+<span class="lineNum">     652 </span>                :            : public:
+<span class="lineNum">     653 </span>                :<span class="lineCov">     338046 :     ProduceClaimAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     654 </span>                :<span class="lineCov">     338046 :                             const Napi::Function&amp; callback) :</span>
+<span class="lineNum">     655 </span>                :            :         DisruptorAsyncWorker&lt;AsyncBuffer&lt;uint8_t&gt;, sequence_t, sequence_t&gt;(
+<span class="lineNum">     656 </span>                :<span class="lineCov">     338046 :             disruptor, callback)</span>
+<span class="lineNum">     657 </span>                :            :     {
+<span class="lineNum">     658 </span>                :<span class="lineCov">     338046 :         arg1 = 0;</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">     338046 :         arg2 = 0;</span>
+<span class="lineNum">     660 </span>                :<span class="lineCov">     338046 :     }</span>
+<a name="661"><span class="lineNum">     661 </span>                :            : </a>
+<span class="lineNum">     662 </span>                :            : protected:
+<span class="lineNum">     663 </span>                :<span class="lineCov">     338046 :     void Execute() override</span>
+<span class="lineNum">     664 </span>                :            :     {
+<span class="lineNum">     665 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     666 </span>                :<span class="lineCov">     338046 :         result = disruptor-&gt;ProduceClaimSync&lt;AsyncBuffer&gt;(</span>
+<span class="lineNum">     667 </span>                :<span class="lineCov">     676092 :             Env(), false, arg1, arg2);</span>
+<span class="lineNum">     668 </span>                :<span class="lineCov">     338046 :         retry = result.Length() == 0;</span>
+<a name="669"><span class="lineNum">     669 </span>                :<span class="lineCov">     338046 :     }</span></a>
+<span class="lineNum">     670 </span>                :            : 
+<span class="lineNum">     671 </span>                :<span class="lineCov">     337233 :     void Retry() override</span>
+<span class="lineNum">     672 </span>                :            :     {
+<span class="lineNum">     673 </span>                :<span class="lineCov">     337233 :         (new ProduceClaimAsyncWorker(disruptor, Callback().Value()))-&gt;Queue();</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">     337233 :     }</span>
+<a name="675"><span class="lineNum">     675 </span>                :            : };</a>
+<span class="lineNum">     676 </span>                :            : 
+<span class="lineNum">     677 </span>                :<span class="lineCov">        813 : void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     678 </span>                :            : {
+<span class="lineNum">     679 </span>                :<span class="lineCov">        813 :     (new ProduceClaimAsyncWorker(this, GetCallback(info, 0)))-&gt;Queue();</span>
+<a name="680"><span class="lineNum">     680 </span>                :<span class="lineCov">        813 : }</span></a>
+<span class="lineNum">     681 </span>                :            : 
+<span class="lineNum">     682 </span>                :<span class="lineCov">      51889 : Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     683 </span>                :            : {
+<span class="lineNum">     684 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     685 </span>                :            :     Napi::Buffer&lt;uint8_t&gt; r = ProduceClaimSync&lt;Napi::Buffer&gt;(
+<span class="lineNum">     686 </span>                :<span class="lineCov">      51889 :         info.Env(), false, seq_next, seq_next_n);</span>
+<span class="lineNum">     687 </span>                :<span class="lineCov">      51889 :     if (r.Length() &gt; 0)</span>
+<span class="lineNum">     688 </span>                :            :     {
+<span class="lineNum">     689 </span>                :<span class="lineCov">      51884 :         return r;</span>
+<span class="lineNum">     690 </span>                :            :     }
+<span class="lineNum">     691 </span>                :            : 
+<span class="lineNum">     692 </span>                :<span class="lineCov">          5 :     ProduceClaimAsync(info);</span>
+<span class="lineNum">     693 </span>                :<span class="lineCov">          5 :     return info.Env().Undefined();</span>
+<span class="lineNum">     694 </span>                :            : }
+<a name="695"><span class="lineNum">     695 </span>                :            : </a>
+<span class="lineNum">     696 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
+<span class="lineNum">     697 </span>                :<span class="lineCov">         41 : void Disruptor::ProduceGetBuffers(const Napi::Env&amp; env,</span>
+<span class="lineNum">     698 </span>                :            :                                   sequence_t seq_next,
+<span class="lineNum">     699 </span>                :            :                                   sequence_t seq_next_n,
+<span class="lineNum">     700 </span>                :            :                                   Array&amp; r)
+<span class="lineNum">     701 </span>                :            : {
+<span class="lineNum">     702 </span>                :<span class="lineCov">         41 :     sequence_t pos_next = seq_next % num_elements;</span>
+<span class="lineNum">     703 </span>                :<span class="lineCov">         41 :     sequence_t pos_next_n = seq_next_n % num_elements;</span>
+<span class="lineNum">     704 </span>                :            : 
+<span class="lineNum">     705 </span>                :<span class="lineCov">         41 :     if (pos_next_n &lt; pos_next)</span>
+<span class="lineNum">     706 </span>                :            :     {
+<span class="lineNum">     707 </span>                :<span class="lineCov">          6 :         r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     708 </span>                :            :             env,
+<span class="lineNum">     709 </span>                :<span class="lineCov">          3 :             elements + pos_next * element_size,</span>
+<span class="lineNum">     710 </span>                :<span class="lineCov">          3 :             (num_elements - pos_next) * element_size));</span>
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>                :<span class="lineCov">          3 :         r.Set(1U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     713 </span>                :            :             env,
+<span class="lineNum">     714 </span>                :            :             elements,
+<span class="lineNum">     715 </span>                :<span class="lineCov">          3 :             (pos_next_n + 1) * element_size));</span>
+<span class="lineNum">     716 </span>                :            :     }
+<span class="lineNum">     717 </span>                :            :     else
+<span class="lineNum">     718 </span>                :            :     {
+<span class="lineNum">     719 </span>                :<span class="lineCov">         76 :         r.Set(0U, Buffer&lt;uint8_t&gt;::New(</span>
+<span class="lineNum">     720 </span>                :            :             env,
+<span class="lineNum">     721 </span>                :<span class="lineCov">         38 :             elements + pos_next * element_size,</span>
+<span class="lineNum">     722 </span>                :<span class="lineCov">         38 :             (pos_next_n - pos_next + 1) * element_size));</span>
+<span class="lineNum">     723 </span>                :            :     }
+<span class="lineNum">     724 </span>                :            : 
+<span class="lineNum">     725 </span>                :<span class="lineCov">         41 :     UpdateSeqNext(seq_next, seq_next_n);</span>
+<span class="lineNum">     726 </span>                :<span class="lineCov">         41 : }</span>
+<a name="727"><span class="lineNum">     727 </span>                :            : </a>
+<span class="lineNum">     728 </span>                :            : template&lt;typename Array, template&lt;typename&gt; typename Buffer&gt;
+<span class="lineNum">     729 </span>                :<span class="lineCov">     283891 : Array Disruptor::ProduceClaimManySync(const Napi::Env&amp; env,</span>
+<span class="lineNum">     730 </span>                :            :                                       uint32_t n,
+<span class="lineNum">     731 </span>                :            :                                       bool retry,
+<span class="lineNum">     732 </span>                :            :                                       sequence_t&amp; out_next,
+<span class="lineNum">     733 </span>                :            :                                       sequence_t&amp; out_next_n)
+<span class="lineNum">     734 </span>                :            : {
+<span class="lineNum">     735 </span>                :<span class="lineCov">     283865 :     do</span>
+<span class="lineNum">     736 </span>                :            :     {
+<span class="lineNum">     737 </span>                :<span class="lineCov">     283891 :         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);</span>
+<span class="lineNum">     738 </span>                :<span class="lineCov">     283891 :         sequence_t seq_next_n = seq_next + n - 1;</span>
+<span class="lineNum">     739 </span>                :            : 
+<span class="lineNum">     740 </span>                :<span class="lineCov">     283891 :         bool can_claim = true;</span>
+<span class="lineNum">     741 </span>                :            : 
+<span class="lineNum">     742 </span>                :<span class="lineCov">     283917 :         for (uint32_t i = 0; i &lt; num_consumers; ++i)</span>
+<span class="lineNum">     743 </span>                :            :         {
+<span class="lineNum">     744 </span>                :<span class="lineCov">     283891 :             sequence_t seq_consumer = __sync_val_compare_and_swap(&amp;consumers[i], 0, 0);</span>
+<span class="lineNum">     745 </span>                :            : 
+<span class="lineNum">     746 </span>                :<span class="lineCov">     283891 :             if ((seq_next_n - seq_consumer) &gt;= num_elements)</span>
+<span class="lineNum">     747 </span>                :            :             {
+<span class="lineNum">     748 </span>                :<span class="lineCov">     283865 :                 can_claim = false;</span>
+<span class="lineNum">     749 </span>                :<span class="lineCov">     283865 :                 break;</span>
+<span class="lineNum">     750 </span>                :            :             }
+<span class="lineNum">     751 </span>                :            :         }
+<span class="lineNum">     752 </span>                :            : 
+<span class="lineNum">     753 </span>                :<span class="lineCov">     283917 :         if (can_claim &amp;&amp;</span>
+<span class="lineNum">     754 </span>                :<span class="lineCov">         26 :             __sync_bool_compare_and_swap(next, seq_next, seq_next_n + 1))</span>
+<span class="lineNum">     755 </span>                :            :         {
+<span class="lineNum">     756 </span>                :<span class="lineCov">         35 :             Array r = Array::New(env);</span>
+<span class="lineNum">     757 </span>                :<span class="lineCov">         26 :             ProduceGetBuffers&lt;Array, Buffer&gt;(env, seq_next, seq_next_n, r);</span>
+<span class="lineNum">     758 </span>                :<span class="lineCov">         26 :             out_next = seq_next;</span>
+<span class="lineNum">     759 </span>                :<span class="lineCov">         26 :             out_next_n = seq_next_n;</span>
+<span class="lineNum">     760 </span>                :<span class="lineCov">         26 :             return r;</span>
+<span class="lineNum">     761 </span>                :            :         }
+<span class="lineNum">     762 </span>                :            :     }
+<span class="lineNum">     763 </span>                :            :     while (retry);
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :<span class="lineCov">     283865 :     UpdateSeqNext(1, 0);</span>
+<span class="lineNum">     766 </span>                :<span class="lineCov">     283865 :     out_next = 1;</span>
+<span class="lineNum">     767 </span>                :<span class="lineCov">     283865 :     out_next_n = 0;</span>
+<span class="lineNum">     768 </span>                :<span class="lineCov">     283865 :     return Array::New(env);</span>
+<a name="769"><span class="lineNum">     769 </span>                :            : }</a>
+<span class="lineNum">     770 </span>                :            : 
+<span class="lineNum">     771 </span>                :<span class="lineCov">         11 : Napi::Value Disruptor::ProduceClaimManySync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     772 </span>                :            : {
+<span class="lineNum">     773 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     774 </span>                :<span class="lineCov">         22 :     return ProduceClaimManySync&lt;Napi::Array, Napi::Buffer&gt;(</span>
+<span class="lineNum">     775 </span>                :<span class="lineCov">         33 :         info.Env(), info[0].As&lt;Napi::Number&gt;(), spin, seq_next, seq_next_n);</span>
+<a name="776"><span class="lineNum">     776 </span>                :            : }</a>
+<span class="lineNum">     777 </span>                :            : 
+<span class="lineNum">     778 </span>                :<span class="lineCov">     567734 : class ProduceClaimManyAsyncWorker :</span>
+<span class="lineNum">     779 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
+<span class="lineNum">     780 </span>                :            :                                 sequence_t,
+<span class="lineNum">     781 </span>                :            :                                 sequence_t&gt;
+<a name="782"><span class="lineNum">     782 </span>                :            : {</a>
+<span class="lineNum">     783 </span>                :            : public:
+<span class="lineNum">     784 </span>                :<span class="lineCov">     283867 :     ProduceClaimManyAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     785 </span>                :            :                                 const Napi::Function&amp; callback,
+<span class="lineNum">     786 </span>                :<span class="lineCov">     283867 :                                 uint32_t n) :</span>
+<span class="lineNum">     787 </span>                :            :         DisruptorAsyncWorker&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;,
+<span class="lineNum">     788 </span>                :            :                              sequence_t,
+<span class="lineNum">     789 </span>                :            :                              sequence_t&gt;(
+<span class="lineNum">     790 </span>                :            :             disruptor, callback),
+<span class="lineNum">     791 </span>                :<span class="lineCov">     283867 :         n(n)</span>
+<span class="lineNum">     792 </span>                :            :     {
+<span class="lineNum">     793 </span>                :<span class="lineCov">     283867 :         arg1 = 0;</span>
+<span class="lineNum">     794 </span>                :<span class="lineCov">     283867 :         arg2 = 0;</span>
+<span class="lineNum">     795 </span>                :<span class="lineCov">     283867 :     }</span>
+<a name="796"><span class="lineNum">     796 </span>                :            : </a>
+<span class="lineNum">     797 </span>                :            : protected:
+<span class="lineNum">     798 </span>                :<span class="lineCov">     283867 :     void Execute() override</span>
+<span class="lineNum">     799 </span>                :            :     {
+<span class="lineNum">     800 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     801 </span>                :<span class="lineCov">     851601 :         result = disruptor-&gt;ProduceClaimManySync&lt;AsyncArray&lt;AsyncBuffer&lt;uint8_t&gt;&gt;, AsyncBuffer&gt;(</span>
+<span class="lineNum">     802 </span>                :<span class="lineCov">     851601 :             Env(), n, false, arg1, arg2);</span>
+<span class="lineNum">     803 </span>                :<span class="lineCov">     283867 :         retry = result.Length() == 0;</span>
+<a name="804"><span class="lineNum">     804 </span>                :<span class="lineCov">     283867 :     }</span></a>
+<span class="lineNum">     805 </span>                :            : 
+<span class="lineNum">     806 </span>                :<span class="lineCov">     283852 :     void Retry() override</span>
+<span class="lineNum">     807 </span>                :            :     {
+<span class="lineNum">     808 </span>                :<span class="lineCov">     283852 :         (new ProduceClaimManyAsyncWorker(disruptor, Callback().Value(), n))-&gt;Queue();</span>
+<span class="lineNum">     809 </span>                :<span class="lineCov">     283852 :     }</span>
+<span class="lineNum">     810 </span>                :            : 
+<span class="lineNum">     811 </span>                :            : private:
+<span class="lineNum">     812 </span>                :            :     uint32_t n;
+<a name="813"><span class="lineNum">     813 </span>                :            : };</a>
+<span class="lineNum">     814 </span>                :            : 
+<span class="lineNum">     815 </span>                :<span class="lineCov">         15 : void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo&amp; info,</span>
+<span class="lineNum">     816 </span>                :            :                                       uint32_t n)
+<span class="lineNum">     817 </span>                :            : {
+<span class="lineNum">     818 </span>                :<span class="lineCov">         15 :     (new ProduceClaimManyAsyncWorker(this, GetCallback(info, 1), n))-&gt;Queue();</span>
+<a name="819"><span class="lineNum">     819 </span>                :<span class="lineCov">         15 : }</span></a>
+<span class="lineNum">     820 </span>                :            : 
+<span class="lineNum">     821 </span>                :<span class="lineCov">         11 : void Disruptor::ProduceClaimManyAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     822 </span>                :            : {
+<span class="lineNum">     823 </span>                :<span class="lineCov">         11 :     ProduceClaimManyAsync(info, info[0].As&lt;Napi::Number&gt;());</span>
+<a name="824"><span class="lineNum">     824 </span>                :<span class="lineCov">         11 : }</span></a>
+<span class="lineNum">     825 </span>                :            : 
+<span class="lineNum">     826 </span>                :<span class="lineCov">         13 : Napi::Value Disruptor::ProduceClaimMany(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     827 </span>                :            : {
+<span class="lineNum">     828 </span>                :<span class="lineCov">         13 :     uint32_t n = info[0].As&lt;Napi::Number&gt;();</span>
+<span class="lineNum">     829 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     830 </span>                :            :     Napi::Array r = ProduceClaimManySync&lt;Napi::Array, Napi::Buffer&gt;(
+<span class="lineNum">     831 </span>                :<span class="lineCov">         13 :         info.Env(), n, false, seq_next, seq_next_n);</span>
+<span class="lineNum">     832 </span>                :<span class="lineCov">         13 :     if (r.Length() &gt; 0)</span>
+<span class="lineNum">     833 </span>                :            :     {
+<span class="lineNum">     834 </span>                :<span class="lineCov">          9 :         return r;</span>
+<span class="lineNum">     835 </span>                :            :     }
+<span class="lineNum">     836 </span>                :            : 
+<span class="lineNum">     837 </span>                :<span class="lineCov">          4 :     ProduceClaimManyAsync(info, n);</span>
+<span class="lineNum">     838 </span>                :<span class="lineCov">          4 :     return info.Env().Undefined();</span>
+<a name="839"><span class="lineNum">     839 </span>                :            : }</a>
+<span class="lineNum">     840 </span>                :            : 
+<span class="lineNum">     841 </span>                :<span class="lineCov">         57 : Napi::Value Disruptor::ProduceRecover(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     842 </span>                :            : {
+<span class="lineNum">     843 </span>                :<span class="lineCov">         57 :     sequence_t seq_next = info[0].As&lt;Napi::Number&gt;().Int64Value();</span>
+<span class="lineNum">     844 </span>                :<span class="lineCov">         57 :     sequence_t seq_next_n = info[1].As&lt;Napi::Number&gt;().Int64Value();</span>
+<span class="lineNum">     845 </span>                :            : 
+<span class="lineNum">     846 </span>                :<span class="lineCov">         57 :     Napi::Array r = Napi::Array::New(info.Env());</span>
+<span class="lineNum">     847 </span>                :            : 
+<span class="lineNum">     848 </span>                :<span class="lineCov">        105 :     if ((seq_next &lt;= seq_next_n) &amp;&amp;</span>
+<span class="lineNum">     849 </span>                :<span class="lineCov">         87 :         (__sync_val_compare_and_swap(cursor, 0, 0) &lt;= seq_next) &amp;&amp;</span>
+<span class="lineNum">     850 </span>                :<span class="lineCov">         30 :         (__sync_val_compare_and_swap(next, 0, 0) &gt; seq_next_n))</span>
+<span class="lineNum">     851 </span>                :            :     {
+<span class="lineNum">     852 </span>                :            :         ProduceGetBuffers&lt;Napi::Array, Napi::Buffer&gt;(
+<span class="lineNum">     853 </span>                :<span class="lineCov">         15 :             info.Env(), seq_next, seq_next_n, r);</span>
+<span class="lineNum">     854 </span>                :            :     }
+<span class="lineNum">     855 </span>                :            : 
+<span class="lineNum">     856 </span>                :<span class="lineCov">         57 :     return r;</span>
+<span class="lineNum">     857 </span>                :            : }
+<a name="858"><span class="lineNum">     858 </span>                :            : </a>
+<span class="lineNum">     859 </span>                :            : template&lt;typename Boolean&gt;
+<span class="lineNum">     860 </span>                :<span class="lineCov">    2293971 : Boolean Disruptor::ProduceCommitSync(const Napi::Env&amp; env,</span>
+<span class="lineNum">     861 </span>                :            :                                      sequence_t seq_next,
+<span class="lineNum">     862 </span>                :            :                                      sequence_t seq_next_n,
+<span class="lineNum">     863 </span>                :            :                                      bool retry)
+<span class="lineNum">     864 </span>                :            : {
+<span class="lineNum">     865 </span>                :<span class="lineCov">    2293971 :     if (seq_next &lt;= seq_next_n)</span>
+<span class="lineNum">     866 </span>                :            :     {
+<span class="lineNum">     867 </span>                :<span class="lineCov">  203821247 :         do</span>
+<span class="lineNum">     868 </span>                :            :         {
+<span class="lineNum">     869 </span>                :<span class="lineCov">  204108125 :             if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next_n + 1))</span>
+<span class="lineNum">     870 </span>                :            :             {
+<span class="lineNum">     871 </span>                :<span class="lineCov">     286878 :                 return Boolean::New(env, true);</span>
+<span class="lineNum">     872 </span>                :            :             }
+<span class="lineNum">     873 </span>                :            :         }
+<span class="lineNum">     874 </span>                :            :         while (retry);
+<span class="lineNum">     875 </span>                :            :     }
+<span class="lineNum">     876 </span>                :            : 
+<span class="lineNum">     877 </span>                :<span class="lineCov">    2007093 :     return Boolean::New(env, false);</span>
+<a name="878"><span class="lineNum">     878 </span>                :            : }</a>
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :<span class="lineCov">     908022 : void Disruptor::UpdateSeqNext(sequence_t seq_next, sequence_t seq_next_n)</span>
+<span class="lineNum">     881 </span>                :            : {
+<span class="lineNum">     882 </span>                :<span class="lineCov">     908022 :     pending_seq_next = seq_next;</span>
+<span class="lineNum">     883 </span>                :<span class="lineCov">     908022 :     pending_seq_next_n = seq_next_n;</span>
+<a name="884"><span class="lineNum">     884 </span>                :<span class="lineCov">     908022 : }</span></a>
+<span class="lineNum">     885 </span>                :            : 
+<span class="lineNum">     886 </span>                :<span class="lineCov">     286887 : uint32_t Disruptor::GetSeqNext(const Napi::CallbackInfo&amp; info,</span>
+<span class="lineNum">     887 </span>                :            :                                sequence_t&amp; seq_next,
+<span class="lineNum">     888 </span>                :            :                                sequence_t&amp; seq_next_n)
+<span class="lineNum">     889 </span>                :            : {
+<span class="lineNum">     890 </span>                :<span class="lineCov">     286887 :     if (info.Length() &gt;= 2)</span>
+<span class="lineNum">     891 </span>                :            :     {
+<span class="lineNum">     892 </span>                :<span class="lineCov">         10 :         seq_next = info[0].As&lt;Napi::Number&gt;().Int64Value();</span>
+<span class="lineNum">     893 </span>                :<span class="lineCov">         10 :         seq_next_n = info[1].As&lt;Napi::Number&gt;().Int64Value();</span>
+<span class="lineNum">     894 </span>                :<span class="lineCov">         10 :         return 2;</span>
+<span class="lineNum">     895 </span>                :            :     }
+<span class="lineNum">     896 </span>                :            : 
+<span class="lineNum">     897 </span>                :<span class="lineCov">     286877 :     seq_next = pending_seq_next;</span>
+<span class="lineNum">     898 </span>                :<span class="lineCov">     286877 :     seq_next_n = pending_seq_next_n;</span>
+<span class="lineNum">     899 </span>                :<span class="lineCov">     286877 :     return 0;</span>
+<a name="900"><span class="lineNum">     900 </span>                :            : }</a>
+<span class="lineNum">     901 </span>                :            : 
+<span class="lineNum">     902 </span>                :<span class="lineCov">     234184 : Napi::Value Disruptor::ProduceCommitSync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     903 </span>                :            : {
+<span class="lineNum">     904 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     905 </span>                :<span class="lineCov">     234184 :     GetSeqNext(info, seq_next, seq_next_n);</span>
+<span class="lineNum">     906 </span>                :<span class="lineCov">     234184 :     return ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), seq_next, seq_next_n, spin);</span>
+<a name="907"><span class="lineNum">     907 </span>                :            : }</a>
+<span class="lineNum">     908 </span>                :            : 
+<span class="lineNum">     909 </span>                :<span class="lineCov">    4017048 : class ProduceCommitAsyncWorker :</span>
+<span class="lineNum">     910 </span>                :            :     public DisruptorAsyncWorker&lt;AsyncBoolean, AsyncUndefined, AsyncUndefined&gt;
+<a name="911"><span class="lineNum">     911 </span>                :            : {</a>
+<span class="lineNum">     912 </span>                :            : public:
+<span class="lineNum">     913 </span>                :<span class="lineCov">    2008524 :     ProduceCommitAsyncWorker(Disruptor *disruptor,</span>
+<span class="lineNum">     914 </span>                :            :                              const Napi::Function&amp; callback,
+<span class="lineNum">     915 </span>                :            :                              sequence_t seq_next,
+<span class="lineNum">     916 </span>                :<span class="lineCov">    2008524 :                              sequence_t seq_next_n) :</span>
+<span class="lineNum">     917 </span>                :            :         DisruptorAsyncWorker&lt;AsyncBoolean, AsyncUndefined, AsyncUndefined&gt;(
+<span class="lineNum">     918 </span>                :            :             disruptor, callback),
+<span class="lineNum">     919 </span>                :            :         seq_next(seq_next),
+<span class="lineNum">     920 </span>                :<span class="lineCov">    2008524 :         seq_next_n(seq_next_n)</span>
+<span class="lineNum">     921 </span>                :            :     {
+<span class="lineNum">     922 </span>                :<span class="lineCov">    2008524 :     }</span>
+<a name="923"><span class="lineNum">     923 </span>                :            : </a>
+<span class="lineNum">     924 </span>                :            : protected:
+<span class="lineNum">     925 </span>                :<span class="lineCov">    2007962 :     void Execute() override</span>
+<span class="lineNum">     926 </span>                :            :     {
+<span class="lineNum">     927 </span>                :            :         // Remember: don't access any V8 stuff in worker thread
+<span class="lineNum">     928 </span>                :<span class="lineCov">    2007962 :         result = disruptor-&gt;ProduceCommitSync&lt;AsyncBoolean&gt;(Env(), seq_next, seq_next_n, false);</span>
+<span class="lineNum">     929 </span>                :<span class="lineCov">    2008334 :         retry = !result;</span>
+<a name="930"><span class="lineNum">     930 </span>                :<span class="lineCov">    2008358 :     }</span></a>
+<span class="lineNum">     931 </span>                :            : 
+<span class="lineNum">     932 </span>                :<span class="lineCov">    1960565 :     void Retry() override</span>
+<span class="lineNum">     933 </span>                :            :     {
+<span class="lineNum">     934 </span>                :<span class="lineCov">    1960565 :         (new ProduceCommitAsyncWorker(disruptor, Callback().Value(), seq_next, seq_next_n))-&gt;Queue();</span>
+<span class="lineNum">     935 </span>                :<span class="lineCov">    1960565 :     }</span>
 <span class="lineNum">     936 </span>                :            : 
-<span class="lineNum">     937 </span>                :<span class="lineCov">      46821 : void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo&amp; info,</span>
-<span class="lineNum">     938 </span>                :            :                                    sequence_t seq_next,
-<span class="lineNum">     939 </span>                :            :                                    sequence_t seq_next_n,
-<span class="lineNum">     940 </span>                :            :                                    uint32_t cb_arg)
-<span class="lineNum">     941 </span>                :            : {
-<span class="lineNum">     942 </span>                :            :     (new ProduceCommitAsyncWorker(
-<span class="lineNum">     943 </span>                :<span class="lineCov">      46821 :         this, GetCallback(info, cb_arg), seq_next, seq_next_n))-&gt;Queue();</span>
-<a name="944"><span class="lineNum">     944 </span>                :<span class="lineCov">      46821 : }</span></a>
-<span class="lineNum">     945 </span>                :            : 
-<span class="lineNum">     946 </span>                :<span class="lineCov">        809 : void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     947 </span>                :            : {
-<span class="lineNum">     948 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     949 </span>                :<span class="lineCov">        809 :     uint32_t cb_arg = GetSeqNext(info, seq_next, seq_next_n);</span>
-<span class="lineNum">     950 </span>                :<span class="lineCov">        809 :     ProduceCommitAsync(info, seq_next, seq_next_n, cb_arg);</span>
-<a name="951"><span class="lineNum">     951 </span>                :<span class="lineCov">        809 : }</span></a>
-<span class="lineNum">     952 </span>                :            : 
-<span class="lineNum">     953 </span>                :<span class="lineCov">      51890 : Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     954 </span>                :            : {
-<span class="lineNum">     955 </span>                :            :     sequence_t seq_next, seq_next_n;
-<span class="lineNum">     956 </span>                :<span class="lineCov">      51890 :     uint32_t cb_arg = GetSeqNext(info, seq_next, seq_next_n);</span>
-<span class="lineNum">     957 </span>                :            : 
-<span class="lineNum">     958 </span>                :<span class="lineCov">      51890 :     Napi::Boolean r = ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), seq_next, seq_next_n, false);</span>
-<span class="lineNum">     959 </span>                :<span class="lineCov">      51890 :     if (r)</span>
-<span class="lineNum">     960 </span>                :            :     {
-<span class="lineNum">     961 </span>                :<span class="lineCov">       5878 :         return r;</span>
-<span class="lineNum">     962 </span>                :            :     }
-<span class="lineNum">     963 </span>                :            : 
-<span class="lineNum">     964 </span>                :<span class="lineCov">      46012 :     ProduceCommitAsync(info, seq_next, seq_next_n, cb_arg);</span>
-<span class="lineNum">     965 </span>                :<span class="lineCov">      46012 :     return info.Env().Undefined();</span>
-<a name="966"><span class="lineNum">     966 </span>                :            : }</a>
+<span class="lineNum">     937 </span>                :            : private:
+<span class="lineNum">     938 </span>                :            :     sequence_t seq_next, seq_next_n;
+<a name="939"><span class="lineNum">     939 </span>                :            : };</a>
+<span class="lineNum">     940 </span>                :            : 
+<span class="lineNum">     941 </span>                :<span class="lineCov">      47959 : void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo&amp; info,</span>
+<span class="lineNum">     942 </span>                :            :                                    sequence_t seq_next,
+<span class="lineNum">     943 </span>                :            :                                    sequence_t seq_next_n,
+<span class="lineNum">     944 </span>                :            :                                    uint32_t cb_arg)
+<span class="lineNum">     945 </span>                :            : {
+<span class="lineNum">     946 </span>                :            :     (new ProduceCommitAsyncWorker(
+<span class="lineNum">     947 </span>                :<span class="lineCov">      47959 :         this, GetCallback(info, cb_arg), seq_next, seq_next_n))-&gt;Queue();</span>
+<a name="948"><span class="lineNum">     948 </span>                :<span class="lineCov">      47959 : }</span></a>
+<span class="lineNum">     949 </span>                :            : 
+<span class="lineNum">     950 </span>                :<span class="lineCov">        811 : void Disruptor::ProduceCommitAsync(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     951 </span>                :            : {
+<span class="lineNum">     952 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     953 </span>                :<span class="lineCov">        811 :     uint32_t cb_arg = GetSeqNext(info, seq_next, seq_next_n);</span>
+<span class="lineNum">     954 </span>                :<span class="lineCov">        811 :     ProduceCommitAsync(info, seq_next, seq_next_n, cb_arg);</span>
+<a name="955"><span class="lineNum">     955 </span>                :<span class="lineCov">        811 : }</span></a>
+<span class="lineNum">     956 </span>                :            : 
+<span class="lineNum">     957 </span>                :<span class="lineCov">      51892 : Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     958 </span>                :            : {
+<span class="lineNum">     959 </span>                :            :     sequence_t seq_next, seq_next_n;
+<span class="lineNum">     960 </span>                :<span class="lineCov">      51892 :     uint32_t cb_arg = GetSeqNext(info, seq_next, seq_next_n);</span>
+<span class="lineNum">     961 </span>                :            : 
+<span class="lineNum">     962 </span>                :<span class="lineCov">      51892 :     Napi::Boolean r = ProduceCommitSync&lt;Napi::Boolean&gt;(info.Env(), seq_next, seq_next_n, false);</span>
+<span class="lineNum">     963 </span>                :<span class="lineCov">      51892 :     if (r)</span>
+<span class="lineNum">     964 </span>                :            :     {
+<span class="lineNum">     965 </span>                :<span class="lineCov">       4744 :         return r;</span>
+<span class="lineNum">     966 </span>                :            :     }
 <span class="lineNum">     967 </span>                :            : 
-<span class="lineNum">     968 </span>                :<span class="lineCov">          9 : Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     969 </span>                :            : {
-<span class="lineNum">     970 </span>                :<span class="lineCov">          9 :     return Napi::Buffer&lt;sequence_t&gt;::New(info.Env(), consumers, num_consumers);</span>
-<a name="971"><span class="lineNum">     971 </span>                :            : }</a>
-<span class="lineNum">     972 </span>                :            : 
-<span class="lineNum">     973 </span>                :<span class="lineCov">        144 : Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     974 </span>                :            : {
-<span class="lineNum">     975 </span>                :<span class="lineCov">        144 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(cursor, 0, 0));</span>
-<a name="976"><span class="lineNum">     976 </span>                :            : }</a>
-<span class="lineNum">     977 </span>                :            : 
-<span class="lineNum">     978 </span>                :<span class="lineCov">        144 : Napi::Value Disruptor::GetNext(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     979 </span>                :            : {
-<span class="lineNum">     980 </span>                :<span class="lineCov">        144 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(next, 0, 0));</span>
-<a name="981"><span class="lineNum">     981 </span>                :            : }</a>
-<span class="lineNum">     982 </span>                :            : 
-<span class="lineNum">     983 </span>                :<span class="lineCov">       1167 : Napi::Value Disruptor::GetElements(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     984 </span>                :            : {
-<span class="lineNum">     985 </span>                :<span class="lineCov">       1167 :     return Napi::Buffer&lt;uint8_t&gt;::New(info.Env(), elements, num_elements * element_size);</span>
-<a name="986"><span class="lineNum">     986 </span>                :            : }</a>
-<span class="lineNum">     987 </span>                :            : 
-<span class="lineNum">     988 </span>                :<span class="lineCov">        144 : Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     989 </span>                :            : {
-<span class="lineNum">     990 </span>                :<span class="lineCov">        144 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));</span>
-<a name="991"><span class="lineNum">     991 </span>                :            : }</a>
-<span class="lineNum">     992 </span>                :            : 
-<span class="lineNum">     993 </span>                :<span class="lineCov">     547723 : Napi::Value Disruptor::GetPendingSeqConsumer(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     994 </span>                :            : {
-<span class="lineNum">     995 </span>                :<span class="lineCov">     547723 :     return Napi::Number::New(info.Env(), pending_seq_consumer);</span>
-<a name="996"><span class="lineNum">     996 </span>                :            : }</a>
-<span class="lineNum">     997 </span>                :            : 
-<span class="lineNum">     998 </span>                :<span class="lineCov">         54 : Napi::Value Disruptor::GetPendingSeqCursor(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">     999 </span>                :            : {
-<span class="lineNum">    1000 </span>                :<span class="lineCov">         54 :     return Napi::Number::New(info.Env(), pending_seq_cursor);</span>
-<a name="1001"><span class="lineNum">    1001 </span>                :            : }</a>
-<span class="lineNum">    1002 </span>                :            : 
-<span class="lineNum">    1003 </span>                :<span class="lineCov">      52742 : Napi::Value Disruptor::GetPendingSeqNext(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">    1004 </span>                :            : {
-<span class="lineNum">    1005 </span>                :<span class="lineCov">      52742 :     return Napi::Number::New(info.Env(), pending_seq_next);</span>
-<a name="1006"><span class="lineNum">    1006 </span>                :            : }</a>
-<span class="lineNum">    1007 </span>                :            : 
-<span class="lineNum">    1008 </span>                :<span class="lineCov">      52742 : Napi::Value Disruptor::GetPendingSeqNextN(const Napi::CallbackInfo&amp; info)</span>
-<span class="lineNum">    1009 </span>                :            : {
-<span class="lineNum">    1010 </span>                :<span class="lineCov">      52742 :     return Napi::Number::New(info.Env(), pending_seq_next_n);</span>
-<a name="1011"><span class="lineNum">    1011 </span>                :            : }</a>
-<span class="lineNum">    1012 </span>                :            : 
-<span class="lineNum">    1013 </span>                :<span class="lineCov">        253 : void Disruptor::Initialize(Napi::Env env, Napi::Object exports)</span>
-<span class="lineNum">    1014 </span>                :            : {
-<span class="lineNum">    1015 </span>                :<span class="lineCov">        506 :     exports.Set(&quot;Disruptor&quot;, DefineClass(env, &quot;Disruptor&quot;,</span>
-<span class="lineNum">    1016 </span>                :            :     {
-<span class="lineNum">    1017 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaim&quot;, &amp;Disruptor::ProduceClaim),</span>
-<span class="lineNum">    1018 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimSync&quot;, &amp;Disruptor::ProduceClaimSync),</span>
-<span class="lineNum">    1019 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimMany&quot;, &amp;Disruptor::ProduceClaimMany),</span>
-<span class="lineNum">    1020 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimManySync&quot;, &amp;Disruptor::ProduceClaimManySync),</span>
-<span class="lineNum">    1021 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommit&quot;, &amp;Disruptor::ProduceCommit),</span>
-<span class="lineNum">    1022 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommitSync&quot;, &amp;Disruptor::ProduceCommitSync),</span>
-<span class="lineNum">    1023 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceRecover&quot;, &amp;Disruptor::ProduceRecover),</span>
-<span class="lineNum">    1024 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNew&quot;, &amp;Disruptor::ConsumeNew),</span>
-<span class="lineNum">    1025 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNewSync&quot;, &amp;Disruptor::ConsumeNewSync),</span>
-<span class="lineNum">    1026 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeCommit&quot;, &amp;Disruptor::ConsumeCommit),</span>
-<span class="lineNum">    1027 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;release&quot;, &amp;Disruptor::Release),</span>
-<span class="lineNum">    1028 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevConsumeStart&quot;, &amp;Disruptor::GetPendingSeqConsumer, nullptr),</span>
-<span class="lineNum">    1029 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevClaimStart&quot;, &amp;Disruptor::GetPendingSeqNext, nullptr),</span>
-<span class="lineNum">    1030 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevClaimEnd&quot;, &amp;Disruptor::GetPendingSeqNextN, nullptr),</span>
-<span class="lineNum">    1031 </span>                :            : 
-<span class="lineNum">    1032 </span>                :            :         // For testing only
-<span class="lineNum">    1033 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;consumers&quot;, &amp;Disruptor::GetConsumers, nullptr),</span>
-<span class="lineNum">    1034 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;cursor&quot;, &amp;Disruptor::GetCursor, nullptr),</span>
-<span class="lineNum">    1035 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;next&quot;, &amp;Disruptor::GetNext, nullptr),</span>
-<span class="lineNum">    1036 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;elements&quot;, &amp;Disruptor::GetElements, nullptr),</span>
-<span class="lineNum">    1037 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;consumer&quot;, &amp;Disruptor::GetConsumer, nullptr),</span>
-<span class="lineNum">    1038 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevConsumeNext&quot;, &amp;Disruptor::GetPendingSeqCursor, nullptr),</span>
-<span class="lineNum">    1039 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNewAsync&quot;, &amp;Disruptor::ConsumeNewAsync),</span>
-<span class="lineNum">    1040 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimAsync&quot;, &amp;Disruptor::ProduceClaimAsync),</span>
-<span class="lineNum">    1041 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimManyAsync&quot;, &amp;Disruptor::ProduceClaimManyAsync),</span>
-<span class="lineNum">    1042 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommitAsync&quot;, &amp;Disruptor::ProduceCommitAsync),</span>
-<span class="lineNum">    1043 </span>                :<span class="lineCov">       6578 :     }));</span>
-<a name="1044"><span class="lineNum">    1044 </span>                :<span class="lineCov">        253 : }</span></a>
-<span class="lineNum">    1045 </span>                :            : 
-<span class="lineNum">    1046 </span>                :<span class="lineCov">        253 : void Initialize(Napi::Env env, Napi::Object exports, Napi::Object module)</span>
-<span class="lineNum">    1047 </span>                :            : {
-<span class="lineNum">    1048 </span>                :<span class="lineCov">        253 :     Disruptor::Initialize(env, exports);</span>
-<a name="1049"><span class="lineNum">    1049 </span>                :<span class="lineCov">        253 : }</span></a>
-<span class="lineNum">    1050 </span>                :            : 
-<span class="lineNum">    1051 </span>                :<span class="lineCov">        506 : NODE_API_MODULE(disruptor, Initialize)</span>
+<span class="lineNum">     968 </span>                :<span class="lineCov">      47148 :     ProduceCommitAsync(info, seq_next, seq_next_n, cb_arg);</span>
+<span class="lineNum">     969 </span>                :<span class="lineCov">      47148 :     return info.Env().Undefined();</span>
+<a name="970"><span class="lineNum">     970 </span>                :            : }</a>
+<span class="lineNum">     971 </span>                :            : 
+<span class="lineNum">     972 </span>                :<span class="lineCov">          9 : Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     973 </span>                :            : {
+<span class="lineNum">     974 </span>                :<span class="lineCov">          9 :     return Napi::Buffer&lt;sequence_t&gt;::New(info.Env(), consumers, num_consumers);</span>
+<a name="975"><span class="lineNum">     975 </span>                :            : }</a>
+<span class="lineNum">     976 </span>                :            : 
+<span class="lineNum">     977 </span>                :<span class="lineCov">        154 : Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     978 </span>                :            : {
+<span class="lineNum">     979 </span>                :<span class="lineCov">        154 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(cursor, 0, 0));</span>
+<a name="980"><span class="lineNum">     980 </span>                :            : }</a>
+<span class="lineNum">     981 </span>                :            : 
+<span class="lineNum">     982 </span>                :<span class="lineCov">        154 : Napi::Value Disruptor::GetNext(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     983 </span>                :            : {
+<span class="lineNum">     984 </span>                :<span class="lineCov">        154 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(next, 0, 0));</span>
+<a name="985"><span class="lineNum">     985 </span>                :            : }</a>
+<span class="lineNum">     986 </span>                :            : 
+<span class="lineNum">     987 </span>                :<span class="lineCov">       1167 : Napi::Value Disruptor::GetElements(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     988 </span>                :            : {
+<span class="lineNum">     989 </span>                :<span class="lineCov">       1167 :     return Napi::Buffer&lt;uint8_t&gt;::New(info.Env(), elements, num_elements * element_size);</span>
+<a name="990"><span class="lineNum">     990 </span>                :            : }</a>
+<span class="lineNum">     991 </span>                :            : 
+<span class="lineNum">     992 </span>                :<span class="lineCov">        154 : Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     993 </span>                :            : {
+<span class="lineNum">     994 </span>                :<span class="lineCov">        154 :     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));</span>
+<a name="995"><span class="lineNum">     995 </span>                :            : }</a>
+<span class="lineNum">     996 </span>                :            : 
+<span class="lineNum">     997 </span>                :<span class="lineCov">     543178 : Napi::Value Disruptor::GetPendingSeqConsumer(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">     998 </span>                :            : {
+<span class="lineNum">     999 </span>                :<span class="lineCov">     543178 :     return Napi::Number::New(info.Env(), pending_seq_consumer);</span>
+<a name="1000"><span class="lineNum">    1000 </span>                :            : }</a>
+<span class="lineNum">    1001 </span>                :            : 
+<span class="lineNum">    1002 </span>                :<span class="lineCov">         54 : Napi::Value Disruptor::GetPendingSeqCursor(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">    1003 </span>                :            : {
+<span class="lineNum">    1004 </span>                :<span class="lineCov">         54 :     return Napi::Number::New(info.Env(), pending_seq_cursor);</span>
+<a name="1005"><span class="lineNum">    1005 </span>                :            : }</a>
+<span class="lineNum">    1006 </span>                :            : 
+<span class="lineNum">    1007 </span>                :<span class="lineCov">      52742 : Napi::Value Disruptor::GetPendingSeqNext(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">    1008 </span>                :            : {
+<span class="lineNum">    1009 </span>                :<span class="lineCov">      52742 :     return Napi::Number::New(info.Env(), pending_seq_next);</span>
+<a name="1010"><span class="lineNum">    1010 </span>                :            : }</a>
+<span class="lineNum">    1011 </span>                :            : 
+<span class="lineNum">    1012 </span>                :<span class="lineCov">      52742 : Napi::Value Disruptor::GetPendingSeqNextN(const Napi::CallbackInfo&amp; info)</span>
+<span class="lineNum">    1013 </span>                :            : {
+<span class="lineNum">    1014 </span>                :<span class="lineCov">      52742 :     return Napi::Number::New(info.Env(), pending_seq_next_n);</span>
+<a name="1015"><span class="lineNum">    1015 </span>                :            : }</a>
+<span class="lineNum">    1016 </span>                :            : 
+<span class="lineNum">    1017 </span>                :<span class="lineCov">        253 : void Disruptor::Initialize(Napi::Env env, Napi::Object exports)</span>
+<span class="lineNum">    1018 </span>                :            : {
+<span class="lineNum">    1019 </span>                :<span class="lineCov">        506 :     exports.Set(&quot;Disruptor&quot;, DefineClass(env, &quot;Disruptor&quot;,</span>
+<span class="lineNum">    1020 </span>                :            :     {
+<span class="lineNum">    1021 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaim&quot;, &amp;Disruptor::ProduceClaim),</span>
+<span class="lineNum">    1022 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimSync&quot;, &amp;Disruptor::ProduceClaimSync),</span>
+<span class="lineNum">    1023 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimMany&quot;, &amp;Disruptor::ProduceClaimMany),</span>
+<span class="lineNum">    1024 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimManySync&quot;, &amp;Disruptor::ProduceClaimManySync),</span>
+<span class="lineNum">    1025 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommit&quot;, &amp;Disruptor::ProduceCommit),</span>
+<span class="lineNum">    1026 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommitSync&quot;, &amp;Disruptor::ProduceCommitSync),</span>
+<span class="lineNum">    1027 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceRecover&quot;, &amp;Disruptor::ProduceRecover),</span>
+<span class="lineNum">    1028 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNew&quot;, &amp;Disruptor::ConsumeNew),</span>
+<span class="lineNum">    1029 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNewSync&quot;, &amp;Disruptor::ConsumeNewSync),</span>
+<span class="lineNum">    1030 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeCommit&quot;, &amp;Disruptor::ConsumeCommit),</span>
+<span class="lineNum">    1031 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;release&quot;, &amp;Disruptor::Release),</span>
+<span class="lineNum">    1032 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevConsumeStart&quot;, &amp;Disruptor::GetPendingSeqConsumer, nullptr),</span>
+<span class="lineNum">    1033 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevClaimStart&quot;, &amp;Disruptor::GetPendingSeqNext, nullptr),</span>
+<span class="lineNum">    1034 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevClaimEnd&quot;, &amp;Disruptor::GetPendingSeqNextN, nullptr),</span>
+<span class="lineNum">    1035 </span>                :            : 
+<span class="lineNum">    1036 </span>                :            :         // For testing only
+<span class="lineNum">    1037 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;consumers&quot;, &amp;Disruptor::GetConsumers, nullptr),</span>
+<span class="lineNum">    1038 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;cursor&quot;, &amp;Disruptor::GetCursor, nullptr),</span>
+<span class="lineNum">    1039 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;next&quot;, &amp;Disruptor::GetNext, nullptr),</span>
+<span class="lineNum">    1040 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;elements&quot;, &amp;Disruptor::GetElements, nullptr),</span>
+<span class="lineNum">    1041 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;consumer&quot;, &amp;Disruptor::GetConsumer, nullptr),</span>
+<span class="lineNum">    1042 </span>                :<span class="lineCov">        253 :         InstanceAccessor(&quot;prevConsumeNext&quot;, &amp;Disruptor::GetPendingSeqCursor, nullptr),</span>
+<span class="lineNum">    1043 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;consumeNewAsync&quot;, &amp;Disruptor::ConsumeNewAsync),</span>
+<span class="lineNum">    1044 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimAsync&quot;, &amp;Disruptor::ProduceClaimAsync),</span>
+<span class="lineNum">    1045 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceClaimManyAsync&quot;, &amp;Disruptor::ProduceClaimManyAsync),</span>
+<span class="lineNum">    1046 </span>                :<span class="lineCov">        253 :         InstanceMethod(&quot;produceCommitAsync&quot;, &amp;Disruptor::ProduceCommitAsync),</span>
+<span class="lineNum">    1047 </span>                :<span class="lineCov">       6578 :     }));</span>
+<a name="1048"><span class="lineNum">    1048 </span>                :<span class="lineCov">        253 : }</span></a>
+<span class="lineNum">    1049 </span>                :            : 
+<span class="lineNum">    1050 </span>                :<span class="lineCov">        253 : void Initialize(Napi::Env env, Napi::Object exports, Napi::Object module)</span>
+<span class="lineNum">    1051 </span>                :            : {
+<span class="lineNum">    1052 </span>                :<span class="lineCov">        253 :     Disruptor::Initialize(env, exports);</span>
+<a name="1053"><span class="lineNum">    1053 </span>                :<span class="lineCov">        253 : }</span></a>
+<span class="lineNum">    1054 </span>                :            : 
+<span class="lineNum">    1055 </span>                :<span class="lineCov">        506 : NODE_API_MODULE(disruptor, Initialize)</span>
 </pre>
       </td>
     </tr>

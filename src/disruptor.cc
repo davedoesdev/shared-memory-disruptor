@@ -420,7 +420,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     pending_seq_consumer = 0;
     pending_seq_cursor = 0;
 
-    pending_seq_next = 0;
+    pending_seq_next = 1;
     pending_seq_next_n = 0;
 }
 
@@ -633,7 +633,8 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env,
     }
     while (retry);
 
-    out_next = 0;
+    UpdateSeqNext(1, 0);
+    out_next = 1;
     out_next_n = 0;
     return Buffer<uint8_t>::New(env, 0);
 }
@@ -731,10 +732,6 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
                                       sequence_t& out_next,
                                       sequence_t& out_next_n)
 {
-    out_next = 0;
-    out_next_n = 0;
-    Array r = Array::New(env);
-
     do
     {
         sequence_t seq_next = __sync_val_compare_and_swap(next, 0, 0);
@@ -756,15 +753,19 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
         if (can_claim &&
             __sync_bool_compare_and_swap(next, seq_next, seq_next_n + 1))
         {
+            Array r = Array::New(env);
             ProduceGetBuffers<Array, Buffer>(env, seq_next, seq_next_n, r);
             out_next = seq_next;
             out_next_n = seq_next_n;
-            break;
+            return r;
         }
     }
     while (retry);
 
-    return r;
+    UpdateSeqNext(1, 0);
+    out_next = 1;
+    out_next_n = 0;
+    return Array::New(env);
 }
 
 Napi::Value Disruptor::ProduceClaimManySync(const Napi::CallbackInfo& info)
@@ -861,14 +862,17 @@ Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
                                      sequence_t seq_next_n,
                                      bool retry)
 {
-    do
+    if (seq_next <= seq_next_n)
     {
-        if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next_n + 1))
+        do
         {
-            return Boolean::New(env, true);
+            if (__sync_bool_compare_and_swap(cursor, seq_next, seq_next_n + 1))
+            {
+                return Boolean::New(env, true);
+            }
         }
+        while (retry);
     }
-    while (retry);
 
     return Boolean::New(env, false);
 }
@@ -886,7 +890,7 @@ uint32_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info,
     if (info.Length() >= 2)
     {
         seq_next = info[0].As<Napi::Number>().Int64Value();
-        seq_next_n = info[0].As<Napi::Number>().Int64Value();
+        seq_next_n = info[1].As<Napi::Number>().Int64Value();
         return 2;
     }
 

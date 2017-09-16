@@ -765,10 +765,12 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
             expect(bs[0].length).to.equal(200 * 8);
             expect(start).to.equal(0);
             expect(end).to.equal(199);
-            produceClaimMany(d, 57, function (err, bs)
+            produceClaimMany(d, 57, function (err, bs, start, end)
             {
                 if (err) { return done(err); }
                 expect(bs.length).to.equal(0);
+                expect(start).to.equal(1);
+                expect(end).to.equal(0);
                 produceClaimMany(d, 56, function (err, bs, start, end)
                 {
                     if (err) { return done(err); }
@@ -776,10 +778,12 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                     expect(bs[0].length).to.equal(56 * 8);
                     expect(start).to.equal(200);
                     expect(end).to.equal(255);
-                    produceClaim(d, function (err, b)
+                    produceClaim(d, function (err, b, start, end)
                     {
                         if (err) { return done(err); }
                         expect(b.length).to.equal(0);
+                        expect(start).to.equal(1);
+                        expect(end).to.equal(0);
                         done();
                     });
                 });
@@ -850,6 +854,37 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
             });
         });
     });
+
+    it('should not consume-commit if no buffer claimed', function ()
+    {
+        consumeCommit(d);
+        expect(d.consumer).to.equal(0);
+        expect(d.cursor).to.equal(0);
+        expect(d.next).to.equal(0);
+    });
+
+    it('should not produce-commit if no buffer claimed', function (done)
+    {
+        produceCommit(d, function (err, v)
+        {
+            if (err) { return done(err); }
+            expect(v).to.be.false;
+            expect(d.consumer).to.equal(0);
+            expect(d.cursor).to.equal(0);
+            expect(d.next).to.equal(0);
+
+            produceCommit(d, 1, 0, function (err, v)
+            {
+                if (err) { return done(err); }
+                expect(v).to.be.false;
+                expect(d.consumer).to.equal(0);
+                expect(d.cursor).to.equal(0);
+                expect(d.next).to.equal(0);
+
+                done();
+            });
+        });
+    });
 });
 }
 
@@ -865,7 +900,7 @@ describe('async spin', function ()
     {
         let d = new Disruptor('/test', 1, 1, 1, 0, true, true);
 
-        d.produceClaim(function (err, b)
+        d.produceClaim(function (err, b, claimStart, claimEnd)
         {
             let called = false;
 
@@ -878,12 +913,14 @@ describe('async spin', function ()
                 done();
             });
 
+            expect(claimStart).to.equal(0);
+            expect(claimEnd).to.equal(0);
             b[0] = 90;
 
             setTimeout(function ()
             {
                 expect(called).to.be.false;
-                d.produceCommit(function (err, v)
+                d.produceCommit(claimStart, claimEnd, function (err, v)
                 {
                     if (err) { return done(err); }
                     expect(v).to.be.true;
@@ -905,7 +942,7 @@ describe('async spin', function ()
     {
         let d = new Disruptor('/test', 10, 1, 1, 0, true, true);
 
-        d.produceClaimMany(10, function (err, bs)
+        d.produceClaimMany(10, function (err, bs, claimStart, claimEnd)
         {
             let called = false;
 
@@ -920,6 +957,9 @@ describe('async spin', function ()
                 done();
             });
 
+            expect(claimStart).to.equal(0);
+            expect(claimEnd).to.equal(9);
+
             expect(bs.length).to.equal(1);
             expect(bs[0].length).to.equal(10);
             bs[0].fill(90);
@@ -927,11 +967,14 @@ describe('async spin', function ()
             setTimeout(function ()
             {
                 expect(called).to.be.false;
-                d.produceCommit(function (err, v)
+                d.produceCommit(claimStart, claimEnd, function (err, v)
                 {
                     if (err) { return done(err); }
                     expect(v).to.be.true;
                     expect(called).to.be.false;
+                    expect(d.cursor).to.equal(10);
+                    expect(d.next).to.equal(10);
+                    expect(d.consumer).to.equal(0);
                     d.consumeNew(function (err, bs, start)
                     {
                         if (err) { return done(err); }
