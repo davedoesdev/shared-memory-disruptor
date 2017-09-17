@@ -22,11 +22,11 @@ public:
     // Unmap the shared memory. Don't access it again from this Disruptor!
     void Release(const Napi::CallbackInfo& info);
 
-    // Return unconsumed values for a consumer
+    // Return unconsumed slots for a consumer
     Napi::Value ConsumeNew(const Napi::CallbackInfo& info); 
     Napi::Value ConsumeNewSync(const Napi::CallbackInfo& info); 
 
-    // Update consumer sequence without consuming more
+    // Commit consumed slots
     Napi::Value ConsumeCommit(const Napi::CallbackInfo&);
 
     // Claim a slot for writing a value
@@ -79,7 +79,7 @@ private:
     Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env,
                                      bool retry,
                                      sequence_t& out_next,
-                                     sequence_t& out_next_t);
+                                     sequence_t& out_next_end);
     void ProduceClaimAsync(const Napi::CallbackInfo& info);
 
     template<typename Array, template<typename> typename Buffer>
@@ -464,9 +464,6 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
     // Commit previous consume
     ConsumeCommit();
 
-    start = 0;
-    Array r = Array::New(env);
-
     do
     {
         sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
@@ -476,6 +473,8 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 
         if (pos_cursor > pos_consumer)
         {
+            Array r = Array::New(env);
+
             r.Set(0U, Buffer<uint8_t>::New(
                 env,
                 elements + pos_consumer * element_size,
@@ -483,11 +482,13 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
-            break;
+            return r;
         }
 
         if (seq_cursor != seq_consumer)
         {
+            Array r = Array::New(env);
+
             r.Set(0U, Buffer<uint8_t>::New(
                 env,
                 elements + pos_consumer * element_size,
@@ -503,12 +504,13 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
-            break;
+            return r;
         }
     }
     while (retry);
 
-    return r;
+    start = 0;
+    return Array::New(env);
 }
 
 Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
@@ -655,7 +657,7 @@ public:
         DisruptorAsyncWorker<AsyncBuffer<uint8_t>, sequence_t, sequence_t>(
             disruptor, callback)
     {
-        arg1 = 0;
+        arg1 = 1;
         arg2 = 0;
     }
 
@@ -790,7 +792,7 @@ public:
             disruptor, callback),
         n(n)
     {
-        arg1 = 0;
+        arg1 = 1;
         arg2 = 0;
     }
 
