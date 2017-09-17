@@ -133,6 +133,7 @@ private:
     Napi::Value GetPendingSeqCursor(const Napi::CallbackInfo& info);
     Napi::Value GetPendingSeqNext(const Napi::CallbackInfo& info);
     Napi::Value GetPendingSeqNextEnd(const Napi::CallbackInfo& info);
+    Napi::Value GetElementSize(const Napi::CallbackInfo& info);
 };
 
 void NullCallback(const Napi::CallbackInfo& info)
@@ -1016,6 +1017,11 @@ Napi::Value Disruptor::GetPendingSeqNextEnd(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), pending_seq_next_end);
 }
 
+Napi::Value Disruptor::GetElementSize(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), element_size);
+}
+
 void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
@@ -1034,6 +1040,7 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceAccessor("prevConsumeStart", &Disruptor::GetPendingSeqConsumer, nullptr),
         InstanceAccessor("prevClaimStart", &Disruptor::GetPendingSeqNext, nullptr),
         InstanceAccessor("prevClaimEnd", &Disruptor::GetPendingSeqNextEnd, nullptr),
+        InstanceAccessor("elementSize", &Disruptor::GetElementSize, nullptr),
 
         // For testing only
         InstanceAccessor("consumers", &Disruptor::GetConsumers, nullptr),

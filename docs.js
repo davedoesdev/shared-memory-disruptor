@@ -165,6 +165,13 @@ class Disruptor
     get prevConsumeStart()
     {
     }
+
+    /**
+      @returns {integer} - Size of each element in the Disruptor in bytes.
+     */
+    get elementSize()
+    {
+    }
 }
 
 /**

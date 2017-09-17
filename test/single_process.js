@@ -83,6 +83,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
     beforeEach(function ()
     {
         d = new Disruptor('/test', 256, 8, 1, 0, true, false);
+        expect(d.elementSize).to.equal(8);
     });
 
     afterEach(function ()
