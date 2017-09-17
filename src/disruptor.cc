@@ -22,12 +22,13 @@ public:
     // Unmap the shared memory. Don't access it again from this Disruptor!
     void Release(const Napi::CallbackInfo& info);
 
-    // Return unconsumed values for a consumer
+    // Return unconsumed slots for a consumer
     Napi::Value ConsumeNew(const Napi::CallbackInfo& info); 
     Napi::Value ConsumeNewSync(const Napi::CallbackInfo& info); 
 
-    // Update consumer sequence without consuming more
-    Napi::Value ConsumeCommit(const Napi::CallbackInfo&);
+    // Commit consumed slots
+    Napi::Value ConsumeCommit(const Napi::CallbackInfo& info);
+    Napi::Value ConsumeCommitSync(const Napi::CallbackInfo& info);
 
     // Claim a slot for writing a value
     Napi::Value ProduceClaim(const Napi::CallbackInfo& info);
@@ -44,6 +45,9 @@ public:
     // Get slots previously claimed but not committed
     Napi::Value ProduceRecover(const Napi::CallbackInfo& info);
 
+    // Get slots previously consumed but not committed
+    Napi::Value ConsumeRecover(const Napi::CallbackInfo& info);
+
     inline bool Spin()
     {
         return spin;
@@ -51,6 +55,7 @@ public:
 
 private:
     friend class ConsumeNewAsyncWorker;
+    friend class ConsumeCommitAsyncWorker;
     friend class ProduceClaimAsyncWorker;
     friend class ProduceClaimManyAsyncWorker;
     friend class ProduceCommitAsyncWorker;
@@ -62,6 +67,9 @@ private:
     uint32_t GetSeqNext(const Napi::CallbackInfo& info,
                         sequence_t& seq_next,
                         sequence_t& seq_next_end);
+    uint32_t GetClaimStartEnd(const Napi::CallbackInfo& info,
+                              sequence_t& start,
+                              sequence_t& end)
 
     template<typename Array, template<typename> typename Buffer>
     void ProduceGetBuffers(const Napi::Env& env,
@@ -70,10 +78,22 @@ private:
                            Array& r);
 
     template<typename Array, template<typename> typename Buffer>
-    Array ConsumeNewSync(const Napi::Env& env, bool retry, sequence_t& start);
+    Array ConsumeNewSync(const Napi::Env& env,
+                         bool retry,
+                         sequence_t& start,
+                         sequence_t& end);
     void ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
-    bool ConsumeCommit();
+    template<typename Boolean>
+    Boolean ConsumeCommitSync(const Napi::Env& env,
+                              sequence_t start,
+                              sequence_t end,
+                              bool retry);
+    void ConsumeCommitAsync(const Napi::CallbackInfo& info);
+    void ConsumeCommitAsync(const Napi::CallbackInfo& info,
+                            sequence_t start,
+                            sequence_t end,
+                            uint32_t cb_arg);
 
     template<template<typename> typename Buffer>
     Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env,
@@ -112,25 +132,29 @@ private:
     size_t shm_size;
     void* shm_buf;
     
-    sequence_t *consumers; // for each consumer, next slot to read
-    sequence_t *cursor;    // next slot to be filled
-    sequence_t *next;      // next slot to claim
+    sequence_t *consumer_cursors; // for each consumer, next slot to commit
+    sequence_t *consumer_nexts;   // for each consumer, next slot to consume
+    sequence_t *cursor;           // next slot to be filled
+    sequence_t *next;             // next slot to claim
     uint8_t* elements;
-    sequence_t *ptr_consumer;
+    sequence_t *ptr_consumer_cursor;
+    sequence_t *ptr_consumer_next;
 
-    sequence_t pending_seq_consumer;
-    sequence_t pending_seq_cursor;
+    sequence_t pending_seq_consumer_next;
+    sequence_t pending_seq_consumer_next_end;
 
     sequence_t pending_seq_next;
     sequence_t pending_seq_next_end;
 
-    Napi::Value GetConsumers(const Napi::CallbackInfo& info);
+    Napi::Value GetConsumerCursors(const Napi::CallbackInfo& info);
+    Napi::Value GetConsumerNexts(const Napi::CallbackInfo& info);
     Napi::Value GetCursor(const Napi::CallbackInfo& info);
     Napi::Value GetNext(const Napi::CallbackInfo& info);
     Napi::Value GetElements(const Napi::CallbackInfo& info);
-    Napi::Value GetConsumer(const Napi::CallbackInfo& info);
-    Napi::Value GetPendingSeqConsumer(const Napi::CallbackInfo& info);
-    Napi::Value GetPendingSeqCursor(const Napi::CallbackInfo& info);
+    Napi::Value GetConsumerCursor(const Napi::CallbackInfo& info);
+    Napi::Value GetConsumerNext(const Napi::CallbackInfo& info);
+    Napi::Value GetPendingSeqConsumerNext(const Napi::CallbackInfo& info);
+    Napi::Value GetPendingSeqConsumerNextEnd(const Napi::CallbackInfo& info);
     Napi::Value GetPendingSeqNext(const Napi::CallbackInfo& info);
     Napi::Value GetPendingSeqNextEnd(const Napi::CallbackInfo& info);
 };
@@ -386,10 +410,11 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     }
 
     // Allow space for all the elements,
-    // a sequence number for each consumer,
-    // the cursor sequence number (last filled slot) and
-    // the next sequence number (first free slot).
-    shm_size = (num_consumers + 2) * sizeof(sequence_t) +
+    // the cursor sequence number (last filled slot),
+    // the next sequence number (first free slot) and
+    // a cursor sequence number for each consumer and
+    // a next sequence number for each consumer
+    shm_size = (num_consumers * 2 + 2) * sizeof(sequence_t) +
                num_elements * element_size;
 
     // Resize the shared memory if we're initializing it.
@@ -411,14 +436,16 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
 
     }
 
-    consumers = static_cast<sequence_t*>(shm_buf);
-    cursor = &consumers[num_consumers];
+    consumer_cursors = static_cast<sequence_t*>(shm_buf);
+    consumer_nexts = &consumer_cursors[num_consumers];
+    cursor = &consumer_nexts[num_consumers];
     next = &cursor[1];
     elements = reinterpret_cast<uint8_t*>(&next[1]);
-    ptr_consumer = &consumers[consumer];
+    ptr_consumer_cursor = &consumer_cursors[consumer];
+    ptr_consumer_next = &consumer_nexts[consumer];
 
-    pending_seq_consumer = 0;
-    pending_seq_cursor = 0;
+    pending_seq_consumer_next = 0;
+    pending_seq_consumer_next_end = 0;
 
     pending_seq_next = 1;
     pending_seq_next_end = 0;
@@ -454,28 +481,31 @@ void Disruptor::Release(const Napi::CallbackInfo& info)
     }
 }
 
+void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)
+{
+    pending_seq_consumer_next = seq_consumer;
+    pending_seq_consumer_next_end = seq_cursor - 1;
+}
+
 template<typename Array, template<typename> typename Buffer>
 Array Disruptor::ConsumeNewSync(const Napi::Env& env,
                                 bool retry,
-                                sequence_t &start)
+                                sequence_t &start,
+                                sequence_t &end)
 {
     // Return all elements [&consumers[consumer], cursor)
 
-    // Commit previous consume
-    ConsumeCommit();
-
-    start = 0;
-    Array r = Array::New(env);
-
     do
     {
-        sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer, 0, 0);
+        sequence_t seq_consumer = __sync_val_compare_and_swap(ptr_consumer_next, 0, 0);
         sequence_t seq_cursor = __sync_val_compare_and_swap(cursor, 0, 0);
         sequence_t pos_consumer = seq_consumer % num_elements;
         sequence_t pos_cursor = seq_cursor % num_elements;
 
         if (pos_cursor > pos_consumer)
         {
+            Array r = Array::New();
+
             r.Set(0U, Buffer<uint8_t>::New(
                 env,
                 elements + pos_consumer * element_size,
@@ -483,11 +513,15 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
-            break;
+            end = seq_cursor - 1;
+            
+            return r;
         }
 
         if (seq_cursor != seq_consumer)
         {
+            Array r = Array::New();
+
             r.Set(0U, Buffer<uint8_t>::New(
                 env,
                 elements + pos_consumer * element_size,
@@ -503,41 +537,48 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
-            break;
+            end = seq_cursor - 1;
+
+            return r;
         }
     }
     while (retry);
 
-    return r;
+    UpdatePending(1, 0);
+    start = 1;
+    end = 0;
+
+    return Array::New(env);
 }
 
 Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
 {
-    sequence_t start;
+    sequence_t start, end;
     return ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env(), spin, start);
 }
 
 class ConsumeNewAsyncWorker :
     public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
                                 sequence_t,
-                                AsyncUndefined>
+                                sequence_t>
 {
 public:
     ConsumeNewAsyncWorker(Disruptor *disruptor,
                           const Napi::Function& callback) :
         DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
                              sequence_t,
-                             AsyncUndefined>(
+                             sequence_t>(
             disruptor, callback)
     {
-        arg1 = 0;
+        arg1 = 1;
+        arg2 = 0;
     }
 
 protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env(), false, arg1);
+        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env(), false, arg1, arg2);
         retry = result.Length() == 0;
     }
 
@@ -554,9 +595,9 @@ void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
 
 Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
 {
-    sequence_t start;
+    sequence_t start, end;
     Napi::Array r = ConsumeNewSync<Napi::Array, Napi::Buffer>(
-        info.Env(), false, start);
+        info.Env(), false, start, end);
 
     if (r.Length() > 0)
     {
@@ -567,30 +608,56 @@ Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-Napi::Value Disruptor::ConsumeCommit(const Napi::CallbackInfo& info)
+template<typename Boolean>
+Boolean Disruptor::ConsumeCommitSync(const Napi::Env& env,
+                                     sequence_t start,
+                                     sequence_t end,
+                                     bool retry)
 {
-    return Napi::Boolean::New(info.Env(), ConsumeCommit());
-}
-
-void Disruptor::UpdatePending(sequence_t seq_consumer, sequence_t seq_cursor)
-{
-    pending_seq_consumer = seq_consumer;
-    pending_seq_cursor = seq_cursor;
-}
-
-bool Disruptor::ConsumeCommit()
-{
-    bool r = true;
-
-    if (pending_seq_cursor)
+    if (start <= end)
     {
-        r = __sync_bool_compare_and_swap(ptr_consumer,
-                                         pending_seq_consumer,
-                                         pending_seq_cursor);
-        pending_seq_cursor = 0;
+        do
+        {
+            if (__sync_bool_compare_and_swap(ptr_consumer_cursor, start, end + 1)
+            {
+                return Boolean::New(env, true);
+            }
+        }
+        while (retry);
     }
 
-    return r;
+    return Boolean::New(env, false);
+}
+
+uint32_t Disruptor::GetClaimStartEnd(const Napi::CallbackInfo& info,
+                                     sequence_t& start,
+                                     sequence_t& end)
+{
+    if (info.Length() >= 2)
+    {
+        start = info[0].As<Napi::Number>().Int64Value();
+        end = info[1].As<Napi::Number>().Int64Value();
+        return 2;
+    }
+    start = pending_seq_consumer_next;
+    end = pending_seq_consumer_next_end;
+    return 0;
+}
+
+Napi::Value Disruptor::ConsumeCommitSync(const Napi::CallbackInfo& info)
+{
+    sequence_t start, end;
+    GetClaimStartEnd(info, start, end);
+    return ConsumeCommitSync<Napi::Boolean>(info.Env(), start, end, spin);
+}
+
+
+
+
+void Disruptor::UpdateSeqNext(sequence_t seq_next, sequence_t seq_next_end)
+{
+    pending_seq_next = seq_next;
+    pending_seq_next_end = seq_next_end;
 }
 
 template<template<typename> typename Buffer>
@@ -607,7 +674,7 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env,
 
         for (uint32_t i = 0; i < num_consumers; ++i)
         {
-            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
+            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumer_cursors[i], 0, 0);
 
             if ((seq_next - seq_consumer) >= num_elements)
             {
@@ -655,7 +722,7 @@ public:
         DisruptorAsyncWorker<AsyncBuffer<uint8_t>, sequence_t, sequence_t>(
             disruptor, callback)
     {
-        arg1 = 0;
+        arg1 = 1;
         arg2 = 0;
     }
 
@@ -741,7 +808,7 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
 
         for (uint32_t i = 0; i < num_consumers; ++i)
         {
-            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumers[i], 0, 0);
+            sequence_t seq_consumer = __sync_val_compare_and_swap(&consumer_cursors[i], 0, 0);
 
             if ((seq_next_end - seq_consumer) >= num_elements)
             {
@@ -790,7 +857,7 @@ public:
             disruptor, callback),
         n(n)
     {
-        arg1 = 0;
+        arg1 = 1;
         arg2 = 0;
     }
 
@@ -875,12 +942,6 @@ Boolean Disruptor::ProduceCommitSync(const Napi::Env& env,
     }
 
     return Boolean::New(env, false);
-}
-
-void Disruptor::UpdateSeqNext(sequence_t seq_next, sequence_t seq_next_end)
-{
-    pending_seq_next = seq_next;
-    pending_seq_next_end = seq_next_end;
 }
 
 uint32_t Disruptor::GetSeqNext(const Napi::CallbackInfo& info,
@@ -969,9 +1030,14 @@ Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetConsumerCursors(const Napi::CallbackInfo& info)
 {
-    return Napi::Buffer<sequence_t>::New(info.Env(), consumers, num_consumers);
+    return Napi::Buffer<sequence_t>::New(info.Env(), consumer_cursors, num_consumers);
+}
+
+Napi::Value Disruptor::GetConsumerNexts(const Napi::CallbackInfo& info)
+{
+    return Napi::Buffer<sequence_t>::New(info.Env(), consumer_nexts, num_consumers);
 }
 
 Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo& info)
@@ -989,19 +1055,24 @@ Napi::Value Disruptor::GetElements(const Napi::CallbackInfo& info)
     return Napi::Buffer<uint8_t>::New(info.Env(), elements, num_elements * element_size);
 }
 
-Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetConsumerCursor(const Napi::CallbackInfo& info)
 {
-    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer, 0, 0));
+    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer_cursor, 0, 0));
 }
 
-Napi::Value Disruptor::GetPendingSeqConsumer(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetConsumerNext(const Napi::CallbackInfo& info)
 {
-    return Napi::Number::New(info.Env(), pending_seq_consumer);
+    return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(ptr_consumer_next, 0, 0));
 }
 
-Napi::Value Disruptor::GetPendingSeqCursor(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetPendingSeqConsumerNext(const Napi::CallbackInfo& info)
 {
-    return Napi::Number::New(info.Env(), pending_seq_cursor);
+    return Napi::Number::New(info.Env(), pending_seq_consumer_next);
+}
+
+Napi::Value Disruptor::GetPendingSeqConsumerNextEnd(const Napi::CallbackInfo& info)
+{
+    return Napi::Number::New(info.Env(), pending_seq_consumer_next_end);
 }
 
 Napi::Value Disruptor::GetPendingSeqNext(const Napi::CallbackInfo& info)
@@ -1028,19 +1099,24 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
         InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
         InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
+        InstanceMethod("consumeCommitSync", &Disruptor::ConsumeCommitSync),
+        InstanceMethod("consumeRecover", &Disruptor::ConsumeRecover),
         InstanceMethod("release", &Disruptor::Release),
-        InstanceAccessor("prevConsumeStart", &Disruptor::GetPendingSeqConsumer, nullptr),
+        InstanceAccessor("prevConsumeStart", &Disruptor::GetPendingSeqConsumerNext, nullptr),
+        InstanceAccessor("prevConsumeEnd", &Disruptor::GetPendingSeqConsumerNextEnd, nullptr),
         InstanceAccessor("prevClaimStart", &Disruptor::GetPendingSeqNext, nullptr),
         InstanceAccessor("prevClaimEnd", &Disruptor::GetPendingSeqNextEnd, nullptr),
 
         // For testing only
-        InstanceAccessor("consumers", &Disruptor::GetConsumers, nullptr),
+        InstanceAccessor("consumer_cursors", &Disruptor::GetConsumerCursors, nullptr),
+        InstanceAccessor("consumer_nexts", &Disruptor::GetConsumerNexts, nullptr),
         InstanceAccessor("cursor", &Disruptor::GetCursor, nullptr),
         InstanceAccessor("next", &Disruptor::GetNext, nullptr),
         InstanceAccessor("elements", &Disruptor::GetElements, nullptr),
-        InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr),
-        InstanceAccessor("prevConsumeNext", &Disruptor::GetPendingSeqCursor, nullptr),
+        InstanceAccessor("consumer_cursor", &Disruptor::GetConsumerCursor, nullptr),
+        InstanceAccessor("consumer_next", &Disruptor::GetConsumerNext, nullptr),
         InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
+        InstanceMethod("consumeCommitAsync", &Disruptor::ConsumeCommitAsync),
         InstanceMethod("produceClaimAsync", &Disruptor::ProduceClaimAsync),
         InstanceMethod("produceClaimManyAsync", &Disruptor::ProduceClaimManyAsync),
         InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),

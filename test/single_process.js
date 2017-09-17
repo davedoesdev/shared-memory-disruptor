@@ -12,7 +12,7 @@ function tests(do_async, async_suffix)
             return d['consumeNew' + async_suffix](cb);
         }
 
-        cb(null, d.consumeNewSync(), d.prevConsumeStart);
+        cb(null, d.consumeNewSync(), d.prevConsumeStart, d.prevConsumeEnd);
     }
 
     function consumeCommit(d)
@@ -555,15 +555,23 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
             expect(d.cursor).to.equal(256);
             expect(d.next).to.equal(256);
             expect(d.consumer).to.equal(0);
-            produceClaim(d, function (err, b)
+            produceClaim(d, function (err, b, claimStart, claimEnd)
             {
                 if (err) { return done(err); }
                 expect(Buffer.isBuffer(b)).to.be.true;
                 expect(b.length).to.equal(0);
-                produceClaimMany(d, 2, function (err, bs)
+                expect(claimStart).to.equal(1);
+                expect(claimEnd).to.equal(0);
+                expect(d.prevClaimStart).to.equal(1);
+                expect(d.prevClaimEnd).to.equal(0);
+                produceClaimMany(d, 2, function (err, bs, claimStart2, claimEnd2))
                 {
                     if (err) { return done(err); }
                     expect(bs.length).to.equal(0);
+                    expect(claimStart2).to.equal(1);
+                    expect(claimEnd2).to.equal(0);
+                    expect(d.prevClaimStart).to.equal(1);
+                    expect(d.prevClaimEnd).to.equal(0);
                     done();
                 });
             });
