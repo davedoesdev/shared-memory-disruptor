@@ -421,9 +421,9 @@ to store data in shared memory.</p>
 , the buffer will be empty. Otherwise its length will be 
 <code>element_size</code>
 . The buffer is backed by shared memory so may be overwitten after you call 
-<a href="produceCommit">produceCommit</a>
+<a href="#disruptorproducecommit">produceCommit</a>
  or 
-<a href="produceCommitSync">produceCommitSync</a>
+<a href="#disruptorproducecommitsync">produceCommitSync</a>
 .
 
       
@@ -578,9 +578,9 @@ to store data in shared memory.</p>
  in length. The total size of the buffers in the array will be 
 <code>n * element_size</code>
 . The buffers are backed by shared memory so may be overwritten after you call 
-<a href="produceCommit">produceCommit</a>
+<a href="#disruptorproducecommit">produceCommit</a>
  or 
-<a href="produceCommitSync">produceCommitSync</a>
+<a href="#disruptorproducecommitsync">produceCommitSync</a>
 .
 
       
@@ -640,7 +640,7 @@ to buffers you reserved.</p>
  or 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
 . If you don't specify a value, 
-<a href="prevClaimStart">prevClaimStart</a>
+<a href="#disruptorprevclaimstart">prevClaimStart</a>
  is used.
 
           </div>
@@ -655,7 +655,7 @@ to buffers you reserved.</p>
  or 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
 . If you don't specify a value, 
-<a href="prevClaimEnd">prevClaimEnd</a>
+<a href="#disruptorprevclaimend">prevClaimEnd</a>
  is used.
 
           </div>
@@ -737,7 +737,7 @@ to buffers you reserved.</p>
  or 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
 . If you don't specify a value, 
-<a href="prevClaimStart">prevClaimStart</a>
+<a href="#disruptorprevclaimstart">prevClaimStart</a>
  is used.
 
           </div>
@@ -752,7 +752,7 @@ to buffers you reserved.</p>
  or 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
 . If you don't specify a value, 
-<a href="prevClaimEnd">prevClaimEnd</a>
+<a href="#disruptorprevclaimend">prevClaimEnd</a>
  is used.
 
           </div>
@@ -813,9 +813,9 @@ to buffers you reserved.</p>
   
 
   <p>Read new data from the Disruptor.</p>
-<p>Elements written to since <a href="consumeNew">consumeNew</a>, <a href="consumeNewSync">consumeNewSync</a> or
-<a href="consumeCommit">consumeCommit</a> were called on this object are passed to <code>cb</code>.</p>
-<p>A call to <a href="consumeCommit">consumeCommit</a> is made before checking for new data.</p>
+<p>Elements written to since <a href="#disruptorconsumenew">consumeNew</a>, <a href="#disruptorconsumenewsync">consumeNewSync</a> or
+<a href="#disruptorconsumecommit">consumeCommit</a> were called on this object are passed to <code>cb</code>.</p>
+<p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
 
   <div class='pre p1 fill-light mt0'>consumeNew(cb: <a href="#consumenewcallback">consumeNewCallback</a>)</div>
@@ -884,9 +884,9 @@ elements have been written to the Disruptor.
   
 
   <p>Read new data from the Disruptor.</p>
-<p>Elements written to since <a href="consumeNew">consumeNew</a>, <a href="consumeNewSync">consumeNewSync</a> or
-<a href="consumeCommit">consumeCommit</a> were called on this object are returned.</p>
-<p>A call to <a href="consumeCommit">consumeCommit</a> is made before checking for new data.</p>
+<p>Elements written to since <a href="#disruptorconsumenew">consumeNew</a>, <a href="#disruptorconsumenewsync">consumeNewSync</a> or
+<a href="#disruptorconsumecommit">consumeCommit</a> were called on this object are returned.</p>
+<p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
 
   <div class='pre p1 fill-light mt0'>consumeNewSync(): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
@@ -917,7 +917,7 @@ elements have been written to the Disruptor.
 , the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of 
 <code>element_size</code>
  in length. The buffers are backed by shared memory so may be overwritten after you call 
-<a href="consumeCommit">consumeCommit</a>
+<a href="Disruptor#consumeCommit#consumeCommit">Disruptor#consumeCommit#consumeCommit</a>
 .
 
       
@@ -951,9 +951,9 @@ elements have been written to the Disruptor.
   
 
   <p>Tell the Disruptor you've finished reading data. Call this once you've
-finished with buffers returned by <a href="consumeNew">consumeNew</a> or
-<a href="consumeNewSync">consumeNewSync</a>.</p>
-<p>This is called by <a href="consumeNew">consumeNew</a> and <a href="consumeNewSync">consumeNewSync</a> before
+finished with buffers returned by <a href="Disruptor#consumeNew#consumeNew">Disruptor#consumeNew#consumeNew</a> or
+<a href="#disruptorconsumenewsync">consumeNewSync</a>.</p>
+<p>This is called by <a href="#disruptorconsumenew">consumeNew</a> and <a href="#disruptorconsumenewsync">consumeNewSync</a> before
 they check for new data.</p>
 
 
@@ -1036,7 +1036,7 @@ they check for new data.</p>
 , 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
  or 
-<a href="prevClaimStart">prevClaimStart</a>
+<a href="#disruptorprevclaimstart">prevClaimStart</a>
 .
 
           </div>
@@ -1051,7 +1051,7 @@ they check for new data.</p>
 , 
 <a href="#produceclaimmanycallback">produceClaimManyCallback</a>
  or 
-<a href="prevClaimEnd">prevClaimEnd</a>
+<a href="#disruptorprevclaimend">prevClaimEnd</a>
 .
 
           </div>
@@ -1164,13 +1164,13 @@ you can force the shared memory to be unmapped by calling this function.</p>
         The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced 
 <em>before</em>
  the previous call to 
-<a href="produceClaim">produceClaim</a>
+<a href="#disruptorproduceclaim">produceClaim</a>
 , 
-<a href="produceClaimSync">produceClaimSync</a>
+<a href="#disruptorproduceclaimsync">produceClaimSync</a>
 , 
-<a href="produceClaimMany">produceClaimMany</a>
+<a href="#disruptorproduceclaimmany">produceClaimMany</a>
  or 
-<a href="produceClaimManySync">produceClaimManySync</a>
+<a href="#disruptorproduceclaimmanysync">produceClaimManySync</a>
 .
 
       
@@ -1227,13 +1227,13 @@ you can force the shared memory to be unmapped by calling this function.</p>
         The Disruptor maintains a strictly increasing count of the total number of elements produced since it was created. This is how many elements were produced 
 <em>after</em>
  the previous call to 
-<a href="produceClaim">produceClaim</a>
+<a href="#disruptorproduceclaim">produceClaim</a>
 , 
-<a href="produceClaimSync">produceClaimSync</a>
+<a href="#disruptorproduceclaimsync">produceClaimSync</a>
 , 
-<a href="produceClaimMany">produceClaimMany</a>
+<a href="#disruptorproduceclaimmany">produceClaimMany</a>
  or 
-<a href="produceClaimManySync">produceClaimManySync</a>
+<a href="#disruptorproduceclaimmanysync">produceClaimManySync</a>
 , minus 1.
 
       
@@ -1290,9 +1290,9 @@ you can force the shared memory to be unmapped by calling this function.</p>
         The Disruptor maintains a strictly increasing count of the total number of elements consumed since it was created. This is the how many elements were consumed 
 <em>before</em>
  the previous call to 
-<a href="consumeNew">consumeNew</a>
+<a href="#disruptorconsumenew">consumeNew</a>
  or 
-<a href="consumeNewSync">consumeNewSync</a>
+<a href="#disruptorconsumenewsync">consumeNewSync</a>
 .
 
       
@@ -1432,9 +1432,9 @@ you can force the shared memory to be unmapped by calling this function.</p>
 . 
 <code>buf</code>
  is backed by shared memory so may be overwritten after you call 
-<a href="produceCommit">produceCommit</a>
+<a href="#disruptorproducecommit">produceCommit</a>
  or 
-<a href="produceCommitSync">produceCommitSync</a>
+<a href="#disruptorproducecommitsync">produceCommitSync</a>
 .
 
           </div>
@@ -1542,9 +1542,9 @@ you can force the shared memory to be unmapped by calling this function.</p>
  will be 
 <code>n * element_size</code>
 . The buffers are backed by shared memory so may be overwritten after you call 
-<a href="produceCommit">produceCommit</a>
+<a href="#disruptorproducecommit">produceCommit</a>
  or 
-<a href="produceCommitSync">produceCommitSync</a>
+<a href="#disruptorproducecommitsync">produceCommitSync</a>
 .
 
           </div>
@@ -1732,7 +1732,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
 , the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of 
 <code>element_size</code>
  in length. The buffers are backed by shared memory so may be overwritten after you call 
-<a href="consumeCommit">consumeCommit</a>
+<a href="#disruptorconsumecommit">consumeCommit</a>
 .
 
           </div>
