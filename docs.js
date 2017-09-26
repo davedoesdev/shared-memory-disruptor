@@ -111,7 +111,7 @@ class Disruptor
 
     /**
       Tell the Disruptor you've finished reading data. Call this once you've
-      finished with buffers returned by {@link Disruptor#consumeNew#consumeNew} or
+      finished with buffers returned by {@link Disruptor#consumeNew|consumeNew} or
       {@link Disruptor#consumeNewSync|consumeNewSync}.
 
       This is called by {@link Disruptor#consumeNew|consumeNew} and {@link Disruptor#consumeNewSync|consumeNewSync} before
