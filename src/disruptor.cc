@@ -17,7 +17,7 @@ public:
     Disruptor(const Napi::CallbackInfo& info);
     ~Disruptor();
 
-    static void Initialize(Napi::Env env, Napi::Object exports);
+    static Napi::Object Initialize(Napi::Env env, Napi::Object exports);
 
     // Unmap the shared memory. Don't access it again from this Disruptor!
     void Release(const Napi::CallbackInfo& info);
@@ -1022,7 +1022,7 @@ Napi::Value Disruptor::GetElementSize(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), element_size);
 }
 
-void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
+Napi::Object Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
     {
@@ -1054,11 +1054,13 @@ void Disruptor::Initialize(Napi::Env env, Napi::Object exports)
         InstanceMethod("produceClaimManyAsync", &Disruptor::ProduceClaimManyAsync),
         InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),
     }));
+
+    return exports;
 }
 
-void Initialize(Napi::Env env, Napi::Object exports, Napi::Object module)
+Napi::Object Initialize(Napi::Env env, Napi::Object exports)
 {
-    Disruptor::Initialize(env, exports);
+    return Disruptor::Initialize(env, exports);
 }
 
 NODE_API_MODULE(disruptor, Initialize)
