@@ -1,4 +1,4 @@
-let Disruptor = require('shared-memory-disruptor').Disruptor;
+let Disruptor = require('..').Disruptor;
 let d = new Disruptor('/example', 1000, 4, 1, -1, true, true);
 let sum = 0;
 
