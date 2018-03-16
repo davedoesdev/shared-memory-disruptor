@@ -103,7 +103,7 @@ class Disruptor
 
       A call to {@link Disruptor#consumeCommit|consumeCommit} is made before checking for new data.
 
-      @returns {Buffer[]} - Array of buffers containing new data ready to read from the Disruptor. If no new data was available and `spin` (see the {@link Disruptor|constructor}) is `false`, the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of `element_size` in length. The buffers are backed by shared memory so may be overwritten after you call {@link Disruptor#consumeCommit#consumeCommit}.
+      @returns {Buffer[]} - Array of buffers containing new data ready to read from the Disruptor. If no new data was available and `spin` (see the {@link Disruptor|constructor}) is `false`, the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of `element_size` in length. The buffers are backed by shared memory so may be overwritten after you call {@link Disruptor#consumeCommit|consumeCommit}.
      */
     consumeNewSync()
     {

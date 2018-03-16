@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8' />
-  <title>shared-memory-disruptor 1.1.1 | Documentation</title>
+  <title>shared-memory-disruptor 2.0.2 | Documentation</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' type='text/css' rel='stylesheet' />
   <link href='assets/style.css' type='text/css' rel='stylesheet' />
@@ -14,7 +14,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>shared-memory-disruptor</h3>
-          <div class='mb1'><code>1.1.1</code></div>
+          <div class='mb1'><code>2.0.2</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -203,7 +203,7 @@
 to store data in shared memory.</p>
 
 
-  <div class='pre p1 fill-light mt0'>new Disruptor(shm_name: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, num_elements: integer, element_size: integer, num_consumers: integer, consumer: integer, init: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>, spin: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
+  <div class='pre p1 fill-light mt0'>new Disruptor(shm_name: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, num_elements: integer, element_size: integer, num_consumers: integer, consumer: integer, init: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>, spin: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
   
 
@@ -220,7 +220,7 @@ to store data in shared memory.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>shm_name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+            <span class='code bold'>shm_name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
 	    Name of shared memory object to use (see 
 <a href="http://pubs.opengroup.org/onlinepubs/009695399/functions/shm_open.html">shm_open</a>
 ).
@@ -271,7 +271,7 @@ to store data in shared memory.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>init</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+            <span class='code bold'>init</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
 	    Whether to create and initialize the shared memory backing the Disruptor. You should arrange your application so this is done once, at the start.
 
           </div>
@@ -280,7 +280,7 @@ to store data in shared memory.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>spin</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+            <span class='code bold'>spin</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
 	    If 
 <code>true</code>
  then methods on this object which read from the Disruptor won't return to your application until a value is ready. Methods which write to the Disruptor won't return while the Disruptor is full. The 
@@ -534,7 +534,7 @@ to store data in shared memory.</p>
   <p>Reserve a number of elements in the Disruptor for writing data into.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceClaimManySync(n: integer): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
+  <div class='pre p1 fill-light mt0'>produceClaimManySync(n: integer): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
   
   
 
@@ -566,7 +566,7 @@ to store data in shared memory.</p>
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></code>:
         Array of buffers for writing data to the Disruptor. If the Disruptor didn't have enough free elements and 
 <code>spin</code>
  (see the 
@@ -714,7 +714,7 @@ to buffers you reserved.</p>
 to buffers you reserved.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceCommitSync(claimStart: integer?, claimEnd: integer?): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+  <div class='pre p1 fill-light mt0'>produceCommitSync(claimStart: integer?, claimEnd: integer?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -767,7 +767,7 @@ to buffers you reserved.</p>
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
         Whether the data was committed to the Disruptor. If some elements reserved before 
 <code>buf_or_bufs</code>
  remain uncommitted and 
@@ -889,7 +889,7 @@ elements have been written to the Disruptor.
 <p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
 
-  <div class='pre p1 fill-light mt0'>consumeNewSync(): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
+  <div class='pre p1 fill-light mt0'>consumeNewSync(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
   
   
 
@@ -907,7 +907,7 @@ elements have been written to the Disruptor.
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></code>:
         Array of buffers containing new data ready to read from the Disruptor. If no new data was available and 
 <code>spin</code>
  (see the 
@@ -917,7 +917,7 @@ elements have been written to the Disruptor.
 , the array will be empty. Otherwise it will contain at least one buffer and each buffer will be a multiple of 
 <code>element_size</code>
  in length. The buffers are backed by shared memory so may be overwritten after you call 
-<a href="Disruptor#consumeCommit#consumeCommit">Disruptor#consumeCommit#consumeCommit</a>
+<a href="#disruptorconsumecommit">consumeCommit</a>
 .
 
       
@@ -957,7 +957,7 @@ finished with buffers returned by <a href="#disruptorconsumenew">consumeNew</a> 
 they check for new data.</p>
 
 
-  <div class='pre p1 fill-light mt0'>consumeCommit(): <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+  <div class='pre p1 fill-light mt0'>consumeCommit(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -975,7 +975,7 @@ they check for new data.</p>
   
     
       <div class='py1 quiet mt1 prose-big'>Returns</div>
-      <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
         Whether the Disruptor was in the expected state. This will always return 
 <code>true</code>
  unless your application incorrectly uses objects with the same consumer ID to access the Disruptor concurrently.
@@ -1392,7 +1392,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reserving a single element in the Disruptor for writing.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>, claimStart: integer, claimEnd: integer)</div>
+  <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1409,7 +1409,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
+            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
 	    Error, if one occurred.
 
           </div>
@@ -1500,7 +1500,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reserving a number of elements in the Disruptor for writing.</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, claimStart: integer, claimEnd: integer)</div>
+  <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1517,7 +1517,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
+            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
 	    Error, if one occurred.
 
           </div>
@@ -1526,7 +1526,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>bufs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</code>
+            <span class='code bold'>bufs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</code>
 	    Array of buffers for writing data to the Disruptor. If the Disruptor didn't have enought free elements and 
 <code>spin</code>
  (see the 
@@ -1610,7 +1610,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for commiting data to the Disruptor</p>
 
 
-  <div class='pre p1 fill-light mt0'>produceCommitCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, committed: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
+  <div class='pre p1 fill-light mt0'>produceCommitCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, committed: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
   
 
@@ -1627,7 +1627,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
+            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
 	    Error, if one occurred.
 
           </div>
@@ -1636,7 +1636,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>committed</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+            <span class='code bold'>committed</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
 	    Whether the data was committed to the Disruptor. If some elements reserved before 
 <code>buf_or_bufs</code>
  remain uncommitted and 
@@ -1696,7 +1696,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   <p>Callback type for reading new data from the Disruptor</p>
 
 
-  <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, start: integer)</div>
+  <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, start: integer)</div>
   
   
 
@@ -1713,7 +1713,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
+            <span class='code bold'>err</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?)</code>
 	    Error, if one occurred.
 
           </div>
@@ -1722,7 +1722,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>bufs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</code>
+            <span class='code bold'>bufs</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>)</code>
 	    Array of buffers containing new data ready to read from the Disruptor. If no new data was available and 
 <code>spin</code>
  (see the 
