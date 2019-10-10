@@ -3,10 +3,11 @@ jobs:
   build:
     docker:
       - image: circleci/node:12.11.1
-        environment:
-          CXX: g++-6
     steps:
       - checkout
+      - run:
+          name: install
+          command: npm install
       - run:
           name: coverage
           command: npm run ci-coverage
