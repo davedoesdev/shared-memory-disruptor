@@ -7,7 +7,9 @@ jobs:
       - checkout
       - run:
           name: install
-          command: npm install
+          command: |
+            sudo apt -y install lcov
+            npm install
       - run:
           name: coverage
           command: npm run ci-coverage

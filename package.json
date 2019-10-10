@@ -18,8 +18,8 @@
   "license": "MIT",
   "main": "lib/disruptor.js",
   "scripts": {
-    "test": "node --napi-modules ./node_modules/.bin/grunt lint test",
-    "ci-coverage": "node --napi-modules ./node_modules/.bin/grunt lint coverage codecov"
+    "test": "grunt lint test",
+    "ci-coverage": "grunt lint coverage codecov"
   },
   "directories": {
     "lib": "lib",
