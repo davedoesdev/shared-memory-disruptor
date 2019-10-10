@@ -1,20 +1,21 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset='utf-8' />
-  <title>shared-memory-disruptor 2.0.2 | Documentation</title>
+  <meta charset='utf-8'>
+  <title>shared-memory-disruptor 2.0.4 | Documentation</title>
+  <meta name='description' content='Shared memory LMAX Disruptor'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <link href='assets/bass.css' type='text/css' rel='stylesheet' />
-  <link href='assets/style.css' type='text/css' rel='stylesheet' />
-  <link href='assets/github.css' type='text/css' rel='stylesheet' />
-  <link href='assets/split.css' type='text/css' rel='stylesheet' />
+  <link href='assets/bass.css' rel='stylesheet'>
+  <link href='assets/style.css' rel='stylesheet'>
+  <link href='assets/github.css' rel='stylesheet'>
+  <link href='assets/split.css' rel='stylesheet'>
 </head>
 <body class='documentation m0'>
     <div class='flex'>
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>shared-memory-disruptor</h3>
-          <div class='mb1'><code>2.0.2</code></div>
+          <div class='mb1'><code>2.0.4</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -178,14 +179,14 @@
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
-            <a href='http://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
+            <a href='https://documentation.js.org/reading-documentation.html'>Need help reading this?</a>
           </div>
         </div>
       </div>
       <div id='split-right' class='relative overflow-auto height-viewport-100'>
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -202,8 +203,7 @@
 <a href="https://lmax-exchange.github.io/disruptor/">LMAX Disruptor</a>
 to store data in shared memory.</p>
 
-
-  <div class='pre p1 fill-light mt0'>new Disruptor(shm_name: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, num_elements: integer, element_size: integer, num_consumers: integer, consumer: integer, init: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>, spin: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
+    <div class='pre p1 fill-light mt0'>new Disruptor(shm_name: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>, num_elements: integer, element_size: integer, num_consumers: integer, consumer: integer, init: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>, spin: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
   
 
@@ -326,8 +326,7 @@ to store data in shared memory.</p>
 
   <p>Reserve the next element in the Disruptor for writing data into.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaim(cb: <a href="#produceclaimcallback">produceClaimCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceClaim(cb: <a href="#produceclaimcallback">produceClaimCallback</a>)</div>
   
   
 
@@ -373,6 +372,8 @@ to store data in shared memory.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -392,8 +393,7 @@ to store data in shared memory.</p>
 
   <p>Reserve the next element in the Disruptor for writing data into.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaimSync(): <a href="https://nodejs.org/api/buffer.html">Buffer</a></div>
+    <div class='pre p1 fill-light mt0'>produceClaimSync(): <a href="https://nodejs.org/api/buffer.html">Buffer</a></div>
   
   
 
@@ -439,6 +439,8 @@ to store data in shared memory.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -458,8 +460,7 @@ to store data in shared memory.</p>
 
   <p>Reserve a number of elements in the Disruptor for writing data into.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaimMany(n: integer, cb: <a href="#produceclaimmanycallback">produceClaimManyCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceClaimMany(n: integer, cb: <a href="#produceclaimmanycallback">produceClaimManyCallback</a>)</div>
   
   
 
@@ -514,6 +515,8 @@ to store data in shared memory.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -533,8 +536,7 @@ to store data in shared memory.</p>
 
   <p>Reserve a number of elements in the Disruptor for writing data into.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaimManySync(n: integer): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
+    <div class='pre p1 fill-light mt0'>produceClaimManySync(n: integer): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
   
   
 
@@ -596,6 +598,8 @@ to store data in shared memory.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -616,8 +620,7 @@ to store data in shared memory.</p>
   <p>Commit data to the Disruptor. Call this once you've finished writing data
 to buffers you reserved.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceCommit(claimStart: integer?, claimEnd: integer?, cb: <a href="#producecommitcallback">produceCommitCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceCommit(claimStart: integer?, claimEnd: integer?, cb: <a href="#producecommitcallback">produceCommitCallback</a>)</div>
   
   
 
@@ -693,6 +696,8 @@ to buffers you reserved.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -713,8 +718,7 @@ to buffers you reserved.</p>
   <p>Commit data to the Disruptor. Call this once you've finished writing data
 to buffers you reserved.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceCommitSync(claimStart: integer?, claimEnd: integer?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+    <div class='pre p1 fill-light mt0'>produceCommitSync(claimStart: integer?, claimEnd: integer?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -795,6 +799,8 @@ to buffers you reserved.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -817,8 +823,7 @@ to buffers you reserved.</p>
 <a href="#disruptorconsumecommit">consumeCommit</a> were called on this object are passed to <code>cb</code>.</p>
 <p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
-
-  <div class='pre p1 fill-light mt0'>consumeNew(cb: <a href="#consumenewcallback">consumeNewCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>consumeNew(cb: <a href="#consumenewcallback">consumeNewCallback</a>)</div>
   
   
 
@@ -866,6 +871,8 @@ elements have been written to the Disruptor.
   
 
   
+
+  
 </section>
 
       </div>
@@ -888,8 +895,7 @@ elements have been written to the Disruptor.
 <a href="#disruptorconsumecommit">consumeCommit</a> were called on this object are returned.</p>
 <p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
-
-  <div class='pre p1 fill-light mt0'>consumeNewSync(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
+    <div class='pre p1 fill-light mt0'>consumeNewSync(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>></div>
   
   
 
@@ -933,6 +939,8 @@ elements have been written to the Disruptor.
   
 
   
+
+  
 </section>
 
       </div>
@@ -956,8 +964,7 @@ finished with buffers returned by <a href="#disruptorconsumenew">consumeNew</a> 
 <p>This is called by <a href="#disruptorconsumenew">consumeNew</a> and <a href="#disruptorconsumenewsync">consumeNewSync</a> before
 they check for new data.</p>
 
-
-  <div class='pre p1 fill-light mt0'>consumeCommit(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
+    <div class='pre p1 fill-light mt0'>consumeCommit(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -993,6 +1000,8 @@ they check for new data.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1012,8 +1021,7 @@ they check for new data.</p>
 
   <p>Reserve elements you've reserved before.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceRecover(claimStart: integer, claimEnd: integer)</div>
+    <div class='pre p1 fill-light mt0'>produceRecover(claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1074,6 +1082,8 @@ they check for new data.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1096,8 +1106,7 @@ they check for new data.</p>
 you can force the shared memory to be unmapped by calling this function.</p>
 <p>Don't use the object again afterwards!</p>
 
-
-  <div class='pre p1 fill-light mt0'>release()</div>
+    <div class='pre p1 fill-light mt0'>release()</div>
   
   
 
@@ -1106,6 +1115,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
   
   
+  
+
   
 
   
@@ -1141,8 +1152,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
-
-  <div class='pre p1 fill-light mt0'>prevClaimStart</div>
+    <div class='pre p1 fill-light mt0'>prevClaimStart</div>
   
   
 
@@ -1186,6 +1196,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1204,8 +1216,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
-
-  <div class='pre p1 fill-light mt0'>prevClaimEnd</div>
+    <div class='pre p1 fill-light mt0'>prevClaimEnd</div>
   
   
 
@@ -1249,6 +1260,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1267,8 +1280,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
-
-  <div class='pre p1 fill-light mt0'>prevConsumeStart</div>
+    <div class='pre p1 fill-light mt0'>prevConsumeStart</div>
   
   
 
@@ -1308,6 +1320,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1326,8 +1340,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
-
-  <div class='pre p1 fill-light mt0'>elementSize</div>
+    <div class='pre p1 fill-light mt0'>elementSize</div>
   
   
 
@@ -1361,6 +1374,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
       </div>
@@ -1371,12 +1386,14 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
           
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -1391,8 +1408,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
 
   <p>Callback type for reserving a single element in the Disruptor for writing.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>, claimStart: integer, claimEnd: integer)</div>
+    <div class='pre p1 fill-light mt0'>produceClaimCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, buf: <a href="https://nodejs.org/api/buffer.html">Buffer</a>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1479,12 +1495,14 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
           
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -1499,8 +1517,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
 
   <p>Callback type for reserving a number of elements in the Disruptor for writing.</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, claimStart: integer, claimEnd: integer)</div>
+    <div class='pre p1 fill-light mt0'>produceClaimManyCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, claimStart: integer, claimEnd: integer)</div>
   
   
 
@@ -1589,12 +1606,14 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
           
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -1609,8 +1628,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
 
   <p>Callback type for commiting data to the Disruptor</p>
 
-
-  <div class='pre p1 fill-light mt0'>produceCommitCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, committed: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceCommitCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, committed: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
   
 
@@ -1675,12 +1693,14 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
 
   
+
+  
 </section>
 
           
         
           
-            <section class='p2 mb2 clearfix bg-white minishadow'>
+          <section class='p2 mb2 clearfix bg-white minishadow'>
 
   
   <div class='clearfix'>
@@ -1695,8 +1715,7 @@ you can force the shared memory to be unmapped by calling this function.</p>
 
   <p>Callback type for reading new data from the Disruptor</p>
 
-
-  <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, start: integer)</div>
+    <div class='pre p1 fill-light mt0'>consumeNewCallback(err: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error">Error</a>?, bufs: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://nodejs.org/api/buffer.html">Buffer</a>>, start: integer)</div>
   
   
 
@@ -1753,6 +1772,8 @@ you can force the shared memory to be unmapped by calling this function.</p>
         </div>
       
     </div>
+  
+
   
 
   

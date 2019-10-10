@@ -1,5 +1,6 @@
-let argv = require('yargs').argv,
-    Disruptor = require('../..').Disruptor;
+let worker_threads = require('worker_threads'),
+    argv = worker_threads.workerData || require('yargs').argv,
+    Disruptor = require('../..').Disruptor,
     d = new Disruptor('/test', 1000, 256, argv.num_consumers, argv.n, false, true),
     count = 0,
     sum = 0;
@@ -21,4 +22,11 @@ while (count !== argv.num_producers * argv.num_elements_to_write)
     d.consumeCommit();
 }
 
-process.send(sum);
+if (worker_threads.parentPort)
+{
+    worker_threads.parentPort.postMessage(sum);
+}
+else
+{
+    process.send(sum);
+}

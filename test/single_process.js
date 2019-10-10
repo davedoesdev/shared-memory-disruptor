@@ -1099,9 +1099,9 @@ describe('many-to-many (producers: ' + num_producers + ', consumers: ' + num_con
             let d = disruptors[n];
             let count = 0;
             let csum = 0;
-            async.until(function ()
+            async.until(function (cb)
             {
-                return count == num_producers * num_elements_to_write;
+                cb(null, count === num_producers * num_elements_to_write);
             }, function (cb)
             {
                 d.consumeNew(function (err, bs, start)
@@ -1167,10 +1167,10 @@ describe('many-to-many (producers: ' + num_producers + ', consumers: ' + num_con
                     });
                 });
             }), next);
-        }, function (err)
+        }), function (err)
         {
             if (err) { return done(err); }
-        }));
+        });
     });
 });
 }
