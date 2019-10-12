@@ -134,6 +134,10 @@ private:
     Napi::Value GetPendingSeqNext(const Napi::CallbackInfo& info);
     Napi::Value GetPendingSeqNextEnd(const Napi::CallbackInfo& info);
     Napi::Value GetElementSize(const Napi::CallbackInfo& info);
+
+    void ThrowErrnoError(const Napi::CallbackInfo& info,
+                         const char *msg,
+                         bool constructing = false);
 };
 
 void NullCallback(const Napi::CallbackInfo& info)
@@ -352,8 +356,22 @@ public:
     }
 };
 
-void ThrowErrnoError(const Napi::CallbackInfo& info, const char *msg)
+void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
+                                const char *msg,
+                                bool constructing)
 {
+    // Work around bug in ObjectWrap destruction
+    // https://github.com/nodejs/node-addon-api/pull/475 
+    // Remove this code and 'constructing' parameter when the PR is merged
+    if (constructing && !IsEmpty())
+    {
+        Napi::Object object = Value();
+        if (!object.IsEmpty())
+        {
+            napi_remove_wrap(Env(), object, nullptr);
+        }
+    }
+
     int errnum = errno;
     char buf[1024] = {0};
     auto errmsg = strerror_r(errnum, buf, sizeof(buf));
@@ -383,7 +401,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
                  S_IRUSR | S_IWUSR)));
     if (*shm_fd < 0)
     {
-        ThrowErrnoError(info, "Failed to open shared memory object");
+        ThrowErrnoError(info, "Failed to open shared memory object", true);
     }
 
     // Allow space for all the elements,
@@ -397,7 +415,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // Note: ftruncate initializes to null bytes.
     if (init && (ftruncate(*shm_fd, shm_size) < 0))
     {
-        ThrowErrnoError(info, "Failed to size shared memory"); //LCOV_EXCL_LINE
+        ThrowErrnoError(info, "Failed to size shared memory", true); //LCOV_EXCL_LINE
     }
 
     // Map the shared memory
@@ -408,7 +426,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
                    0);
     if (shm_buf == MAP_FAILED)
     {
-        ThrowErrnoError(info, "Failed to map shared memory"); //LCOV_EXCL_LINE
+        ThrowErrnoError(info, "Failed to map shared memory", true); //LCOV_EXCL_LINE
 
     }
 
