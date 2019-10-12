@@ -25,6 +25,10 @@ module.exports = function (grunt)
                 cmd: 'node-gyp build --debug'
             },
 
+            rebuild: {
+                cmd: 'node-gyp rebuild --debug'
+            },
+
 			cover_build: {
                 cmd: 'node-gyp rebuild --debug --coverage=true'
 			},
@@ -78,6 +82,7 @@ module.exports = function (grunt)
 
     grunt.registerTask('lint', 'jshint');
     grunt.registerTask('build', 'exec:build');
+    grunt.registerTask('rebuild', 'exec:rebuild');
     grunt.registerTask('test', 'mochaTest');
     grunt.registerTask('coverage', ['exec:cover_build',
                                     'exec:cover_init',

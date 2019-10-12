@@ -20,7 +20,8 @@ class Disruptor
     /**
       Reserve the next element in the Disruptor for writing data into.
 
-      @param {produceClaimCallback} cb - Called once an element has been reserved, or `spin` (see the {@link Disruptor|constructor}) is `false` and the Disruptor is full.
+      @param {produceClaimCallback} [cb] - Called once an element has been reserved, or `spin` (see the {@link Disruptor|constructor}) is `false` and the Disruptor is full. If you don't pass `cb` then a `Promise`.
+      @returns {undefined | Promise} - If `cb` is _not_ supplied then a `Promise` is returned which resolves to the data that would have been passed to it.
      */
     produceClaim(cb)
     {
@@ -39,7 +40,8 @@ class Disruptor
       Reserve a number of elements in the Disruptor for writing data into.
 
       @param {integer} n - Number of elements to reserve.
-      @param {produceClaimManyCallback} cb - Called once the elements have been reserved, or `spin` (see the {@link Disruptor|constructor}) is `false` and the Disruptor didn't have enough free elements.
+      @param {produceClaimManyCallback} [cb] - Called once the elements have been reserved, or `spin` (see the {@link Disruptor|constructor}) is `false` and the Disruptor didn't have enough free elements.
+      @returns {undefined | Promise} - If `cb` is _not_ supplied then a `Promise` is returned which resolves to the data that would have been passed to it.
      */
     produceClaimMany(n, cb)
     {
@@ -61,7 +63,8 @@ class Disruptor
 
       @param {integer} [claimStart] - Specifies the start of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link Disruptor#prevClaimStart|prevClaimStart} is used.
       @param {integer} [claimEnd] - Specifies the end of the buffer you want to commit. You can pass a value you received via {@link produceClaimCallback} or {@link produceClaimManyCallback}. If you don't specify a value, {@link Disruptor#prevClaimEnd|prevClaimEnd} is used.
-      @param {produceCommitCallback} cb - Called once the elements in the buffers have been committed to the Disruptor, or `spin` (see the {@link Disruptor|constructor}) is `false` and the elements couldn't be committed (because other producers haven't committed their data yet). No copying occurs during the operation.
+      @param {produceCommitCallback} [cb] - Called once the elements in the buffers have been committed to the Disruptor, or `spin` (see the {@link Disruptor|constructor}) is `false` and the elements couldn't be committed (because other producers haven't committed their data yet). No copying occurs during the operation.
+      @returns {undefined | Promise} - If `cb` is _not_ supplied then a `Promise` is returned which resolves to the data that would have been passed to it.
      */
     produceCommit(claimStart, claimEnd, cb)
     {
@@ -87,9 +90,8 @@ class Disruptor
 
       A call to {@link Disruptor#consumeCommit|consumeCommit} is made before checking for new data.
 
-      @param {consumeNewCallback} cb - Called once new elements are ready,
-      or `spin` (see the {@link Disruptor|constructor}) is `false` and no
-      elements have been written to the Disruptor.
+      @param {consumeNewCallback} [cb] - Called once new elements are ready, or `spin` (see the {@link Disruptor|constructor}) is `false` and no elements have been written to the Disruptor.
+      @returns {undefined | Promise} - If `cb` is _not_ supplied then a `Promise` is returned which resolves to the data that would have been passed to it.
      */
     consumeNew(cb)
     {

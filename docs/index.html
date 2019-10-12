@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <title>shared-memory-disruptor 2.0.4 | Documentation</title>
+  <title>shared-memory-disruptor 3.0.0 | Documentation</title>
   <meta name='description' content='Shared memory LMAX Disruptor'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>shared-memory-disruptor</h3>
-          <div class='mb1'><code>2.0.4</code></div>
+          <div class='mb1'><code>3.0.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -316,7 +316,7 @@ to store data in shared memory.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>produceClaim(cb)</span>
+            <span class='code strong strong truncate'>produceClaim(cb?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -326,7 +326,7 @@ to store data in shared memory.</p>
 
   <p>Reserve the next element in the Disruptor for writing data into.</p>
 
-    <div class='pre p1 fill-light mt0'>produceClaim(cb: <a href="#produceclaimcallback">produceClaimCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceClaim(cb: <a href="#produceclaimcallback">produceClaimCallback</a>?): (<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</div>
   
   
 
@@ -343,14 +343,18 @@ to store data in shared memory.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#produceclaimcallback">produceClaimCallback</a>)</code>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#produceclaimcallback">produceClaimCallback</a>?)</code>
 	    Called once an element has been reserved, or 
 <code>spin</code>
  (see the 
 <a href="#disruptor">constructor</a>
 ) is 
 <code>false</code>
- and the Disruptor is full.
+ and the Disruptor is full. If you don't pass 
+<code>cb</code>
+ then a 
+<code>Promise</code>
+.
 
           </div>
           
@@ -361,6 +365,20 @@ to store data in shared memory.</p>
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</code>:
+        If 
+<code>cb</code>
+ is 
+<em>not</em>
+ supplied then a 
+<code>Promise</code>
+ is returned which resolves to the data that would have been passed to it.
+
+      
+    
   
 
   
@@ -450,7 +468,7 @@ to store data in shared memory.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>produceClaimMany(n, cb)</span>
+            <span class='code strong strong truncate'>produceClaimMany(n, cb?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -460,7 +478,7 @@ to store data in shared memory.</p>
 
   <p>Reserve a number of elements in the Disruptor for writing data into.</p>
 
-    <div class='pre p1 fill-light mt0'>produceClaimMany(n: integer, cb: <a href="#produceclaimmanycallback">produceClaimManyCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceClaimMany(n: integer, cb: <a href="#produceclaimmanycallback">produceClaimManyCallback</a>?): (<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</div>
   
   
 
@@ -486,7 +504,7 @@ to store data in shared memory.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#produceclaimmanycallback">produceClaimManyCallback</a>)</code>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#produceclaimmanycallback">produceClaimManyCallback</a>?)</code>
 	    Called once the elements have been reserved, or 
 <code>spin</code>
  (see the 
@@ -504,6 +522,20 @@ to store data in shared memory.</p>
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</code>:
+        If 
+<code>cb</code>
+ is 
+<em>not</em>
+ supplied then a 
+<code>Promise</code>
+ is returned which resolves to the data that would have been passed to it.
+
+      
+    
   
 
   
@@ -609,7 +641,7 @@ to store data in shared memory.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>produceCommit(claimStart?, claimEnd?, cb)</span>
+            <span class='code strong strong truncate'>produceCommit(claimStart?, claimEnd?, cb?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -620,7 +652,7 @@ to store data in shared memory.</p>
   <p>Commit data to the Disruptor. Call this once you've finished writing data
 to buffers you reserved.</p>
 
-    <div class='pre p1 fill-light mt0'>produceCommit(claimStart: integer?, claimEnd: integer?, cb: <a href="#producecommitcallback">produceCommitCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>produceCommit(claimStart: integer?, claimEnd: integer?, cb: <a href="#producecommitcallback">produceCommitCallback</a>?): (<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</div>
   
   
 
@@ -667,7 +699,7 @@ to buffers you reserved.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#producecommitcallback">produceCommitCallback</a>)</code>
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#producecommitcallback">produceCommitCallback</a>?)</code>
 	    Called once the elements in the buffers have been committed to the Disruptor, or 
 <code>spin</code>
  (see the 
@@ -685,6 +717,20 @@ to buffers you reserved.</p>
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</code>:
+        If 
+<code>cb</code>
+ is 
+<em>not</em>
+ supplied then a 
+<code>Promise</code>
+ is returned which resolves to the data that would have been passed to it.
+
+      
+    
   
 
   
@@ -810,7 +856,7 @@ to buffers you reserved.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>consumeNew(cb)</span>
+            <span class='code strong strong truncate'>consumeNew(cb?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -823,7 +869,7 @@ to buffers you reserved.</p>
 <a href="#disruptorconsumecommit">consumeCommit</a> were called on this object are passed to <code>cb</code>.</p>
 <p>A call to <a href="#disruptorconsumecommit">consumeCommit</a> is made before checking for new data.</p>
 
-    <div class='pre p1 fill-light mt0'>consumeNew(cb: <a href="#consumenewcallback">consumeNewCallback</a>)</div>
+    <div class='pre p1 fill-light mt0'>consumeNew(cb: <a href="#consumenewcallback">consumeNewCallback</a>?): (<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</div>
   
   
 
@@ -840,16 +886,14 @@ to buffers you reserved.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#consumenewcallback">consumeNewCallback</a>)</code>
-	    Called once new elements are ready,
-or 
+            <span class='code bold'>cb</span> <code class='quiet'>(<a href="#consumenewcallback">consumeNewCallback</a>?)</code>
+	    Called once new elements are ready, or 
 <code>spin</code>
  (see the 
 <a href="#disruptor">constructor</a>
 ) is 
 <code>false</code>
- and no
-elements have been written to the Disruptor.
+ and no elements have been written to the Disruptor.
 
           </div>
           
@@ -860,6 +904,20 @@ elements have been written to the Disruptor.
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/undefined">undefined</a> | <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise">Promise</a>)</code>:
+        If 
+<code>cb</code>
+ is 
+<em>not</em>
+ supplied then a 
+<code>Promise</code>
+ is returned which resolves to the data that would have been passed to it.
+
+      
+    
   
 
   

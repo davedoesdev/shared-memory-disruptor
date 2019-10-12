@@ -5,10 +5,23 @@ let crypto = require('crypto'),
 
 function tests(do_async, async_suffix)
 {
-    function consumeNew(d, cb)
+    async function consumeNew(d, cb)
     {
         if (do_async)
         {
+            if (async_suffix === null)
+            {
+                try
+                {
+                    const { bufs, start } = await d.consumeNew();
+                    return cb(null, bufs, start);
+                }
+                catch (ex)
+                {
+                    return cb(ex);
+                }
+            }
+
             return d['consumeNew' + async_suffix](cb);
         }
 
@@ -20,20 +33,46 @@ function tests(do_async, async_suffix)
         expect(d.consumeCommit()).to.be.true;
     }
 
-    function produceClaim(d, cb)
+    async function produceClaim(d, cb)
     {
         if (do_async)
         {
+            if (async_suffix === null)
+            {
+                try
+                {
+                    const { buf, claimStart, claimEnd } = await d.produceClaim();
+                    return cb(null, buf, claimStart, claimEnd);
+                }
+                catch (ex)
+                {
+                    return cb(ex);
+                }
+            }
+
             return d['produceClaim' + async_suffix](cb);
         }
 
         cb(null, d.produceClaimSync(), d.prevClaimStart, d.prevClaimEnd);
     }
 
-    function produceClaimMany(d, n, cb)
+    async function produceClaimMany(d, n, cb)
     {
         if (do_async)
         {
+            if (async_suffix === null)
+            {
+                try
+                {
+                    const { bufs, claimStart, claimEnd } = await d.produceClaimMany(n);
+                    return cb(null, bufs, claimStart, claimEnd);
+                }
+                catch (ex)
+                {
+                    return cb(ex);
+                }
+            }
+
             return d['produceClaimMany' + async_suffix](n, cb);
         }
 
@@ -45,14 +84,38 @@ function tests(do_async, async_suffix)
         return d.produceRecover(claimStart, claimEnd);
     }
 
-    function produceCommit(d, claimStart, claimEnd, cb)
+    async function produceCommit(d, claimStart, claimEnd, cb)
     {
         if (do_async)
         {
             if (arguments.length >= 3)
             {
+                if (async_suffix === null)
+                {
+                    try
+                    {
+                        return cb(null, await d.produceCommit(claimStart, claimEnd));
+                    }
+                    catch (ex)
+                    {
+                        return cb(ex);
+                    }
+                }
+
                 return d['produceCommit' + async_suffix](
                     claimStart, claimEnd, cb);
+            }
+
+            if (async_suffix === null)
+            {
+                try
+                {
+                    return claimStart(null, await d.produceCommit());
+                }
+                catch (ex)
+                {
+                    return claimStart(ex);
+                }
             }
 
             return d['produceCommit' + async_suffix](claimStart);
@@ -516,28 +579,6 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         }).to.throw('Failed to open shared memory object: Invalid argument');
     });
 
-    it('should cope with no callback', function (done)
-    {
-        produceClaim(d, function (err, b)
-        {
-            if (err) { return done(err); }
-            expect(b.equals(Buffer.alloc(8))).to.be.true;
-            b.writeUInt32BE(0x01234567, 0, true);
-            b.writeUInt32BE(0x89abcdef, 4, true);
-            expect(d.cursor).to.equal(0);
-            expect(d.next).to.equal(1);
-            expect(d.consumer).to.equal(0);
-            produceCommit(d);
-            setTimeout(function ()
-            {
-                expect(d.cursor).to.equal(1);
-                expect(d.next).to.equal(1);
-                expect(d.consumer).to.equal(0);
-                done();
-            }, 500);
-        });
-    });
-
     it('should return empty buffer if produce when full', function (done)
     {
         async.timesSeries(256, async.ensureAsync(function (n, next)
@@ -900,6 +941,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
 tests(false);
 tests(true, '');
 tests(true, 'Async');
+tests(true, null);
 
 describe('async spin', function ()
 {
