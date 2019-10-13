@@ -140,9 +140,11 @@ private:
                          bool constructing = false);
 };
 
+//LCOV_EXCL_START
 void NullCallback(const Napi::CallbackInfo& info)
 {
 }
+//LCOV_EXCL_STOP
 
 Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
 {
@@ -155,7 +157,7 @@ Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
         }
     }
 
-    return Napi::Function::New(info.Env(), NullCallback);
+    return Napi::Function::New(info.Env(), NullCallback); //LCOV_EXCL_LINE
 }
 
 template<typename T>
