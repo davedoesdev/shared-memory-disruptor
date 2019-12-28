@@ -14,7 +14,7 @@
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
         'MACOSX_DEPLOYMENT_TARGET': '10.7',
-        'OTHER_CPLUSPLUSFLAGS': [ '-Wc++17-extensions' ],
+        'CLANG_CXX_LANGUAGE_STANDARD': 'c++14',
       },
       'msvs_settings': {
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
