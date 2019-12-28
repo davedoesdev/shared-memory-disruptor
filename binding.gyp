@@ -9,7 +9,6 @@
       'cflags+': [ '-std=gnu++14' ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions', '-std=gnu++0x' ],
-      'libraries': [ '-lrt' ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
@@ -20,6 +19,12 @@
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
       },
       'conditions': [
+        [
+          'OS == "linux"',
+          {
+            'libraries': [ '-lrt' ],
+          }
+        ],
         [
           'coverage == "true"',
           {
