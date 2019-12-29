@@ -36,15 +36,15 @@
   "devDependencies": {
     "async": "^3.1.0",
     "chai": "^4.2.0",
-    "codecov": "^3.6.1",
-    "documentation": "^12.1.4",
     "grunt": "^1.0.4",
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-exec": "^3.0.0",
     "grunt-mocha-test": "^0.13.3",
     "mocha": "^6.2.2",
     "nyc": "^14.1.1",
-    "yargs": "^15.0.2"
+    "codecov": "^3.6.1",
+    "yargs": "^15.0.2",
+    "documentation": "^12.1.4"
   },
   "engines": {
     "node": ">=12"

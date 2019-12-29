@@ -377,8 +377,10 @@ void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
     int errnum = errno;
     char buf[1024] = {0};
     auto errmsg = strerror_r(errnum, buf, sizeof(buf));
+    static_assert(std::is_same<decltype(errmsg), char*>::value,
+                  "strerror_r must return char*");
     throw Napi::Error::New(info.Env(), 
-    std::string(msg) + ": " + (errmsg ? std::to_string(errmsg) : std::to_string(errnum)));
+        std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
 }
 
 Disruptor::Disruptor(const Napi::CallbackInfo& info) :
