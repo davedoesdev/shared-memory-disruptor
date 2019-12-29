@@ -411,7 +411,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // Therefore, we know that ftruncate() will fail if the shared memory
     // area already exists. To prevent this, we delete and re-create the
     // area if it exsisted previously (i.e. from an unclean shutdown).
-    char* name = shm_name.Utf8Value().c_str();
+    const char* name = shm_name.Utf8Value().c_str();
     shm_fd_tmp = shm_open(name, 
         (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
         S_IRUSR | S_IWUSR);
