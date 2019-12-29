@@ -945,7 +945,7 @@ tests(true, null);
 
 describe('async spin', function ()
 {
-    this.timeout(60000);
+    this.timeout(120000);
 
     it('should spin when full (claim single)', function (done)
     {
@@ -1114,7 +1114,7 @@ function many(num_producers, num_consumers, num_elements_to_write)
 {
 describe('many-to-many (producers: ' + num_producers + ', consumers: ' + num_consumers + ', elements to write: ' + num_elements_to_write + ')', function ()
 {
-    this.timeout(5 * 60 * 1000);
+    this.timeout(10 * 60 * 1000);
 
     it('should transfer data', function (done)
     {

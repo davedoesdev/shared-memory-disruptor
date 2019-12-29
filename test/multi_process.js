@@ -8,7 +8,7 @@ function many(num_producers, num_consumers, num_elements_to_write)
 {
 describe('multi-process many-to-many (producers: ' + num_producers + ', consumers: ' + num_consumers + ', elements to write: ' + num_elements_to_write + ')', function ()
 {
-    this.timeout(5 * 60 * 1000);
+    this.timeout(10 * 60 * 1000);
 
     it('should transfer data', function (done)
     {
