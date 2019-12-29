@@ -9,16 +9,22 @@
       'cflags+': [ '-std=gnu++14' ],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions', '-std=gnu++0x' ],
-      'libraries': [ '-lrt' ],
       'xcode_settings': {
         'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
         'CLANG_CXX_LIBRARY': 'libc++',
         'MACOSX_DEPLOYMENT_TARGET': '10.7',
+        'CLANG_CXX_LANGUAGE_STANDARD': 'c++17',
       },
       'msvs_settings': {
         'VCCLCompilerTool': { 'ExceptionHandling': 1 },
       },
       'conditions': [
+        [
+          'OS == "linux"',
+          {
+            'libraries': [ '-lrt' ],
+          }
+        ],
         [
           'coverage == "true"',
           {
