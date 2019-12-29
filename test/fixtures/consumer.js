@@ -10,6 +10,7 @@ let count = 0;
 let sum = 0;
 
 while (count !== argv.num_producers * argv.num_elements_to_write) {
+    console.log('CONSUMER +READ', process.pid, count);
     const { bufs } = await d.consumeNew();
 
     for (let b of bufs) {
@@ -20,6 +21,7 @@ while (count !== argv.num_producers * argv.num_elements_to_write) {
         }
     }
 
+    console.log('CONSUMER -READ', process.pid, count);
     d.consumeCommit();
 }
 

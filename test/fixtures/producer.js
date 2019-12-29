@@ -11,6 +11,7 @@ console.log('PRODUCER START', process.pid);
 let sum = 0;
 
 for (let i = 0; i < argv.num_elements_to_write; i += 1) {
+    console.log('PRODUCER +WRITE', process.pid, i);
     let { buf } = await d.produceClaim();
 
     crypto.randomFillSync(buf);
@@ -18,6 +19,8 @@ for (let i = 0; i < argv.num_elements_to_write; i += 1) {
     for (let j = 0; j < buf.length; j += 1) {
         sum += buf[j];
     }
+
+    console.log('PRODUCER -WRITE', process.pid, i);
 
     await d.produceCommit();
 }
