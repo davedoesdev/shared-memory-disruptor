@@ -414,8 +414,9 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
             // Therefore, we know that ftruncate() will fail if the shared memory
             // area already exists. To prevent this, we delete and re-create the
             // area if it exsisted previously (i.e. from an unclean shutdown).
-            shm_fd_tmp = shm_open(shm_name.Utf8Value().c_str(), (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
-                             S_IRUSR | S_IWUSR);
+            shm_fd_tmp = shm_open(shm_name.Utf8Value().c_str(), 
+                (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
+                S_IRUSR | S_IWUSR);
             if (shm_fd_tmp < 0 && errno == EEXIST && init) {
                 int old_errno = errno;
                 shm_unlink(shm_name.Utf8Value().c_str());
@@ -430,8 +431,8 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
         
     #else
         shm_fd_tmp = shm_open(shm_name.Utf8Value().c_str(),
-                 O_CREAT | O_RDWR | (init ? O_TRUNC : 0),
-                 S_IRUSR | S_IWUSR);
+            O_CREAT | O_RDWR | (init ? O_TRUNC : 0),
+            S_IRUSR | S_IWUSR);
     #endif
 
     std::unique_ptr<int, CloseFD> shm_fd(new int(shm_fd_tmp));
