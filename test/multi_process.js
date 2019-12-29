@@ -2,7 +2,8 @@ let child_process = require('child_process'),
     path = require('path'),
     Disruptor = require('..').Disruptor,
     expect = require('chai').expect,
-    async = require('async');
+    async = require('async'),
+    os = require('os');
 
 function many(num_producers, num_consumers, num_elements_to_write)
 {
@@ -76,9 +77,9 @@ describe('multi-process many-to-many (producers: ' + num_producers + ', consumer
 });
 }
 
-for (let num_producers of [1, 2, 4])
+for (let num_producers of [1, 2, Math.min(os.cpus().length, 4)])
 {
-    for (let num_consumers of [1, 2, 4])
+    for (let num_consumers of [1, 2, Math.min(os.cpus().length, 4)])
     {
         for (let num_elements_to_write of [1, 2, 10, 100, 1000, 10000])
         {

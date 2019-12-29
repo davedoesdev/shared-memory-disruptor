@@ -571,13 +571,16 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         });
     });
 
-    it('should throw error if invalid name passed', function ()
+    if (process.platform !== 'darwin')
     {
-        expect(function ()
+        it('should throw error if invalid name passed', function ()
         {
-            new Disruptor('', 256, 8, 1, 0, true, false);
-        }).to.throw('Failed to open shared memory object: Invalid argument');
-    });
+            expect(function ()
+            {
+                new Disruptor('', 256, 8, 1, 0, true, false);
+            }).to.throw('Failed to open shared memory object: Invalid argument');
+        });
+    }
 
     it('should return empty buffer if produce when full', function (done)
     {
