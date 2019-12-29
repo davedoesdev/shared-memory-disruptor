@@ -402,28 +402,29 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     consumer = info[4].As<Napi::Number>();
     bool init = info[5].As<Napi::Boolean>();
     spin = info[6].As<Napi::Boolean>();
-    int shm_fd_tmp;
 
     // Open shared memory object
     // OS X does not allow using O_TRUNC with shm_open.
     // If this item exists, and init flag is true, delete it and recreate.
     const char* name = shm_name.Utf8Value().c_str();
-    shm_fd_tmp = shm_open(name, 
-        (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
+    int shm_fd_tmp = shm_open(name,
+        (init ? O_CREAT | O_EXCL : 0) | O_RDWR,
         S_IRUSR | S_IWUSR);
 
-    if (init && shm_fd_tmp < 0 && errno == EEXIST) {
+    if (init && shm_fd_tmp < 0 && errno == EEXIST)
+    {
         shm_unlink(name);
-        shm_fd_tmp = shm_open(name, 
-        O_CREAT | O_EXCL | O_RDWR,
-        S_IRUSR | S_IWUSR);
+        shm_fd_tmp = shm_open(name,
+            O_CREAT | O_EXCL | O_RDWR,
+            S_IRUSR | S_IWUSR);
     }
 
-    std::unique_ptr<int, CloseFD> shm_fd(new int(shm_fd_tmp));
-    if (*shm_fd < 0)
+    if (shm_fd_tmp < 0)
     {
         ThrowErrnoError(info, "Failed to open shared memory object", true);
     }
+
+    std::unique_ptr<int, CloseFD> shm_fd(new int(shm_fd_tmp));
 
     // Allow space for all the elements,
     // a sequence number for each consumer,

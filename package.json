@@ -41,7 +41,7 @@
     "grunt-exec": "^3.0.0",
     "grunt-mocha-test": "^0.13.3",
     "mocha": "^6.2.2",
-    "nyc": "^14.1.1",
+    "nyc": "^15.0.0",
     "codecov": "^3.6.1",
     "yargs": "^15.0.2",
     "documentation": "^12.1.4"
