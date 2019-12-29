@@ -11,5 +11,8 @@ jobs:
             sudo apt -y install lcov
             npm install
       - run:
+          name: cpus
+          command: nproc
+      - run:
           name: coverage
           command: npm run ci-coverage
