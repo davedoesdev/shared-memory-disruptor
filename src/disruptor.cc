@@ -402,12 +402,39 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     consumer = info[4].As<Napi::Number>();
     bool init = info[5].As<Napi::Boolean>();
     spin = info[6].As<Napi::Boolean>();
-
+	int shm_fd_tmp;
+	
     // Open shared memory object
-    std::unique_ptr<int, CloseFD> shm_fd(new int(
-        shm_open(shm_name.Utf8Value().c_str(),
+    #ifdef __APPLE__
+    	bool do_retry = false;
+    	// http://lists.squid-cache.org/pipermail/squid-dev/2016-January/004832.html
+		do {
+			// OS X does not allow using O_TRUNC with shm_open.
+			// Also, OS X only permits ftruncate() on new shared memory areas.
+			// Therefore, we know that ftruncate() will fail if the shared memory
+			// area already exists. To prevent this, we delete and re-create the
+			// area if it exsisted previously (i.e. from an unclean shutdown).
+			shm_fd_tmp = shm_open(shm_name.Utf8Value().c_str(), (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
+							 S_IRUSR | S_IWUSR);
+			if (shm_fd_tmp < 0 && errno == EEXIST && init) {
+				int old_errno = errno;
+				shm_unlink(shm_name.Utf8Value().c_str());
+				// We want to report the shm_open failure, not the unlink failure.
+				errno = old_errno;
+				// Retry once, but only once.
+				do_retry = !do_retry;
+			} else {
+				do_retry = false;
+			}
+		} while (do_retry);
+    	
+	#else
+        shm_fd_tmp = shm_open(shm_name.Utf8Value().c_str(),
                  O_CREAT | O_RDWR | (init ? O_TRUNC : 0),
-                 S_IRUSR | S_IWUSR)));
+                 S_IRUSR | S_IWUSR);
+	#endif
+
+    std::unique_ptr<int, CloseFD> shm_fd(new int(shm_fd_tmp));
     if (*shm_fd < 0)
     {
         ThrowErrnoError(info, "Failed to open shared memory object", true);
