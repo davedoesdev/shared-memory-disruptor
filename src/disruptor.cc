@@ -405,12 +405,8 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     int shm_fd_tmp;
 
     // Open shared memory object
-    // http://lists.squid-cache.org/pipermail/squid-dev/2016-January/004832.html
     // OS X does not allow using O_TRUNC with shm_open.
-    // Also, OS X only permits ftruncate() on new shared memory areas.
-    // Therefore, we know that ftruncate() will fail if the shared memory
-    // area already exists. To prevent this, we delete and re-create the
-    // area if it exsisted previously (i.e. from an unclean shutdown).
+    // If this item exists, and init flag is true, delete it and recreate.
     const char* name = shm_name.Utf8Value().c_str();
     shm_fd_tmp = shm_open(name, 
         (init ? O_CREAT : 0) | (init ? O_EXCL : 0) | O_RDWR,
