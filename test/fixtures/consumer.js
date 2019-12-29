@@ -3,6 +3,7 @@ const worker_threads = require('worker_threads'),
       Disruptor = require('../..').Disruptor,
       d = new Disruptor('/test', 1000, 256, argv.num_consumers, argv.n, false, true);
 
+console.log('CONSUMER START', process.pid);
 (async () => {
 
 let count = 0;
@@ -22,6 +23,7 @@ while (count !== argv.num_producers * argv.num_elements_to_write) {
     d.consumeCommit();
 }
 
+console.log('CONSUMER END', process.pid);
 if (worker_threads.parentPort) {
     worker_threads.parentPort.postMessage(sum);
 } else {
