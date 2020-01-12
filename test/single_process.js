@@ -210,7 +210,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         });
     });
 
-    it('should write and read many values', function (done)
+    it.only('should write and read many values', function (done)
     {
         produceClaimMany(d, 10, function (err, bs)
         {
@@ -223,7 +223,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
             for (let i = 0; i < 10; ++i)
             {
                 b.writeUInt32BE(0x01234567, i*8, true);
-                b.writeUInt32BE(0x89abcdef, i*8 + 4, true);
+                b.writeUInt32BE(0x00000000, i*8 + 4, true);
             }
             expect(d.cursor).to.equal(0);
             expect(d.next).to.equal(10);
