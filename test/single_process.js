@@ -245,7 +245,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                     expect(b.length).to.equal(80);
                     for (let i = 0; i < 10; ++i)
                     {
-                        expect(b.slice(i*8, i*8 + 8).equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
+                        expect(b.slice(i*8, i*8 + 8).equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x00, 0x00, 0x00, 0x00]))).to.be.true;
                     }
                     expect(start).to.equal(0);
                     expect(d.cursor).to.equal(10);
