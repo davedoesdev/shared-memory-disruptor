@@ -1,7 +1,7 @@
 {
   "name": "shared-memory-disruptor",
   "description": "Shared memory LMAX Disruptor",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "homepage": "https://github.com/davedoesdev/shared-memory-disruptor",
   "author": {
     "name": "David Halls",
@@ -42,7 +42,7 @@
     "grunt-mocha-test": "^0.13.3",
     "mocha": "^6.2.2",
     "nyc": "^15.0.0",
-    "codecov": "^3.6.1",
+    "codecov": "^3.6.5",
     "yargs": "^15.0.2",
     "documentation": "^12.1.4"
   },
