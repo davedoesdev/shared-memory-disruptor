@@ -7,9 +7,14 @@
 #include <napi.h>
 #include <memory>
 #include <vector>
-#include <unordered_map>
+#include <unordered_set>
 
 typedef uint64_t sequence_t;
+
+// Needs to be a heap allocated because we access it from finalizers which can be called
+// on process exit
+static std::unordered_set<uint8_t*> *buffers;
+static std::mutex buffers_mutex;
 
 class Disruptor : public Napi::ObjectWrap<Disruptor>
 {
@@ -54,6 +59,8 @@ private:
     friend class ProduceClaimAsyncWorker;
     friend class ProduceClaimManyAsyncWorker;
     friend class ProduceCommitAsyncWorker;
+    friend class SyncBuffer;
+    friend class AsyncBuffer;
 
     int Release();
 
@@ -63,26 +70,26 @@ private:
                         sequence_t& seq_next,
                         sequence_t& seq_next_end);
 
-    template<typename Array, template<typename> typename Buffer>
+    template<typename Array, typename DisruptorBuffer>
     void ProduceGetBuffers(const Napi::Env& env,
                            sequence_t seq_next,
                            sequence_t seq_next_end,
                            Array& r);
 
-    template<typename Array, template<typename> typename Buffer>
+    template<typename Array, typename DisruptorBuffer>
     Array ConsumeNewSync(const Napi::Env& env, bool retry, sequence_t& start);
     void ConsumeNewAsync(const Napi::CallbackInfo& info); 
 
     bool ConsumeCommit();
 
-    template<template<typename> typename Buffer>
-    Buffer<uint8_t> ProduceClaimSync(const Napi::Env& env,
-                                     bool retry,
-                                     sequence_t& out_next,
-                                     sequence_t& out_next_end);
+    template<typename DisruptorBuffer>
+    typename DisruptorBuffer::Buffer ProduceClaimSync(const Napi::Env& env,
+                                                      bool retry,
+                                                      sequence_t& out_next,
+                                                      sequence_t& out_next_end);
     void ProduceClaimAsync(const Napi::CallbackInfo& info);
 
-    template<typename Array, template<typename> typename Buffer>
+    template<typename Array, typename DisruptorBuffer>
     Array ProduceClaimManySync(const Napi::Env& env,
                                uint32_t n,
                                bool retry,
@@ -124,6 +131,11 @@ private:
     sequence_t pending_seq_next;
     sequence_t pending_seq_next_end;
 
+    Napi::Reference<Napi::Buffer<uint8_t>> shm_buffer_ref;
+    Napi::Reference<Napi::Buffer<uint8_t>> elements_buffer_ref;
+    Napi::Reference<Napi::Buffer<uint8_t>> consumers_buffer_ref;
+    Napi::FunctionReference slice_ref;
+
     Napi::Value GetConsumers(const Napi::CallbackInfo& info);
     Napi::Value GetCursor(const Napi::CallbackInfo& info);
     Napi::Value GetNext(const Napi::CallbackInfo& info);
@@ -136,8 +148,7 @@ private:
     Napi::Value GetElementSize(const Napi::CallbackInfo& info);
 
     void ThrowErrnoError(const Napi::CallbackInfo& info,
-                         const char *msg,
-                         bool constructing = false);
+                         const char *msg);
 };
 
 //LCOV_EXCL_START
@@ -157,43 +168,45 @@ Napi::Function GetCallback(const Napi::CallbackInfo& info, uint32_t cb_arg)
         }
     }
 
-    return Napi::Function::New(info.Env(), NullCallback); //LCOV_EXCL_LINE
+    return Napi::Function::New<&NullCallback>(info.Env()); //LCOV_EXCL_LINE
 }
 
-template<typename T>
+class SyncBuffer
+{
+public:
+    typedef Napi::Buffer<uint8_t> Buffer;
+
+    static Buffer New(Napi::Env env, Disruptor *d, sequence_t start, sequence_t end)
+    {
+#ifdef COVERAGE
+        return d->slice_ref.Value().Call(d->elements_buffer_ref.Value(),
+#else
+        return d->slice_ref.Call(d->elements_buffer_ref.Value(),
+#endif
+        {
+            Napi::Number::New(env, start * d->element_size),
+            Napi::Number::New(env, end * d->element_size)
+        }).As<Buffer>();
+    }
+};
+
 class AsyncBuffer
 {
 public:
-    AsyncBuffer() :
-        data(nullptr),
-        length(0)
+    typedef AsyncBuffer Buffer;
+
+    AsyncBuffer() : AsyncBuffer(0, 0, 0)
     {
     }
 
-    static AsyncBuffer<T> New(Napi::Env, T* data, size_t length)
+    static Buffer New(Napi::Env, Disruptor *d, sequence_t start, sequence_t end)
     {
-        return AsyncBuffer<T>(data, length);
+        return Buffer(start, end, d->element_size);
     }
 
-    static AsyncBuffer<T> New(Napi::Env, size_t length)
+    Napi::Value ToValue(Napi::Env env, Disruptor *d)
     {
-        return AsyncBuffer<T>(nullptr, length);
-    }
-
-    Napi::Value ToValue(Napi::Env env)
-    {
-        Napi::Buffer<T> r;
-
-        if (data)
-        {
-            r = Napi::Buffer<T>::New(env, data, length);
-        }
-        else
-        {
-            r = Napi::Buffer<T>::New(env, length);
-        }
-
-        return r;
+        return SyncBuffer::New(env, d, start, end);
     }
 
     size_t Length()
@@ -202,13 +215,15 @@ public:
     }
 
 private:
-    AsyncBuffer(T* data, size_t length) :
-        data(data),
-        length(length)
+    AsyncBuffer(sequence_t start, sequence_t end, uint32_t element_size) :
+        start(start),
+        end(end),
+        length((end - start) * element_size)
     {
     }
 
-    T* data;
+    sequence_t start;
+    sequence_t end;
     size_t length;
 };
 
@@ -226,7 +241,7 @@ public:
         return AsyncArray<T>();
     }
 
-    void Set(uint32_t index, T el)
+    void Set(uint32_t index, T&& el)
     {
         if (elements->size() <= index)
         {
@@ -236,13 +251,13 @@ public:
         (*elements)[index] = std::move(el);
     }
 
-    Napi::Value ToValue(Napi::Env env)
+    Napi::Value ToValue(Napi::Env env, Disruptor *d)
     {
         size_t length = elements->size();
         Napi::Array r = Napi::Array::New(env);
         for (size_t i = 0; i < length; ++i)
         {
-            r[i] = (*elements)[i].ToValue(env);
+            r[i] = (*elements)[i].ToValue(env, d);
         }
         return r;
     }
@@ -269,7 +284,7 @@ public:
         return AsyncBoolean(b);
     }
 
-    Napi::Value ToValue(Napi::Env env)
+    Napi::Value ToValue(Napi::Env env, Disruptor*)
     {
         return Napi::Boolean::New(env, b);
     }
@@ -332,7 +347,7 @@ protected:
             std::initializer_list<napi_value>
             {
                 env.Null(),
-                result.ToValue(env),
+                result.ToValue(env, disruptor),
                 ToValue(env, arg1),
                 ToValue(env, arg2)
             });
@@ -359,21 +374,8 @@ public:
 };
 
 void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
-                                const char *msg,
-                                bool constructing)
+                                const char *msg)
 {
-    // Work around bug in ObjectWrap destruction
-    // https://github.com/nodejs/node-addon-api/pull/475 
-    // Remove this code and 'constructing' parameter when the PR is merged
-    if (constructing && !IsEmpty())
-    {
-        Napi::Object object = Value();
-        if (!object.IsEmpty())
-        {
-            napi_remove_wrap(Env(), object, nullptr);
-        }
-    }
-
     int errnum = errno;
     char buf[1024] = {0};
 #ifdef __APPLE__
@@ -421,7 +423,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
 
     if (shm_fd_tmp < 0)
     {
-        ThrowErrnoError(info, "Failed to open shared memory object", true);
+        ThrowErrnoError(info, "Failed to open shared memory object");
     }
 
     std::unique_ptr<int, CloseFD> shm_fd(new int(shm_fd_tmp));
@@ -437,7 +439,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // Note: ftruncate initializes to null bytes.
     if (init && (ftruncate(*shm_fd, shm_size) < 0))
     {
-        ThrowErrnoError(info, "Failed to size shared memory", true); //LCOV_EXCL_LINE
+        ThrowErrnoError(info, "Failed to size shared memory"); //LCOV_EXCL_LINE
     }
 
     // Map the shared memory
@@ -448,8 +450,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
                    0);
     if (shm_buf == MAP_FAILED)
     {
-        ThrowErrnoError(info, "Failed to map shared memory", true); //LCOV_EXCL_LINE
-
+        ThrowErrnoError(info, "Failed to map shared memory"); //LCOV_EXCL_LINE
     }
 
     consumers = static_cast<sequence_t*>(shm_buf);
@@ -463,6 +464,104 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
 
     pending_seq_next = 1;
     pending_seq_next_end = 0;
+
+    // From Node 14, V8 doesn't allow buffers pointing to the same memory:
+    //
+    // https://monorail-prod.appspot.com/p/v8/issues/detail?id=9908
+    // https://github.com/nodejs/node/issues/32463
+    //
+    // We work around this by having a single Buffer over all of shm_buf and using
+    // Buffer#slice() to return data from it.
+    //
+    // This leaves the issue of shm_buf getting the same address as a previous call -
+    // whether because the same shared memory is mapped or because it's been
+    // unmapped in Release() and then remapped again.
+    // 
+    // Since Node 14.3.0, we can be sure that the finalizer is run after the memory
+    // pointer is removed from the BackingStore:
+    //
+    // https://github.com/nodejs/node/pull/33321
+    //
+    // However, if the memory is Release()d before it's removed from the BackingStore
+    // then mmap may return it again and we won't be able to pass it to V8 without
+    // it exiting.
+    //
+    // Further, even if we remember the Buffers we create in an unordered_map, they
+    // become invalid before the finalizer is called. The finalizer is only guaranteed
+    // to be called sometime after the object is collected:
+    //
+    // https://github.com/nodejs/node-addon-api/issues/702#issuecomment-625897608
+    //
+    // This also applies to weak N-API references to the object.
+    //
+    // We can detect this using napi_get_reference_value but there's nothing we can
+    // do about it since the value will still be in the BackingStore until the finalizer
+    // is run. It's this window of time that's the problem - between the Buffer being
+    // collected and the finalizer being called.
+    //
+    // The solution implemented below is to maintain an unordered set of shm_bufs that
+    // are still alive in the BackingStore. If mmap returns one of these, we search
+    // downwards for the next address not in the set, adjusting the length of the
+    // Buffer we need to create accordingly. Since we're slicing Buffer views over it,
+    // where is starts from doesn't matter.
+
+    Napi::Env env = info.Env();
+    const auto JSBuffer = env.Global().Get("Buffer").As<Napi::Function>();
+    const auto proto = JSBuffer.Get("prototype").As<Napi::Object>();
+    slice_ref = Napi::Persistent(proto.Get("slice").As<Napi::Function>());
+
+    auto shm_buf8 = static_cast<uint8_t*>(shm_buf);
+    auto shm_size8 = shm_size;
+    Napi::Buffer<uint8_t> shm_buffer;
+
+    {
+        std::lock_guard<std::mutex> lock(buffers_mutex);
+
+        while (shm_buf8) {
+            if (buffers->find(shm_buf8) == buffers->end()) {
+                break;
+            }
+            --shm_buf8;
+            ++shm_size8;
+        }
+    }
+
+    if (!shm_buf8) {
+        //LCOV_EXCL_START
+        Release();
+        throw Napi::Error::New(env, "No space for buffer due to due to https://github.com/nodejs/node/issues/32463");
+        //LCOV_EXCL_STOP
+    }
+
+    shm_buffer = Napi::Buffer<uint8_t>::New(
+        env,
+        shm_buf8,
+        shm_size8,
+        [](Napi::Env, uint8_t* shm_buf8) {
+            std::lock_guard<std::mutex> lock(buffers_mutex);
+            buffers->erase(shm_buf8);
+        });
+
+    {
+        std::lock_guard<std::mutex> lock(buffers_mutex);
+        buffers->emplace(shm_buf8);
+    }
+
+    shm_buffer_ref = Napi::Persistent(shm_buffer);
+
+    const auto elements_start = elements - shm_buf8;
+    elements_buffer_ref = Napi::Persistent(slice_ref.Call(shm_buffer_ref.Value(),
+    {
+        Napi::Number::New(env, elements_start),
+        Napi::Number::New(env, elements_start + num_elements * element_size)
+    }).As<Napi::Buffer<uint8_t>>());
+
+    const auto consumers_start = reinterpret_cast<uint8_t*>(consumers) - shm_buf8;
+    consumers_buffer_ref = Napi::Persistent(slice_ref.Call(shm_buffer_ref.Value(),
+    {
+        Napi::Number::New(env, consumers_start),
+        Napi::Number::New(env, consumers_start + num_consumers * sizeof(sequence_t))
+    }).As<Napi::Buffer<uint8_t>>());
 }
 
 Disruptor::~Disruptor()
@@ -472,6 +571,11 @@ Disruptor::~Disruptor()
 
 int Disruptor::Release()
 {
+    shm_buffer_ref.Reset();
+    elements_buffer_ref.Reset();
+    consumers_buffer_ref.Reset();
+    slice_ref.Reset();
+
     if (shm_buf != MAP_FAILED)
     {
         int r = munmap(shm_buf, shm_size);
@@ -495,7 +599,7 @@ void Disruptor::Release(const Napi::CallbackInfo& info)
     }
 }
 
-template<typename Array, template<typename> typename Buffer>
+template<typename Array, typename DisruptorBuffer>
 Array Disruptor::ConsumeNewSync(const Napi::Env& env,
                                 bool retry,
                                 sequence_t &start)
@@ -515,12 +619,7 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
         if (pos_cursor > pos_consumer)
         {
             Array r = Array::New(env);
-
-            r.Set(0U, Buffer<uint8_t>::New(
-                env,
-                elements + pos_consumer * element_size,
-                (pos_cursor - pos_consumer) * element_size));
-
+            r.Set(0U, DisruptorBuffer::New(env, this, pos_consumer, pos_cursor));
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
             return r;
@@ -529,20 +628,11 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
         if (seq_cursor != seq_consumer)
         {
             Array r = Array::New(env);
-
-            r.Set(0U, Buffer<uint8_t>::New(
-                env,
-                elements + pos_consumer * element_size,
-                (num_elements - pos_consumer) * element_size));
-
+            r.Set(0U, DisruptorBuffer::New(env, this, pos_consumer, num_elements));
             if (pos_cursor > 0)
             {
-                r.Set(1U, Buffer<uint8_t>::New(
-                    env,
-                    elements,
-                    pos_cursor * element_size));
+                r.Set(1U, DisruptorBuffer::New(env, this, 0, pos_cursor));
             }
-
             UpdatePending(seq_consumer, seq_cursor);
             start = seq_consumer;
             return r;
@@ -557,18 +647,18 @@ Array Disruptor::ConsumeNewSync(const Napi::Env& env,
 Napi::Value Disruptor::ConsumeNewSync(const Napi::CallbackInfo& info)
 {
     sequence_t start;
-    return ConsumeNewSync<Napi::Array, Napi::Buffer>(info.Env(), spin, start);
+    return ConsumeNewSync<Napi::Array, SyncBuffer>(info.Env(), spin, start);
 }
 
 class ConsumeNewAsyncWorker :
-    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
+    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer>,
                                 sequence_t,
                                 AsyncUndefined>
 {
 public:
     ConsumeNewAsyncWorker(Disruptor *disruptor,
                           const Napi::Function& callback) :
-        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer>,
                              sequence_t,
                              AsyncUndefined>(
             disruptor, callback)
@@ -580,7 +670,7 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(Env(), false, arg1);
+        result = disruptor->ConsumeNewSync<AsyncArray<AsyncBuffer>, AsyncBuffer>(Env(), false, arg1);
         retry = result.Length() == 0;
     }
 
@@ -598,7 +688,7 @@ void Disruptor::ConsumeNewAsync(const Napi::CallbackInfo& info)
 Napi::Value Disruptor::ConsumeNew(const Napi::CallbackInfo& info)
 {
     sequence_t start;
-    Napi::Array r = ConsumeNewSync<Napi::Array, Napi::Buffer>(
+    Napi::Array r = ConsumeNewSync<Napi::Array, SyncBuffer>(
         info.Env(), false, start);
 
     if (r.Length() > 0)
@@ -636,11 +726,11 @@ bool Disruptor::ConsumeCommit()
     return r;
 }
 
-template<template<typename> typename Buffer>
-Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env,
-                                            bool retry,
-                                            sequence_t& out_next,
-                                            sequence_t& out_next_end)
+template<typename DisruptorBuffer>
+typename DisruptorBuffer::Buffer Disruptor::ProduceClaimSync(const Napi::Env& env,
+                                                             bool retry,
+                                                             sequence_t& out_next,
+                                                             sequence_t& out_next_end)
 {
     do
     {
@@ -662,15 +752,11 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env,
         if (can_claim &&
             __sync_bool_compare_and_swap(next, seq_next, seq_next + 1))
         {
-            Buffer<uint8_t> r = Buffer<uint8_t>::New(
-                env,
-                elements + (seq_next % num_elements) * element_size,
-                element_size);
-
+            sequence_t start = seq_next % num_elements;
+            auto r = DisruptorBuffer::New(env, this, start, start + 1);
             UpdateSeqNext(seq_next, seq_next);
             out_next = seq_next;
             out_next_end = seq_next;
-
             return r;
         }
     }
@@ -679,23 +765,22 @@ Buffer<uint8_t> Disruptor::ProduceClaimSync(const Napi::Env& env,
     UpdateSeqNext(1, 0);
     out_next = 1;
     out_next_end = 0;
-    return Buffer<uint8_t>::New(env, 0);
+    return DisruptorBuffer::New(env, this, 0, 0);
 }
 
 Napi::Value Disruptor::ProduceClaimSync(const Napi::CallbackInfo& info)
 {
     sequence_t seq_next, seq_next_end;
-    return ProduceClaimSync<Napi::Buffer>(
-        info.Env(), spin, seq_next, seq_next_end);
+    return ProduceClaimSync<SyncBuffer>(info.Env(), spin, seq_next, seq_next_end);
 }
 
 class ProduceClaimAsyncWorker :
-    public DisruptorAsyncWorker<AsyncBuffer<uint8_t>, sequence_t, sequence_t>
+    public DisruptorAsyncWorker<AsyncBuffer, sequence_t, sequence_t>
 {
 public:
     ProduceClaimAsyncWorker(Disruptor *disruptor,
                             const Napi::Function& callback) :
-        DisruptorAsyncWorker<AsyncBuffer<uint8_t>, sequence_t, sequence_t>(
+        DisruptorAsyncWorker<AsyncBuffer, sequence_t, sequence_t>(
             disruptor, callback)
     {
         arg1 = 1;
@@ -725,7 +810,7 @@ void Disruptor::ProduceClaimAsync(const Napi::CallbackInfo& info)
 Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo& info)
 {
     sequence_t seq_next, seq_next_end;
-    Napi::Buffer<uint8_t> r = ProduceClaimSync<Napi::Buffer>(
+    Napi::Buffer<uint8_t> r = ProduceClaimSync<SyncBuffer>(
         info.Env(), false, seq_next, seq_next_end);
     if (r.Length() > 0)
     {
@@ -736,7 +821,7 @@ Napi::Value Disruptor::ProduceClaim(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-template<typename Array, template<typename> typename Buffer>
+template<typename Array, typename DisruptorBuffer>
 void Disruptor::ProduceGetBuffers(const Napi::Env& env,
                                   sequence_t seq_next,
                                   sequence_t seq_next_end,
@@ -747,28 +832,18 @@ void Disruptor::ProduceGetBuffers(const Napi::Env& env,
 
     if (pos_next_end < pos_next)
     {
-        r.Set(0U, Buffer<uint8_t>::New(
-            env,
-            elements + pos_next * element_size,
-            (num_elements - pos_next) * element_size));
-
-        r.Set(1U, Buffer<uint8_t>::New(
-            env,
-            elements,
-            (pos_next_end + 1) * element_size));
+        r.Set(0U, DisruptorBuffer::New(env, this, pos_next, num_elements));
+        r.Set(1U, DisruptorBuffer::New(env, this, 0, pos_next_end + 1));
     }
     else
     {
-        r.Set(0U, Buffer<uint8_t>::New(
-            env,
-            elements + pos_next * element_size,
-            (pos_next_end - pos_next + 1) * element_size));
+        r.Set(0U, DisruptorBuffer::New(env, this, pos_next, pos_next_end + 1));
     }
 
     UpdateSeqNext(seq_next, seq_next_end);
 }
 
-template<typename Array, template<typename> typename Buffer>
+template<typename Array, typename DisruptorBuffer>
 Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
                                       uint32_t n,
                                       bool retry,
@@ -797,7 +872,7 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
             __sync_bool_compare_and_swap(next, seq_next, seq_next_end + 1))
         {
             Array r = Array::New(env);
-            ProduceGetBuffers<Array, Buffer>(env, seq_next, seq_next_end, r);
+            ProduceGetBuffers<Array, DisruptorBuffer>(env, seq_next, seq_next_end, r);
             out_next = seq_next;
             out_next_end = seq_next_end;
             return r;
@@ -814,12 +889,12 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
 Napi::Value Disruptor::ProduceClaimManySync(const Napi::CallbackInfo& info)
 {
     sequence_t seq_next, seq_next_end;
-    return ProduceClaimManySync<Napi::Array, Napi::Buffer>(
+    return ProduceClaimManySync<Napi::Array, SyncBuffer>(
         info.Env(), info[0].As<Napi::Number>(), spin, seq_next, seq_next_end);
 }
 
 class ProduceClaimManyAsyncWorker :
-    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
+    public DisruptorAsyncWorker<AsyncArray<AsyncBuffer>,
                                 sequence_t,
                                 sequence_t>
 {
@@ -827,7 +902,7 @@ public:
     ProduceClaimManyAsyncWorker(Disruptor *disruptor,
                                 const Napi::Function& callback,
                                 uint32_t n) :
-        DisruptorAsyncWorker<AsyncArray<AsyncBuffer<uint8_t>>,
+        DisruptorAsyncWorker<AsyncArray<AsyncBuffer>,
                              sequence_t,
                              sequence_t>(
             disruptor, callback),
@@ -841,7 +916,7 @@ protected:
     void Execute() override
     {
         // Remember: don't access any V8 stuff in worker thread
-        result = disruptor->ProduceClaimManySync<AsyncArray<AsyncBuffer<uint8_t>>, AsyncBuffer>(
+        result = disruptor->ProduceClaimManySync<AsyncArray<AsyncBuffer>, AsyncBuffer>(
             Env(), n, false, arg1, arg2);
         retry = result.Length() == 0;
     }
@@ -870,7 +945,7 @@ Napi::Value Disruptor::ProduceClaimMany(const Napi::CallbackInfo& info)
 {
     uint32_t n = info[0].As<Napi::Number>();
     sequence_t seq_next, seq_next_end;
-    Napi::Array r = ProduceClaimManySync<Napi::Array, Napi::Buffer>(
+    Napi::Array r = ProduceClaimManySync<Napi::Array, SyncBuffer>(
         info.Env(), n, false, seq_next, seq_next_end);
     if (r.Length() > 0)
     {
@@ -892,7 +967,7 @@ Napi::Value Disruptor::ProduceRecover(const Napi::CallbackInfo& info)
         (__sync_val_compare_and_swap(cursor, 0, 0) <= seq_next) &&
         (__sync_val_compare_and_swap(next, 0, 0) > seq_next_end))
     {
-        ProduceGetBuffers<Napi::Array, Napi::Buffer>(
+        ProduceGetBuffers<Napi::Array, SyncBuffer>(
             info.Env(), seq_next, seq_next_end, r);
     }
 
@@ -1014,7 +1089,7 @@ Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo& info)
 
 Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo& info)
 {
-    return Napi::Buffer<sequence_t>::New(info.Env(), consumers, num_consumers);
+    return consumers_buffer_ref.Value();
 }
 
 Napi::Value Disruptor::GetCursor(const Napi::CallbackInfo& info)
@@ -1029,7 +1104,7 @@ Napi::Value Disruptor::GetNext(const Napi::CallbackInfo& info)
 
 Napi::Value Disruptor::GetElements(const Napi::CallbackInfo& info)
 {
-    return Napi::Buffer<uint8_t>::New(info.Env(), elements, num_elements * element_size);
+    return elements_buffer_ref.Value();
 }
 
 Napi::Value Disruptor::GetConsumer(const Napi::CallbackInfo& info)
@@ -1064,35 +1139,42 @@ Napi::Value Disruptor::GetElementSize(const Napi::CallbackInfo& info)
 
 Napi::Object Disruptor::Initialize(Napi::Env env, Napi::Object exports)
 {
+    {
+        std::lock_guard<std::mutex> lock(buffers_mutex);
+        if (!buffers) {
+            buffers = new std::unordered_set<uint8_t*>();
+        }
+    }
+
     exports.Set("Disruptor", DefineClass(env, "Disruptor",
     {
-        InstanceMethod("produceClaim", &Disruptor::ProduceClaim),
-        InstanceMethod("produceClaimSync", &Disruptor::ProduceClaimSync),
-        InstanceMethod("produceClaimMany", &Disruptor::ProduceClaimMany),
-        InstanceMethod("produceClaimManySync", &Disruptor::ProduceClaimManySync),
-        InstanceMethod("produceCommit", &Disruptor::ProduceCommit),
-        InstanceMethod("produceCommitSync", &Disruptor::ProduceCommitSync),
-        InstanceMethod("produceRecover", &Disruptor::ProduceRecover),
-        InstanceMethod("consumeNew", &Disruptor::ConsumeNew),
-        InstanceMethod("consumeNewSync", &Disruptor::ConsumeNewSync),
-        InstanceMethod("consumeCommit", &Disruptor::ConsumeCommit),
-        InstanceMethod("release", &Disruptor::Release),
-        InstanceAccessor("prevConsumeStart", &Disruptor::GetPendingSeqConsumer, nullptr),
-        InstanceAccessor("prevClaimStart", &Disruptor::GetPendingSeqNext, nullptr),
-        InstanceAccessor("prevClaimEnd", &Disruptor::GetPendingSeqNextEnd, nullptr),
-        InstanceAccessor("elementSize", &Disruptor::GetElementSize, nullptr),
+        InstanceMethod<&Disruptor::ProduceClaim>("produceClaim"),
+        InstanceMethod<&Disruptor::ProduceClaimSync>("produceClaimSync"),
+        InstanceMethod<&Disruptor::ProduceClaimMany>("produceClaimMany"),
+        InstanceMethod<&Disruptor::ProduceClaimManySync>("produceClaimManySync"),
+        InstanceMethod<&Disruptor::ProduceCommit>("produceCommit"),
+        InstanceMethod<&Disruptor::ProduceCommitSync>("produceCommitSync"),
+        InstanceMethod<&Disruptor::ProduceRecover>("produceRecover"),
+        InstanceMethod<&Disruptor::ConsumeNew>("consumeNew"),
+        InstanceMethod<&Disruptor::ConsumeNewSync>("consumeNewSync"),
+        InstanceMethod<&Disruptor::ConsumeCommit>("consumeCommit"),
+        InstanceMethod<&Disruptor::Release>("release"),
+        InstanceAccessor<&Disruptor::GetPendingSeqConsumer>("prevConsumeStart"),
+        InstanceAccessor<&Disruptor::GetPendingSeqNext>("prevClaimStart"),
+        InstanceAccessor<&Disruptor::GetPendingSeqNextEnd>("prevClaimEnd"),
+        InstanceAccessor<&Disruptor::GetElementSize>("elementSize"),
 
         // For testing only
-        InstanceAccessor("consumers", &Disruptor::GetConsumers, nullptr),
-        InstanceAccessor("cursor", &Disruptor::GetCursor, nullptr),
-        InstanceAccessor("next", &Disruptor::GetNext, nullptr),
-        InstanceAccessor("elements", &Disruptor::GetElements, nullptr),
-        InstanceAccessor("consumer", &Disruptor::GetConsumer, nullptr),
-        InstanceAccessor("prevConsumeNext", &Disruptor::GetPendingSeqCursor, nullptr),
-        InstanceMethod("consumeNewAsync", &Disruptor::ConsumeNewAsync),
-        InstanceMethod("produceClaimAsync", &Disruptor::ProduceClaimAsync),
-        InstanceMethod("produceClaimManyAsync", &Disruptor::ProduceClaimManyAsync),
-        InstanceMethod("produceCommitAsync", &Disruptor::ProduceCommitAsync),
+        InstanceAccessor<&Disruptor::GetConsumers>("consumers"),
+        InstanceAccessor<&Disruptor::GetCursor>("cursor"),
+        InstanceAccessor<&Disruptor::GetNext>("next"),
+        InstanceAccessor<&Disruptor::GetElements>("elements"),
+        InstanceAccessor<&Disruptor::GetConsumer>("consumer"),
+        InstanceAccessor<&Disruptor::GetPendingSeqCursor>("prevConsumeNext"),
+        InstanceMethod<&Disruptor::ConsumeNewAsync>("consumeNewAsync"),
+        InstanceMethod<&Disruptor::ProduceClaimAsync>("produceClaimAsync"),
+        InstanceMethod<&Disruptor::ProduceClaimManyAsync>("produceClaimManyAsync"),
+        InstanceMethod<&Disruptor::ProduceCommitAsync>("produceCommitAsync")
     }));
 
     return exports;

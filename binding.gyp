@@ -28,7 +28,7 @@
         [
           'coverage == "true"',
           {
-            'cflags+': [ '--coverage' ],
+            'cflags+': [ '--coverage', '-DCOVERAGE=1' ],
             'ldflags+': [ '--coverage' ]
           }
         ]

@@ -34,7 +34,7 @@ module.exports = function (grunt)
 			},
 
             cover_init: {
-                cmd: 'lcov --rc lcov_branch_coverage=0 --zerocounters --directory build'
+                cmd: 'rm -f coverage/lcov_addon_base.info && lcov --rc lcov_branch_coverage=0 --zerocounters --directory build && lcov --rc lcov_branch_coverage=0 --capture --initial --directory build --output-file coverage/lcov_addon_base.info'
             },
 
             cover: {
@@ -42,22 +42,22 @@ module.exports = function (grunt)
             },
 
             cover_lcov: {
-                cmd: "rm -f coverage/lcov.info && ./node_modules/.bin/nyc report -r lcovonly && rm -f coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=0 --capture --directory build --output-file coverage/lcov_addon.info && rm -f coverage/lcov_addon2.info && lcov --rc lcov_branch_coverage=0 --remove coverage/lcov_addon.info '/usr/*' $PWD'/node_modules/*' --output-file coverage/lcov_addon2.info && rm -f coverage/lcov2.info && lcov --rc lcov_branch_coverage=1 --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_addon2.info --output-file coverage/lcov2.info"
+                cmd: "rm -f coverage/lcov.info && ./node_modules/.bin/nyc report -r lcovonly && rm -f coverage/lcov_addon.info && lcov --rc lcov_branch_coverage=0 --capture --directory build --output-file coverage/lcov_addon.info && rm -f coverage/lcov_combined.info && lcov --rc lcov_branch_coverage=1 --add-tracefile coverage/lcov.info --add-tracefile coverage/lcov_addon_base.info --add-tracefile coverage/lcov_addon.info --output-file coverage/lcov_combined.info && rm -f coverage/lcov_final.info && lcov --rc lcov_branch_coverage=1 --remove coverage/lcov_combined.info '/usr/*' $PWD'/node_modules/*' --output-file coverage/lcov_final.info"
             },
 
             cover_report: {
-                cmd: 'genhtml --rc lcov_branch_coverage=1 --demangle-cpp -o coverage/lcov-report coverage/lcov2.info'
+                cmd: 'genhtml --rc lcov_branch_coverage=1 --demangle-cpp -o coverage/lcov-report coverage/lcov_final.info'
             },
 
             cover_check: {
                 // lines% functions% branches%
                 // Branches for C++ are disabled because gcov results are
                 // messed up by exceptions.
-                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov2.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
             },
 
             codecov: {
-                cmd: './node_modules/.bin/codecov -f coverage/lcov2.info'
+                cmd: './node_modules/.bin/codecov -f coverage/lcov_final.info'
             },
 
             documentation: {

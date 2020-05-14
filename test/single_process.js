@@ -1133,6 +1133,8 @@ describe('many-to-many (producers: ' + num_producers + ', consumers: ' + num_con
             disruptors = [],
             sum = 0;
 
+        //gc();
+
         for (let i = 0; i < num_disruptors; i += 1)
         {
             disruptors.push(new Disruptor('/test', 100000, 256, num_consumers, i % num_consumers, i === 0, true));
