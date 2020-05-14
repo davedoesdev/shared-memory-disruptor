@@ -1,6 +1,12 @@
 version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test-14
+      - test-12
 jobs:
-  build:
+  test-14: &test-template
     docker:
       - image: circleci/node:14.2.0-buster
     steps:
@@ -22,6 +28,11 @@ jobs:
             gcc --version
             gcov --version
             lcov --version
+            node --version
       - run:
           name: coverage
           command: npm run ci-coverage
+  test-12:
+    <<: *test-template
+    docker:
+      - image: circleci/node:12.6.3-buster
