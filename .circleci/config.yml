@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/node:13.2.0-buster
+      - image: circleci/node:14.2.0-buster
     steps:
       - checkout
       - run:
