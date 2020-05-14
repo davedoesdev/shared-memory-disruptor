@@ -14,5 +14,11 @@ jobs:
           name: cpus
           command: nproc
       - run:
+          name: versions
+          command: |
+            gcc --version
+            gcov --version
+            lcov --version
+      - run:
           name: coverage
           command: npm run ci-coverage
