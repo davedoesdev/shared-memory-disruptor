@@ -1,10 +1,8 @@
 version: 2
-orbs:
-  node: circleci/node@14.2.0
 jobs:
   build:
     docker:
-      - image: 'cimg/base:stable'
+      - image: circleci/node:14.2.0-buster
     steps:
       - checkout
       - run:

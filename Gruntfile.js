@@ -53,7 +53,7 @@ module.exports = function (grunt)
                 // lines% functions% branches%
                 // Branches for C++ are disabled because gcov results are
                 // messed up by exceptions.
-                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then cat coverage/lcov_final.info; exit 1; fi"
             },
 
             codecov: {
