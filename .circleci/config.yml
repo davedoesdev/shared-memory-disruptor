@@ -35,4 +35,4 @@ jobs:
   test-12:
     <<: *test-template
     docker:
-      - image: circleci/node:12.6.0-buster
+      - image: circleci/node:12.16.3-buster
