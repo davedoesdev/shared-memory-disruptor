@@ -29,9 +29,9 @@ module.exports = function (grunt)
                 cmd: 'node-gyp rebuild --debug'
             },
 
-			cover_build: {
+            cover_build: {
                 cmd: 'node-gyp rebuild --debug --coverage=true'
-			},
+            },
 
             cover_init: {
                 cmd: 'rm -f coverage/lcov_addon_base.info && lcov --rc lcov_branch_coverage=0 --zerocounters --directory build && lcov --rc lcov_branch_coverage=0 --capture --initial --directory build --output-file coverage/lcov_addon_base.info'
@@ -53,7 +53,7 @@ module.exports = function (grunt)
                 // lines% functions% branches%
                 // Branches for C++ are disabled because gcov results are
                 // messed up by exceptions.
-                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then cat coverage/lcov_final.info; exit 1; fi"
+                cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
             },
 
             codecov: {

@@ -1,7 +1,7 @@
 {
   "name": "shared-memory-disruptor",
   "description": "Shared memory LMAX Disruptor",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "homepage": "https://github.com/davedoesdev/shared-memory-disruptor",
   "author": {
     "name": "David Halls",
@@ -44,7 +44,7 @@
     "nyc": "^15.0.1",
     "codecov": "^3.6.5",
     "yargs": "^15.3.1",
-    "documentation": "^12.3.0"
+    "documentation": "^13.0.0"
   },
   "engines": {
     "node": ">=12"
