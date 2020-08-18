@@ -14,7 +14,10 @@ jobs:
       - run:
           name: install
           command: |
+            echo 'deb http://deb.debian.org/debian testing main' | sudo tee /etc/apt/sources.list.d/testing.list > /dev/null
             sudo apt -y update
+            sudo apt install gcc-8-base
+            sudo apt -y upgrade
             sudo apt -y install lcov
             npm install
       - run:
