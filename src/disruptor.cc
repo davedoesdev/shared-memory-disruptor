@@ -503,7 +503,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // are still alive in the BackingStore. If mmap returns one of these, we search
     // downwards for the next address not in the set, adjusting the length of the
     // Buffer we need to create accordingly. Since we're slicing Buffer views over it,
-    // where is starts from doesn't matter.
+    // where it starts from doesn't matter.
 
     Napi::Env env = info.Env();
     const auto JSBuffer = env.Global().Get("Buffer").As<Napi::Function>();

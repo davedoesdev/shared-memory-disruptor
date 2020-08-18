@@ -57,7 +57,7 @@ module.exports = function (grunt)
             },
 
             codecov: {
-                cmd: './node_modules/.bin/codecov -f coverage/lcov_final.info'
+                cmd: './node_modules/.bin/codecov --disable=gcov -f coverage/lcov_final.info'
             },
 
             documentation: {
