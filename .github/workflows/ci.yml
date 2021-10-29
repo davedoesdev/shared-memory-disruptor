@@ -20,6 +20,9 @@ jobs:
       - name: Install dependencies
         run: sudo apt install lcov
 
+      - name: Print number of CPUs
+        run: nproc
+
       - name: Use Node.js
         uses: actions/setup-node@v2
         with:
