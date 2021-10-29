@@ -30,4 +30,5 @@ jobs:
 
       - name: Codecov
         uses: codecov/codecov-action@v2
-        files: coverage/lvoc_final.info
+        with:
+          files: coverage/lvoc_final.info
