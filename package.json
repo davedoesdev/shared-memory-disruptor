@@ -18,7 +18,8 @@
   "license": "MIT",
   "main": "lib/disruptor.js",
   "scripts": {
-    "test": "grunt lint test"
+    "test": "grunt lint test",
+    "coverage": "grunt coverage"
   },
   "directories": {
     "lib": "lib",
