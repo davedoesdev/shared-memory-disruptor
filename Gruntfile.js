@@ -56,10 +56,6 @@ module.exports = function (grunt)
                 cmd: "if [ \"$(lcov --rc lcov_branch_coverage=1 --list coverage/lcov_final.info | grep Total | grep -o '[0-9.]\\+%' | tr '\\n' ' ')\" != '100% 100% 100% ' ]; then exit 1; fi"
             },
 
-            codecov: {
-                cmd: './node_modules/.bin/codecov --disable=gcov -f coverage/lcov_final.info'
-            },
-
             documentation: {
                 cmd: './node_modules/.bin/documentation build -f html -o docs docs.js'
             },
@@ -84,7 +80,6 @@ module.exports = function (grunt)
                                     'exec:cover_lcov',
                                     'exec:cover_report',
                                     'exec:cover_check']);
-    grunt.registerTask('codecov', 'exec:codecov');
     grunt.registerTask('docs', 'exec:documentation');
     grunt.registerTask('serve_docs', 'exec:serve_documentation');
 };
