@@ -152,7 +152,7 @@ private:
 };
 
 //LCOV_EXCL_START
-void NullCallback(const Napi::CallbackInfo& info)
+void NullCallback(const Napi::CallbackInfo&)
 {
 }
 //LCOV_EXCL_STOP
@@ -408,15 +408,15 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     // Open shared memory object
     // OS X does not allow using O_TRUNC with shm_open.
     // If this item exists, and init flag is true, delete it and recreate.
-    const char* name = shm_name.Utf8Value().c_str();
-    int shm_fd_tmp = shm_open(name,
+    const auto name = shm_name.Utf8Value();
+    int shm_fd_tmp = shm_open(name.c_str(),
         (init ? O_CREAT | O_EXCL : 0) | O_RDWR,
         S_IRUSR | S_IWUSR);
 
     if (init && shm_fd_tmp < 0 && errno == EEXIST)
     {
-        shm_unlink(name);
-        shm_fd_tmp = shm_open(name,
+        shm_unlink(name.c_str());
+        shm_fd_tmp = shm_open(name.c_str(),
             O_CREAT | O_EXCL | O_RDWR,
             S_IRUSR | S_IWUSR);
     }
@@ -1087,7 +1087,7 @@ Napi::Value Disruptor::ProduceCommit(const Napi::CallbackInfo& info)
     return info.Env().Undefined();
 }
 
-Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetConsumers(const Napi::CallbackInfo&)
 {
     return consumers_buffer_ref.Value();
 }
@@ -1102,7 +1102,7 @@ Napi::Value Disruptor::GetNext(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), __sync_val_compare_and_swap(next, 0, 0));
 }
 
-Napi::Value Disruptor::GetElements(const Napi::CallbackInfo& info)
+Napi::Value Disruptor::GetElements(const Napi::CallbackInfo&)
 {
     return elements_buffer_ref.Value();
 }
