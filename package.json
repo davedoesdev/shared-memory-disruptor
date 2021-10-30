@@ -37,7 +37,7 @@
     "async": "^3.2.2",
     "c8": "^7.10.0",
     "chai": "^4.3.4",
-    "documentation": "^13.2.5",
+    "documentation": "documentationjs/documentation",
     "grunt": "^1.4.1",
     "grunt-contrib-jshint": "^3.1.1",
     "grunt-exec": "^3.0.0",
