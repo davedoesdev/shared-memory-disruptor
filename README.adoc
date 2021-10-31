@@ -118,4 +118,4 @@ grunt coverage
 
 LCOV results are available http://rawgit.davedoesdev.com/davedoesdev/shared-memory-disruptor/master/coverage/lcov-report/index.html[here].
 
-Codecov page is https://codecov.io/gh/davedoesdev/shared-memory-disruptor[here].
+Coveralls page is https://coveralls.io/r/davedoesdev/shared-memory-disruptor[here].
