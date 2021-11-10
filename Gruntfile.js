@@ -59,7 +59,10 @@ module.exports = function (grunt)
             },
 
             documentation: {
-                cmd: 'npx documentation build -f html -o docs docs.js'
+                cmd: [
+                    'npx documentation build -f html -o docs docs.js',
+                    'asciidoc -b docbook -o - README.adoc | pandoc -f docbook -t gfm -o README.md'
+                ].join('&&')
             }
         }
     })
