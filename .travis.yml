@@ -1,7 +1,0 @@
-os: osx
-language: node_js
-node_js:
-  - 12
-  - 14
-before_script:
-  - sysctl -n hw.ncpu
