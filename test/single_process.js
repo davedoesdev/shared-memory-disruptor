@@ -3,6 +3,8 @@ let crypto = require('crypto'),
     expect = require('chai').expect,
     async = require('async');
 
+process.on('unhandledRejection', err => { throw(err); });
+
 function tests(do_async, async_suffix)
 {
     async function consumeNew(d, cb)
@@ -77,6 +79,29 @@ function tests(do_async, async_suffix)
         }
 
         cb(null, d.produceClaimManySync(n), d.prevClaimStart, d.prevClaimEnd);
+    }
+
+    async function produceClaimAvail(d, max, cb)
+    {
+        if (do_async)
+        {
+            if (async_suffix === null)
+            {
+                try
+                {
+                    const { bufs, claimStart, claimEnd } = await d.produceClaimAvail(max);
+                    return cb(null, bufs, claimStart, claimEnd);
+                }
+                catch (ex)
+                {
+                    return cb(ex);
+                }
+            }
+
+            return d['produceClaimAvail' + async_suffix](max, cb);
+        }
+
+        cb(null, d.produceClaimAvailSync(max), d.prevClaimStart, d.prevClaimEnd);
     }
 
     function produceRecover(d, claimStart, claimEnd)
@@ -260,6 +285,84 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                     expect(d.prevConsumeStart).to.equal(0);
                     expect(d.prevConsumeNext).to.equal(0);
                     done();
+                });
+            });
+        });
+    });
+
+    it('should write many and read available values', function (done)
+    {
+        produceClaimAvail(d, 100, function (err, bs, claimStart, claimEnd)
+        {
+            if (err) { return done(err); }
+            expect(claimStart).to.equal(0);
+            expect(claimEnd).to.equal(99);
+            expect(d.prevClaimStart).to.equal(claimStart);
+            expect(d.prevClaimEnd).to.equal(claimEnd);
+            expect(bs.length).to.equal(1);
+            let b = bs[0];
+            expect(b.equals(Buffer.alloc(800))).to.be.true;
+            for (let i = 0; i < 100; ++i)
+            {
+                b.writeUInt32BE(0x01234567, i*8, true);
+                b.writeUInt32BE(0x89abcdef, i*8 + 4, true);
+            }
+            expect(d.cursor).to.equal(0);
+            expect(d.next).to.equal(100);
+            expect(d.consumer).to.equal(0);
+
+            produceClaimAvail(d, 256, function (err, bs2, claimStart2, claimEnd2)
+            {
+                if (err) { return done(err); }
+                expect(claimStart2).to.equal(100);
+                expect(claimEnd2).to.equal(255);
+                expect(d.prevClaimStart).to.equal(claimStart2);
+                expect(d.prevClaimEnd).to.equal(claimEnd2);
+                expect(bs2.length).to.equal(1);
+                let b = bs2[0];
+                expect(b.equals(Buffer.alloc(8 * 156))).to.be.true;
+                for (let i = 0; i < 156; ++i)
+                {
+                    b.writeUInt32BE(0x01234567, i*8, true);
+                    b.writeUInt32BE(0x89abcdef, i*8 + 4, true);
+                }
+                expect(d.cursor).to.equal(0);
+                expect(d.next).to.equal(256);
+                expect(d.consumer).to.equal(0);
+
+                produceCommit(d, claimStart, claimEnd2, function (err, v)
+                {
+                    if (err) { return done(err); }
+                    expect(v).to.be.true;
+                    expect(d.cursor).to.equal(256);
+                    expect(d.next).to.equal(256);
+                    expect(d.consumer).to.equal(0);
+                    expect(d.prevConsumeStart).to.equal(0);
+                    expect(d.prevConsumeNext).to.equal(0);
+                    consumeNew(d, function (err, bs, start)
+                    {
+                        if (err) { return done(err); }
+                        expect(bs.length).to.equal(1);
+                        let b = bs[0];
+                        expect(b.length).to.equal(8 * 256);
+                        for (let i = 0; i < 256; ++i)
+                        {
+                            expect(b.slice(i*8, i*8 + 8).equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
+                        }
+                        expect(start).to.equal(0);
+                        expect(d.cursor).to.equal(256);
+                        expect(d.next).to.equal(256);
+                        expect(d.consumer).to.equal(0);
+                        expect(d.prevConsumeStart).to.equal(0);
+                        expect(d.prevConsumeNext).to.equal(256);
+                        consumeCommit(d);
+                        expect(d.cursor).to.equal(256);
+                        expect(d.next).to.equal(256);
+                        expect(d.consumer).to.equal(256);
+                        expect(d.prevConsumeStart).to.equal(0);
+                        expect(d.prevConsumeNext).to.equal(0);
+                        done();
+                    });
                 });
             });
         });
@@ -1108,6 +1211,99 @@ describe('async spin', function ()
                         expect(v).to.be.true;
                     });
                 }, 2000);
+            });
+        });
+    });
+
+    it('should spin if no slots available to write', function (done)
+    {
+        d = new Disruptor('/test', 256, 8, 1, 0, true, true);
+
+        d.produceClaimAvail(500, function (err, bs, claimStart, claimEnd)
+        {
+            if (err) { return done(err); }
+            expect(claimStart).to.equal(0);
+            expect(claimEnd).to.equal(255);
+            expect(d.prevClaimStart).to.equal(claimStart);
+            expect(d.prevClaimEnd).to.equal(claimEnd);
+            expect(bs.length).to.equal(1);
+            let b = bs[0];
+            expect(b.equals(Buffer.alloc(256 * 8))).to.be.true;
+            for (let i = 0; i < 256; ++i)
+            {
+                b.writeUInt32BE(0x01234567, i*8, true);
+                b.writeUInt32BE(0x89abcdef, i*8 + 4, true);
+            }
+            expect(d.cursor).to.equal(0);
+            expect(d.next).to.equal(256);
+            expect(d.consumer).to.equal(0);
+
+            let called = false;
+
+            d.produceClaimAvail(100, function (err, bs2, claimStart2, claimEnd2)
+            {
+                if (err) { return done(err); }
+                called = true;
+
+                expect(claimStart2).to.equal(256);
+                expect(claimEnd2).to.equal(355);
+                expect(d.prevClaimStart).to.equal(claimStart2);
+                expect(d.prevClaimEnd).to.equal(claimEnd2);
+                expect(bs2.length).to.equal(1);
+                let b = bs2[0];
+                expect(b.length).to.equal(800);
+                for (let i = 0; i < 100; ++i)
+                {
+                    expect(b.slice(i*8, i*8 + 8).equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
+                }
+                expect(d.cursor).to.equal(256);
+                expect(d.next).to.equal(356);
+                expect(d.consumer).to.equal(256);
+            });
+
+            d.produceCommit(claimStart, claimEnd, function (err, v)
+            {
+                if (err) { return done(err); }
+                expect(v).to.be.true;
+                expect(d.cursor).to.equal(256);
+                expect(d.next).to.equal(256);
+                expect(d.consumer).to.equal(0);
+                expect(d.prevConsumeStart).to.equal(0);
+                expect(d.prevConsumeNext).to.equal(0);
+
+                setTimeout(function () {
+                    expect(called).to.be.false;
+
+                    d.consumeNew(function (err, bs, start)
+                    {
+                        if (err) { return done(err); }
+                        expect(bs.length).to.equal(1);
+                        let b = bs[0];
+                        expect(b.length).to.equal(8 * 256);
+                        for (let i = 0; i < 256; ++i)
+                        {
+                            expect(b.slice(i*8, i*8 + 8).equals(Buffer.from([0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef]))).to.be.true;
+                        }
+                        expect(start).to.equal(0);
+                        expect(d.cursor).to.equal(256);
+                        expect(d.next).to.equal(256);
+                        expect(d.consumer).to.equal(0);
+                        expect(d.prevConsumeStart).to.equal(0);
+                        expect(d.prevConsumeNext).to.equal(256);
+
+                        d.consumeCommit();
+                        expect(d.cursor).to.equal(256);
+                        expect(d.next).to.equal(256);
+                        expect(d.consumer).to.equal(256);
+                        expect(d.prevConsumeStart).to.equal(0);
+                        expect(d.prevConsumeNext).to.equal(0);
+
+                        setTimeout(function () {
+                            expect(called).to.be.true;
+                            done();
+                        }, 1000);
+                    });
+                }, 1000);
             });
         });
     });
