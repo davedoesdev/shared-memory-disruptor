@@ -1296,7 +1296,7 @@ Napi::Value Disruptor::GetStatus(const Napi::CallbackInfo& info)
     return Napi::Number::New(info.Env(), __atomic_load_n(status, memorder));
 }
 
-void Disruptor::SetStatus(const Napi::CallbackInfo& info, const Napi::Value& value)
+void Disruptor::SetStatus(const Napi::CallbackInfo&, const Napi::Value& value)
 {
     __atomic_store_n(status, value.As<Napi::Number>(), __ATOMIC_RELAXED);
 }
