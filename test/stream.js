@@ -121,13 +121,20 @@ describe('stream functionality', function ()
 
         rngs.pipe(ws);
 
-        rs.pipe(new Writable(
+        rs.pipe(new class extends Writable
         {
-            construct(cb)
+            constructor(options)
+            {
+                super(options);
+                this.hash = createHash('sha256');
+            }
+        }(
+        {
+            /*construct(cb)
             {
                 this.hash = createHash('sha256');
                 cb();
-            },
+            },*/
             
             write(chunk, encoding, cb)
             {
@@ -222,13 +229,20 @@ describe('stream functionality', function ()
             const rs = new DisruptorReadStream(d);
             streams.push(rs);
 
-            rs.pipe(new Writable(
+            rs.pipe(new class extends Writable
             {
-                construct(cb)
+                constructor(options)
+                {
+                    super(options);
+                    this.hash = createHash('sha256');
+                }
+            }(
+            {
+                /*construct(cb)
                 {
                     this.hash = createHash('sha256');
                     cb();
-                },
+                },*/
                 
                 write(chunk, encoding, cb)
                 {
