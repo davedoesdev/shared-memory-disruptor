@@ -21,7 +21,9 @@ jobs:
 
       - name: Install OS dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install lcov
+        run: |
+          sudo apt update
+          sudo apt install g++-11 lcov
 
       - name: Display versions
         if: matrix.os == 'ubuntu-latest'
