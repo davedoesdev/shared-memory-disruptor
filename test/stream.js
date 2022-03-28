@@ -130,6 +130,8 @@ describe('stream functionality', function ()
             }
         }(
         {
+            autoDestroy: true, // for Node 12
+
             /*construct(cb)
             {
                 this.hash = createHash('sha256');
@@ -144,7 +146,6 @@ describe('stream functionality', function ()
 
             final(cb)
             {
-            console.log("FINAL");
                 expect(this.hash.digest('hex')).to.equal(rngs.digest);
                 cb();
             }
@@ -239,6 +240,8 @@ describe('stream functionality', function ()
                 }
             }(
             {
+                autoDestroy: true, // for Node 12
+
                 /*construct(cb)
                 {
                     this.hash = createHash('sha256');
