@@ -23,6 +23,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install lcov
 
+      - name: Display versions
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          g++ --version
+          lcov --version
+
       - name: Print number of CPUs
         if: matrix.os == 'ubuntu-latest'
         run: nproc
