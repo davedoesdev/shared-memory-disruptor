@@ -144,6 +144,7 @@ describe('stream functionality', function ()
 
             final(cb)
             {
+            console.log("FINAL");
                 expect(this.hash.digest('hex')).to.equal(rngs.digest);
                 cb();
             }
