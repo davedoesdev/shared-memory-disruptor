@@ -9,9 +9,12 @@
 #include <vector>
 #include <unordered_set>
 #include <algorithm>
+#include <limits>
 
 typedef uint64_t sequence_t;
 typedef int32_t status_t;
+
+const sequence_t sequence_max = std::numeric_limits<sequence_t>::max();
 
 // Needs to be heap allocated because we access it from finalizers which can be called
 // on process exit
@@ -29,6 +32,7 @@ public:
     static Napi::Object Initialize(Napi::Env env, Napi::Object exports);
 
     // Unmap the shared memory. Don't access it again from this Disruptor!
+    // Note this also sets consumer value to sequence_max.
     void Release(const Napi::CallbackInfo& info);
 
     // Return unconsumed slots for a consumer
@@ -145,6 +149,7 @@ private:
     uint32_t element_size;
     uint32_t num_consumers;
     uint32_t consumer;
+    bool init;
     bool spin;
 
     size_t shm_size;
@@ -433,7 +438,7 @@ Disruptor::Disruptor(const Napi::CallbackInfo& info) :
     element_size = info[2].As<Napi::Number>();
     num_consumers = info[3].As<Napi::Number>();
     consumer = info[4].As<Napi::Number>();
-    bool init = info[5].As<Napi::Boolean>();
+    init = info[5].As<Napi::Boolean>();
     spin = info[6].As<Napi::Boolean>();
 
     // Open shared memory object
@@ -628,6 +633,13 @@ int Disruptor::Release()
 
 void Disruptor::Release(const Napi::CallbackInfo& info)
 {
+    if ((shm_buf != MAP_FAILED) &&
+        (info.Length() >= 1) &&
+        info[0].As<Napi::Boolean>())
+    {
+        __atomic_store_n(ptr_consumer, sequence_max, memorder);
+    }
+
     if (Release() < 0)
     {
         ThrowErrnoError(info, "Failed to unmap shared memory"); //LCOV_EXCL_LINE
@@ -783,7 +795,8 @@ typename DisruptorBuffer::Buffer Disruptor::ProduceClaimSync(const Napi::Env& en
         {
             sequence_t seq_consumer = __atomic_load_n(&consumers[i], memorder);
 
-            if ((seq_next - seq_consumer) >= num_elements)
+            if ((seq_consumer != sequence_max) &&
+                ((seq_next - seq_consumer) >= num_elements))
             {
                 can_claim = false;
                 break;
@@ -902,7 +915,8 @@ Array Disruptor::ProduceClaimManySync(const Napi::Env& env,
         {
             sequence_t seq_consumer = __atomic_load_n(&consumers[i], memorder);
 
-            if ((seq_next_end - seq_consumer) >= num_elements)
+            if ((seq_consumer != sequence_max) &&
+                ((seq_next_end - seq_consumer) >= num_elements))
             {
                 can_claim = false;
                 break;
@@ -1012,7 +1026,10 @@ Array Disruptor::ProduceClaimAvailSync(const Napi::Env& env,
         for (uint32_t i = 0; i < num_consumers; ++i)
         {
             sequence_t seq_consumer = __atomic_load_n(&consumers[i], memorder);
-            n = std::min(static_cast<sequence_t>(n), num_elements - (seq_next - seq_consumer));
+            if (seq_consumer != sequence_max)
+            {
+                n = std::min(static_cast<sequence_t>(n), num_elements - (seq_next - seq_consumer));
+            }
         }
 
         if ((n > 0) &&
@@ -1298,7 +1315,7 @@ Napi::Value Disruptor::GetStatus(const Napi::CallbackInfo& info)
 
 void Disruptor::SetStatus(const Napi::CallbackInfo&, const Napi::Value& value)
 {
-    __atomic_store_n(status, value.As<Napi::Number>(), __ATOMIC_RELAXED);
+    __atomic_store_n(status, value.As<Napi::Number>(), memorder);
 }
 
 Napi::Object Disruptor::Initialize(Napi::Env env, Napi::Object exports)

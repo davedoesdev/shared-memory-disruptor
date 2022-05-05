@@ -685,6 +685,14 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         });
     }
 
+    it("should throw error if shared memory object doesn't exist", function ()
+    {
+        expect(function ()
+        {
+            new Disruptor('foo', 256, 8, 1, 0, false, false);
+        }).to.throw('Failed to open shared memory object: No such file or directory');
+    });
+
     it('should return empty buffer if produce when full', function (done)
     {
         async.timesSeries(256, async.ensureAsync(function (n, next)
@@ -1040,6 +1048,45 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                 done();
             });
         });
+    });
+
+    it('should be able to ignore a consumer', async function ()
+    {
+        let d2 = new Disruptor('/test2', 256, 8, 2, 0, true, false);
+        let d3 = new Disruptor('/test2', 256, 8, 2, 0, false, false);
+        let d4 = new Disruptor('/test2', 256, 8, 2, 1, false, false);
+
+        const p1 = await d2.produceClaimMany(1000);
+        expect(p1.claimStart).to.equal(0);
+        expect(p1.claimEnd).to.equal(255);
+        expect(p1.bufs.length).to.equal(1);
+        expect(p1.bufs[0].length).to.equal(256 * 8);
+
+        expect(await d2.produceCommit()).to.be.true;
+
+        const c1 = await d3.consumeNew();
+        expect(c1.start).to.equal(0);
+        expect(c1.bufs.length).to.equal(1);
+        expect(c1.bufs[0].length).to.equal(256 * 8);
+        expect(d3.consumeCommit()).to.be.true;
+
+        const p2 = await d2.produceClaimMany(1000);
+        expect(p2.claimStart).to.equal(1);
+        expect(p2.claimEnd).to.equal(0);
+        expect(p2.bufs.length).to.equal(0);
+
+        d4.release(true);
+
+        const p3 = await d2.produceClaimMany(1000);
+        expect(p3.claimStart).to.equal(256);
+        expect(p3.claimEnd).to.equal(511);
+        expect(p3.bufs.length).to.equal(1);
+        expect(p3.bufs[0].length).to.equal(256 * 8);
+
+        expect(await d2.produceCommit()).to.be.true;
+
+        d2.release();
+        d3.release();
     });
 });
 }

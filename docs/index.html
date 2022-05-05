@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>shared-memory-disruptor 3.0.11 | Documentation</title>
+  <title>shared-memory-disruptor 3.1.0 | Documentation</title>
   <meta name='description' content='Shared memory LMAX Disruptor'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>shared-memory-disruptor</h3>
-          <div class='mb1'><code>3.0.11</code></div>
+          <div class='mb1'><code>3.1.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -1401,7 +1401,7 @@ they check for new data.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>release()</span>
+            <span class='code strong strong truncate'>release(mark_ignore)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -1414,7 +1414,7 @@ they check for new data.</p>
 you can force the shared memory to be unmapped by calling this function.</p>
 <p>Don't use the object again afterwards!</p>
 
-    <div class='pre p1 fill-light mt0'>release()</div>
+    <div class='pre p1 fill-light mt0'>release(mark_ignore: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
   
 
@@ -1425,6 +1425,21 @@ you can force the shared memory to be unmapped by calling this function.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>mark_ignore</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>
+            = <code>false</code>)</code>
+	    Whether publishers should ignore consumers that have this Disruptor's unique ID.
+
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   

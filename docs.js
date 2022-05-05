@@ -164,6 +164,8 @@ class Disruptor
       you can force the shared memory to be unmapped by calling this function.
 
       Don't use the object again afterwards!
+
+      @param {boolean} [mark_ignore=false] - Whether publishers should ignore consumers that have this Disruptor's unique ID.
      */
     release()
     {
