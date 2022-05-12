@@ -427,26 +427,25 @@ describe('stream functionality', function () {
         const num_readers = 1000;
 
         let count = 0;
-        function check() {
-            if (++count === num_readers) {
-                ws.once('error', function (err) {
-                    expect(err.message).to.equal('no consumers');
-                    done();
-                });
-                ws.write('B');
-            }
+
+        function readable() {
+            expect(this.read().toString()).to.equal('A');
+            this.on('close', function () {
+                this.disruptor.release(true);
+                if (++count === num_readers) {
+                    ws.once('error', function (err) {
+                        expect(err.message).to.equal('no consumers');
+                        done();
+                    });
+                    ws.write('B');
+                }
+            });
+            this.destroy();
         }
 
         for (let i = 0; i < num_readers; ++i) {
             const d = new Disruptor('/test', 10000, 1, num_readers, i, i === 0, false);
-            new DisruptorReadStream(d).once('readable', function () {
-                expect(this.read().toString()).to.equal('A');
-                this.on('close', function () {
-                    d.release(true);
-                    check();
-                });
-                this.destroy();
-            });
+            new DisruptorReadStream(d).once('readable', readable);
         }
 
         const d = new Disruptor('/test', 10000, 1, num_readers, 0, false, false);
