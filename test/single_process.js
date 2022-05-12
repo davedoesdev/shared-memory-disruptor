@@ -43,7 +43,7 @@ function tests(do_async, async_suffix)
             {
                 try
                 {
-                    const { buf, claimStart, claimEnd } = await d.produceClaim();
+                    const { buf, claimStart, claimEnd, allConsumersIgnoring } = await d.produceClaim();
                     return cb(null, buf, claimStart, claimEnd);
                 }
                 catch (ex)
@@ -55,7 +55,7 @@ function tests(do_async, async_suffix)
             return d['produceClaim' + async_suffix](cb);
         }
 
-        cb(null, d.produceClaimSync(), d.prevClaimStart, d.prevClaimEnd);
+        cb(null, d.produceClaimSync(), d.prevClaimStart, d.prevClaimEnd, d.allConsumersIgnoring);
     }
 
     async function produceClaimMany(d, n, cb)
@@ -66,8 +66,8 @@ function tests(do_async, async_suffix)
             {
                 try
                 {
-                    const { bufs, claimStart, claimEnd } = await d.produceClaimMany(n);
-                    return cb(null, bufs, claimStart, claimEnd);
+                    const { bufs, claimStart, claimEnd, allConsumersIgnoring } = await d.produceClaimMany(n);
+                    return cb(null, bufs, claimStart, claimEnd, allConsumersIgnoring);
                 }
                 catch (ex)
                 {
@@ -78,7 +78,7 @@ function tests(do_async, async_suffix)
             return d['produceClaimMany' + async_suffix](n, cb);
         }
 
-        cb(null, d.produceClaimManySync(n), d.prevClaimStart, d.prevClaimEnd);
+        cb(null, d.produceClaimManySync(n), d.prevClaimStart, d.prevClaimEnd, d.allConsumersIgnoring);
     }
 
     async function produceClaimAvail(d, max, cb)
@@ -89,8 +89,8 @@ function tests(do_async, async_suffix)
             {
                 try
                 {
-                    const { bufs, claimStart, claimEnd } = await d.produceClaimAvail(max);
-                    return cb(null, bufs, claimStart, claimEnd);
+                    const { bufs, claimStart, claimEnd, allConsumersIgnoring } = await d.produceClaimAvail(max);
+                    return cb(null, bufs, claimStart, claimEnd, allConsumersIgnoring);
                 }
                 catch (ex)
                 {
@@ -101,7 +101,7 @@ function tests(do_async, async_suffix)
             return d['produceClaimAvail' + async_suffix](max, cb);
         }
 
-        cb(null, d.produceClaimAvailSync(max), d.prevClaimStart, d.prevClaimEnd);
+        cb(null, d.produceClaimAvailSync(max), d.prevClaimStart, d.prevClaimEnd, d.allConsumersIgnoring);
     }
 
     function produceRecover(d, claimStart, claimEnd)
@@ -188,6 +188,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         expect(d.elements.equals(Buffer.alloc(256 * 8))).to.be.true;
         expect(d.prevConsumeStart).to.equal(0);
         expect(d.prevConsumeNext).to.equal(0);
+        expect(d.allConsumersIgnoring).to.be.false;
     });
 
     it('should write and read single value', function (done)
@@ -229,6 +230,7 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
                     expect(d.consumer).to.equal(1);
                     expect(d.prevConsumeStart).to.equal(0);
                     expect(d.prevConsumeNext).to.equal(0);
+                    expect(d.allConsumersIgnoring).to.be.false;
                     done();
                 });
             });
@@ -1061,6 +1063,8 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         expect(p1.claimEnd).to.equal(255);
         expect(p1.bufs.length).to.equal(1);
         expect(p1.bufs[0].length).to.equal(256 * 8);
+        expect(p1.allConsumersIgnoring).to.be.false;
+        expect(d2.allConsumersIgnoring).to.be.false;
 
         expect(await d2.produceCommit()).to.be.true;
 
@@ -1074,6 +1078,8 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         expect(p2.claimStart).to.equal(1);
         expect(p2.claimEnd).to.equal(0);
         expect(p2.bufs.length).to.equal(0);
+        expect(p2.allConsumersIgnoring).to.be.false;
+        expect(d2.allConsumersIgnoring).to.be.false;
 
         d4.release(true);
 
@@ -1082,11 +1088,35 @@ describe('functionality and state (async=' + do_async + ', async_suffix=' + asyn
         expect(p3.claimEnd).to.equal(511);
         expect(p3.bufs.length).to.equal(1);
         expect(p3.bufs[0].length).to.equal(256 * 8);
+        expect(p3.allConsumersIgnoring).to.be.false;
+        expect(d2.allConsumersIgnoring).to.be.false;
 
         expect(await d2.produceCommit()).to.be.true;
 
+        d3.release(true);
+
+        const p4 = await d2.produceClaim();
+        expect(p4.claimStart).to.equal(1);
+        expect(p4.claimEnd).to.equal(0);
+        expect(p4.buf.length).to.equal(0);
+        expect(p4.allConsumersIgnoring).to.be.true;
+        expect(d2.allConsumersIgnoring).to.be.true;
+
+        const p5 = await d2.produceClaimMany(1000);
+        expect(p5.claimStart).to.equal(1);
+        expect(p5.claimEnd).to.equal(0);
+        expect(p5.bufs.length).to.equal(0);
+        expect(p5.allConsumersIgnoring).to.be.true;
+        expect(d2.allConsumersIgnoring).to.be.true;
+
+        const p6 = await d2.produceClaimAvail(1000);
+        expect(p6.claimStart).to.equal(1);
+        expect(p6.claimEnd).to.equal(0);
+        expect(p6.bufs.length).to.equal(0);
+        expect(p6.allConsumersIgnoring).to.be.true;
+        expect(d2.allConsumersIgnoring).to.be.true;
+
         d2.release();
-        d3.release();
     });
 });
 }

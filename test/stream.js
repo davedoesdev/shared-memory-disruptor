@@ -8,26 +8,20 @@ const {
 }  = require('..');
 
 
-class RandomStream extends Readable
-{
-    constructor(size)
-    {
+class RandomStream extends Readable {
+    constructor(size) {
         super();
         this.size = size;
         this.hash = createHash('sha256');
     }
 
-    _read(size)
-    {
-        if (this.size === 0)
-        {
+    _read(size) {
+        if (this.size === 0) {
             return this.push(null);
         }
 
-        randomBytes(Math.min(size, this.size), (err, buf) =>
-        {
-            if (err)
-            {
+        randomBytes(Math.min(size, this.size), (err, buf) => {
+            if (err) {
                 return this.emit('error', err);
             }
             this.size -= buf.length;
@@ -40,18 +34,17 @@ class RandomStream extends Readable
     }
 }
 
-describe('stream functionality', function ()
-{
+describe('stream functionality', function () {
+    this.timeout(60000);
+
     let disruptors, streams;
 
-    beforeEach(function ()
-    {
+    beforeEach(function () {
         disruptors = [new Disruptor('/test', 1000, 1, 1, 0, true, false)];
         streams = [];
     });
 
-    afterEach(function (cb)
-    {
+    afterEach(function (cb) {
         function release() {
             for (const d of disruptors) {
                 d.release();
@@ -81,8 +74,7 @@ describe('stream functionality', function ()
         }
     });
 
-    it('should send data from writer to reader', function (done)
-    {
+    it('should send data from writer to reader', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         const ws = new DisruptorWriteStream(disruptors[0]);
 
@@ -90,10 +82,8 @@ describe('stream functionality', function ()
 
         const bufs = [];
 
-        rs.on('readable', function ()
-        {
-            while (true)
-            {
+        rs.on('readable', function () {
+            while (true) {
                 const buf = this.read();
                 if (!buf) {
                     break;
@@ -102,8 +92,7 @@ describe('stream functionality', function ()
             }
         });
 
-        rs.on('end', function ()
-        {
+        rs.on('end', function () {
             expect(Buffer.concat(bufs).toString()).to.equal('hello');
             done();
         });
@@ -111,8 +100,7 @@ describe('stream functionality', function ()
         ws.end('hello');
     });
 
-    it('should pipe data', function (done)
-    {
+    it('should pipe data', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         const ws = new DisruptorWriteStream(disruptors[0]);
         const rngs = new RandomStream(1024 * 1024);
@@ -121,64 +109,53 @@ describe('stream functionality', function ()
 
         rngs.pipe(ws);
 
-        rs.pipe(new class extends Writable
-        {
-            constructor(options)
-            {
+        rs.pipe(new class extends Writable {
+            constructor(options) {
                 super(options);
                 this.hash = createHash('sha256');
             }
-        }(
-        {
+        }({
             autoDestroy: true, // for Node 12
 
-            /*construct(cb)
-            {
+            /*construct(cb) {
                 this.hash = createHash('sha256');
                 cb();
             },*/
             
-            write(chunk, encoding, cb)
-            {
+            write(chunk, encoding, cb) {
                 this.hash.update(chunk);
                 cb();
             },
 
-            final(cb)
-            {
+            final(cb) {
                 expect(this.hash.digest('hex')).to.equal(rngs.digest);
                 cb();
             }
         }).on('close', done));
     });
 
-    it('should propagate writer error', function (done)
-    {
+    it('should propagate writer error', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         const ws = new DisruptorWriteStream(disruptors[0]);
 
         streams.push(rs, ws);
 
-        rs.on('error', function (err)
-        {
+        rs.on('error', function (err) {
             expect(err.message).to.equal('writer errored');
             done();
         });
 
-        rs.on('readable', function ()
-        {
+        rs.on('readable', function () {
         });
 
-        ws.on('error', function (err)
-        {
+        ws.on('error', function (err) {
             expect(err.message).to.equal('foo');
         });
 
         ws.destroy(new Error('foo'));
     });
 
-    it("should error if element size isn't 1", function ()
-    {
+    it("should error if element size isn't 1", function () {
         const d2 = new Disruptor('/test2', 1000, 2, 1, 0, true, false);
 
         expect(function () {
@@ -192,8 +169,7 @@ describe('stream functionality', function ()
         d2.release();
     });
 
-    it("should error if spin isn't false", function ()
-    {
+    it("should error if spin isn't false", function () {
         const d2 = new Disruptor('/test2', 1000, 1, 1, 0, true, true);
 
         expect(function () {
@@ -207,10 +183,7 @@ describe('stream functionality', function ()
         d2.release();
     });
 
-    it('should support multiple readers', function (done)
-    {
-        this.timeout(60000);
-
+    it('should support multiple readers', function (done) {
         disruptors[0].release();
         disruptors = [];
 
@@ -231,31 +204,26 @@ describe('stream functionality', function ()
             const rs = new DisruptorReadStream(d);
             streams.push(rs);
 
-            rs.pipe(new class extends Writable
-            {
+            rs.pipe(new class extends Writable {
                 constructor(options)
                 {
                     super(options);
                     this.hash = createHash('sha256');
                 }
-            }(
-            {
+            }({
                 autoDestroy: true, // for Node 12
 
-                /*construct(cb)
-                {
+                /*construct(cb) {
                     this.hash = createHash('sha256');
                     cb();
                 },*/
                 
-                write(chunk, encoding, cb)
-                {
+                write(chunk, encoding, cb) {
                     this.hash.update(chunk);
                     cb();
                 },
 
-                final(cb)
-                {
+                final(cb) {
                     expect(this.hash.digest('hex')).to.equal(rngs.digest);
                     cb();
                 }
@@ -269,8 +237,7 @@ describe('stream functionality', function ()
         rngs.pipe(ws);
     });
 
-    it('should destroy while reading', function (done)
-    {
+    it('should destroy while reading', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         streams.push(rs);
         let the_err;
@@ -285,8 +252,7 @@ describe('stream functionality', function ()
         rs.destroy(new Error('foo'));
     });
 
-    it('should destroy while writing', function (done)
-    {
+    it('should destroy while writing', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
         let the_err;
@@ -301,8 +267,7 @@ describe('stream functionality', function ()
         ws.destroy(new Error('foo'));
     });
 
-    it('should not read once destroyed', function (done)
-    {
+    it('should not read once destroyed', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         streams.push(rs);
         rs.on('data', () => {
@@ -315,8 +280,7 @@ describe('stream functionality', function ()
         rs.destroy();
     });
 
-    it('should not write once destroyed', function (done)
-    {
+    it('should not write once destroyed', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
         ws.on('close', async function () {
@@ -326,8 +290,7 @@ describe('stream functionality', function ()
         ws.destroy();
     });
 
-    it('should catch disruptor errors while reading', function (done)
-    {
+    it('should catch disruptor errors while reading', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         streams.push(rs);
         rs.on('error', err => {
@@ -340,8 +303,7 @@ describe('stream functionality', function ()
         rs.read();
     });
 
-    it('should catch disruptor errors while writing', function (done)
-    {
+    it('should catch disruptor errors while writing', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
         ws.on('error', err => {
@@ -354,8 +316,7 @@ describe('stream functionality', function ()
         ws.write('test');
     });
 
-    it('should catch disruptor errors while committing', function (done)
-    {
+    it('should catch disruptor errors while committing', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
         ws.on('error', err => {
@@ -368,8 +329,7 @@ describe('stream functionality', function ()
         ws.write('test');
     });
 
-    it('should retry commit', function (done)
-    {
+    it('should retry commit', function (done) {
         const rs = new DisruptorReadStream(disruptors[0]);
         const ws = new DisruptorWriteStream(disruptors[0]);
 
@@ -377,10 +337,8 @@ describe('stream functionality', function ()
 
         const bufs = [];
 
-        rs.on('readable', function ()
-        {
-            while (true)
-            {
+        rs.on('readable', function () {
+            while (true) {
                 const buf = this.read();
                 if (!buf) {
                     break;
@@ -392,10 +350,8 @@ describe('stream functionality', function ()
         let count = 0;
         const produceCommit = disruptors[0].produceCommit;
 
-        disruptors[0].produceCommit = function ()
-        {
-            if (++count === 1)
-            {
+        disruptors[0].produceCommit = function () {
+            if (++count === 1) {
                 return false;
             }
 
@@ -405,22 +361,18 @@ describe('stream functionality', function ()
         let ended = false;
         let finished = false;
 
-        rs.on('end', function ()
-        {
+        rs.on('end', function () {
             expect(Buffer.concat(bufs).toString()).to.equal('hello');
             ended = true;
-            if (finished)
-            {
+            if (finished) {
                 done();
             }
         });
 
-        ws.on('finish', function ()
-        {
+        ws.on('finish', function () {
             finished = true;
             expect(count).to.equal(2);
-            if (ended)
-            {
+            if (ended) {
                 done();
             }
         });
@@ -428,31 +380,26 @@ describe('stream functionality', function ()
         ws.end('hello');
     });
 
-    it('should not commit when destroyed', function (done)
-    {
+    it('should not commit when destroyed', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
 
         let produce_commit_called = false;
-        disruptors[0].produceCommit = function ()
-        {
+        disruptors[0].produceCommit = function () {
             produce_commit_called = true;
         };
 
         let the_err;
-        ws.on('error', function (err)
-        {
+        ws.on('error', function (err) {
             expect(err.message).to.equal('foo');
-            setTimeout(() =>
-            {
+            setTimeout(() => {
                 expect(produce_commit_called).to.be.false;
                 done();
             }, 1000);
         });
 
         const commit = ws._commit;
-        ws._commit = function ()
-        {
+        ws._commit = function () {
             this.destroy(new Error('foo'));
             return commit.apply(this, arguments);
         };
@@ -460,18 +407,98 @@ describe('stream functionality', function ()
         ws.write('hello');
     });
 
-    it('should handle destroy while committing', function (done)
-    {
+    it('should handle destroy while committing', function (done) {
         const ws = new DisruptorWriteStream(disruptors[0]);
         streams.push(ws);
 
         ws.on('close', done);
 
-        disruptors[0].produceCommit = function ()
-        {
+        disruptors[0].produceCommit = function () {
             ws.destroy();
         };
 
         ws.write('hello');
+    });
+
+    it('should error if all consumers ignore data', function (done) {
+        disruptors[0].release();
+        disruptors = [];
+
+        const num_readers = 1000;
+
+        let count = 0;
+        function check() {
+            if (++count === num_readers) {
+                ws.once('error', function (err) {
+                    expect(err.message).to.equal('no consumers');
+                    done();
+                });
+                ws.write('B');
+            }
+        }
+
+        for (let i = 0; i < num_readers; ++i) {
+            const d = new Disruptor('/test', 10000, 1, num_readers, i, i === 0, false);
+            new DisruptorReadStream(d).once('readable', function () {
+                expect(this.read().toString()).to.equal('A');
+                this.on('close', function () {
+                    d.release(true);
+                    check();
+                });
+                this.destroy();
+            });
+        }
+
+        const d = new Disruptor('/test', 10000, 1, num_readers, 0, false, false);
+        disruptors.push(d);
+        const ws = new DisruptorWriteStream(d);
+        streams.push(ws);
+        ws.write('A');
+    });
+
+    it('should retry writing if Disruptor is full', function (done) {
+        const rs = new DisruptorReadStream(disruptors[0], { highWaterMark: 1000 });
+        const ws = new DisruptorWriteStream(disruptors[0]);
+
+        streams.push(rs, ws);
+
+        rs.once('readable', function () {
+            ws.write('A');
+            setTimeout(() => {
+                this.once('readable', function () {
+                    expect(this.read().length).to.equal(1000);
+                    this.once('readable', function () {
+                        expect(this.read().toString()).to.equal('A');
+                        done();
+                    });
+                });
+                expect(this.read().length).to.equal(1000);
+
+            }, 500);
+        });
+
+        // Fill up Disruptor and read stream buffer
+        ws.write(Buffer.alloc(2000));
+    });
+
+    it("shouldn't read if already reading", function (done) {
+        const rs = new DisruptorReadStream(disruptors[0]);
+        streams.push(rs);
+
+        let the_resolve = null;
+
+        disruptors[0].consumeNew = function () {
+            return new Promise((resolve, reject) => {
+                the_resolve = resolve;
+            });
+        };
+
+        rs.read();
+        expect(the_resolve).not.to.be.null;
+        rs.push('A');
+        setTimeout(() => {
+            the_resolve({ bufs: [] });
+            done();
+        }, 500);
     });
 });
