@@ -35,7 +35,7 @@ class RandomStream extends Readable {
 }
 
 describe('stream functionality', function () {
-    this.timeout(60000);
+    this.timeout(5 * 60 * 1000);
 
     let disruptors, streams;
 
