@@ -113,6 +113,7 @@ describe('stream functionality', function () {
             constructor(options) {
                 super(options);
                 this.hash = createHash('sha256');
+                this.count = 0;
             }
         }({
             autoDestroy: true, // for Node 12
@@ -124,10 +125,12 @@ describe('stream functionality', function () {
             
             write(chunk, encoding, cb) {
                 this.hash.update(chunk);
+                this.count += chunk.length;
                 cb();
             },
 
             final(cb) {
+                expect(this.count).to.equal(1024 * 1024);
                 expect(this.hash.digest('hex')).to.equal(rngs.digest);
                 cb();
             }
