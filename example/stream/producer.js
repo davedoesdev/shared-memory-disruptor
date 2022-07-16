@@ -1,15 +1,12 @@
-// Example using a stream of random numbers:
-//
-//    { while true; do echo -n $RANDOM; done; } | node producer.js
-//
-// You can pipe arbitrary data
+// You must run the consumer before the producer
+// See README.md for examples
 
-const {
-    Disruptor,
-    DisruptorWriteStream
-} = require('../../');
+const { Disruptor, DisruptorWriteStream } = require('../../');
 
-const d = new Disruptor('/stream', 1000, 1, 1, 0, true, false);
+// The producer needs to be aware of the number of consumers
+const total = +(process.env.TOTAL || 1)
+
+const d = new Disruptor('/stream', 1000, 1, total, 0, false, false);
 const ws = new DisruptorWriteStream(d);
 
 process.stdin.pipe(ws);
