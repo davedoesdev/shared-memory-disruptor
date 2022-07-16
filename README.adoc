@@ -91,13 +91,12 @@ Buffer containing a whole number of elements.
 
 Both programs print the same result.
 
-== Streaming example.
+== Streaming example
 
 You can produce and consume arbitrary data through streams.
 
-*consumer.js*
-
 [source,javascript]
+.consumer.js
 ----
 // You must run the consumer before the producer
 const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');
@@ -108,9 +107,8 @@ const rs = new DisruptorReadStream(d)
 rs.pipe(process.stdout);
 ----
 
-*producer.js*
-
 [source,javascript]
+.producer.js
 ----
 const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');
 
