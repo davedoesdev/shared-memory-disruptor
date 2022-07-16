@@ -93,6 +93,44 @@ test();
 
 Both programs print the same result.
 
+## Streaming example.
+
+You can produce and consume arbitrary data through streams.
+
+**consumer.js**
+```javascript
+// You must run the consumer before the producer
+const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');
+
+const d = new Disruptor('/stream', 1000, 1, 1, 0, true, false);
+const rs = new DisruptorReadStream(d)
+
+rs.pipe(process.stdout);
+```
+
+**producer.js**
+
+```javascript
+const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');
+
+process.stdin.pipe(
+    new DisruptorWriteStream(
+        new Disruptor('/stream', 1000, 1, 1, 0, false, false)
+    )
+);
+```
+
+First start the consumer by running on a terminal window:
+
+    node consumer.js
+
+This will initialize the memory.
+
+On a new terminal, pipe any data to the producer. For example,
+
+
+    { while true; do echo $RANDOM; sleep 0.1; done; } | node producer.js
+
 # Install
 
 ``` bash
