@@ -101,7 +101,7 @@ You can produce and consume arbitrary data through streams.
 
 ``` javascript
 // You must run the consumer before the producer
-const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');
+const { Disruptor, DisruptorReadStream } = require('shared-memory-disruptor');
 
 const d = new Disruptor('/stream', 1000, 1, 1, 0, true, false);
 const rs = new DisruptorReadStream(d)
