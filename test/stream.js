@@ -13,14 +13,21 @@ class RandomStream extends Readable {
         super();
         this.size = size;
         this.hash = createHash('sha256');
+        this.reading = false;
     }
 
     _read(size) {
+        if (this.reading) {
+            return;
+        }
+        this.reading = true;
+
         if (this.size === 0) {
             return this.push(null);
         }
 
         randomBytes(Math.min(size, this.size), (err, buf) => {
+            this.reading = false;
             if (err) {
                 return this.emit('error', err);
             }
