@@ -16,7 +16,7 @@ class RandomStream extends Readable {
         this.reading = false;
     }
 
-    _read(size) {
+    _read() {
         if (this.reading) {
             return;
         }
@@ -26,7 +26,7 @@ class RandomStream extends Readable {
             return this.push(null);
         }
 
-        randomBytes(Math.min(size, this.size), (err, buf) => {
+        randomBytes(this.size, (err, buf) => {
             this.reading = false;
             if (err) {
                 return this.emit('error', err);
@@ -36,7 +36,9 @@ class RandomStream extends Readable {
             if (this.size === 0) {
                 this.digest = this.hash.digest('hex');
             }
-            this.push(buf);
+            if (this.push(buf)) {
+                setImmediate(() => this.read());
+            }
         });
     }
 }
