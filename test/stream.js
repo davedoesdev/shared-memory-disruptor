@@ -37,7 +37,7 @@ class RandomStream extends Readable {
                 this.digest = this.hash.digest('hex');
             }
             if (this.push(buf)) {
-                setImmediate(() => this.read());
+                setImmediate(() => this._read());
             }
         });
     }
