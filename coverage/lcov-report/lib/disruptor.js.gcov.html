@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2023-02-17 22:21:05</td>
+            <td class="headerValue">2023-02-17 22:37:01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">23</td>
@@ -76,68 +76,68 @@
 <a name="5"><span class="lineNum">       5 </span>                :<span class="lineCov">        506 : const status_eof = 1;</span></a>
 <a name="6"><span class="lineNum">       6 </span>                :<span class="lineCov">        506 : const status_error = 2;</span></a>
 <a name="7"><span class="lineNum">       7 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="8"><span class="lineNum">       8 </span>           [<span class="branchCov" title="Branch 0 was taken 11098045 times"> + </span>]:<span class="lineCov">   11098045 : function check(cb, r, arg1, arg2, arg3)</span></a>
-<a name="9"><span class="lineNum">       9 </span>                :<span class="lineCov">   11098045 : {</span></a>
-<a name="10"><span class="lineNum">      10 </span>                :<span class="lineCov">   11098045 :     if (r !== undefined)</span></a>
-<a name="11"><span class="lineNum">      11 </span>           [<span class="branchCov" title="Branch 0 was taken 10595610 times"> + </span>]:<span class="lineCov">   11098045 :     {</span></a>
-<a name="12"><span class="lineNum">      12 </span>                :<span class="lineCov">   10595610 :         process.nextTick(cb, null, r, arg1, arg2, arg3);</span></a>
-<a name="13"><span class="lineNum">      13 </span>                :<span class="lineCov">   10595610 :     }</span></a>
-<a name="14"><span class="lineNum">      14 </span>                :<span class="lineCov">   11098045 : }</span></a>
+<a name="8"><span class="lineNum">       8 </span>           [<span class="branchCov" title="Branch 0 was taken 8200277 times"> + </span>]:<span class="lineCov">    8200277 : function check(cb, r, arg1, arg2, arg3)</span></a>
+<a name="9"><span class="lineNum">       9 </span>                :<span class="lineCov">    8200277 : {</span></a>
+<a name="10"><span class="lineNum">      10 </span>                :<span class="lineCov">    8200277 :     if (r !== undefined)</span></a>
+<a name="11"><span class="lineNum">      11 </span>           [<span class="branchCov" title="Branch 0 was taken 7713704 times"> + </span>]:<span class="lineCov">    8200277 :     {</span></a>
+<a name="12"><span class="lineNum">      12 </span>                :<span class="lineCov">    7713704 :         process.nextTick(cb, null, r, arg1, arg2, arg3);</span></a>
+<a name="13"><span class="lineNum">      13 </span>                :<span class="lineCov">    7713704 :     }</span></a>
+<a name="14"><span class="lineNum">      14 </span>                :<span class="lineCov">    8200277 : }</span></a>
 <a name="15"><span class="lineNum">      15 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="16"><span class="lineNum">      16 </span>                :<span class="lineCov">        506 : class Disruptor2 extends Disruptor</span></a>
 <a name="17"><span class="lineNum">      17 </span>                :<span class="lineCov">        506 : {</span></a>
-<a name="18"><span class="lineNum">      18 </span>           [<span class="branchCov" title="Branch 0 was taken 5772 times"> + </span>]:<span class="lineCov">        506 :     constructor(...args)</span></a>
-<a name="19"><span class="lineNum">      19 </span>                :<span class="lineCov">       5772 :     {</span></a>
-<a name="20"><span class="lineNum">      20 </span>                :<span class="lineCov">       5772 :         super(...args);</span></a>
-<a name="21"><span class="lineNum">      21 </span>                :<span class="lineCov">       5772 : </span></a>
-<a name="22"><span class="lineNum">      22 </span>           [<span class="branchCov" title="Branch 0 was taken 6492812 times"> + </span>]:<span class="lineCov">       5772 :         this._consumeNewAsync = promisify(cb =&gt; {</span></a>
-<a name="23"><span class="lineNum">      23 </span>           [<span class="branchCov" title="Branch 0 was taken 6492812 times"> + </span>]:<span class="lineCov">    6492812 :             this._consumeNew((err, bufs, start) =&gt; {</span></a>
-<a name="24"><span class="lineNum">      24 </span>                :<span class="lineCov">    6492812 :                 cb(err, { bufs, start });</span></a>
-<a name="25"><span class="lineNum">      25 </span>                :<span class="lineCov">    6492812 :             });</span></a>
-<a name="26"><span class="lineNum">      26 </span>                :<span class="lineCov">       5772 :         });</span></a>
-<a name="27"><span class="lineNum">      27 </span>                :<span class="lineCov">       5772 : </span></a>
-<a name="28"><span class="lineNum">      28 </span>           [<span class="branchCov" title="Branch 0 was taken 467557 times"> + </span>]:<span class="lineCov">       5772 :         this._produceClaimAsync = promisify(cb =&gt; {</span></a>
+<a name="18"><span class="lineNum">      18 </span>           [<span class="branchCov" title="Branch 0 was taken 5771 times"> + </span>]:<span class="lineCov">        506 :     constructor(...args)</span></a>
+<a name="19"><span class="lineNum">      19 </span>                :<span class="lineCov">       5771 :     {</span></a>
+<a name="20"><span class="lineNum">      20 </span>                :<span class="lineCov">       5771 :         super(...args);</span></a>
+<a name="21"><span class="lineNum">      21 </span>                :<span class="lineCov">       5771 : </span></a>
+<a name="22"><span class="lineNum">      22 </span>           [<span class="branchCov" title="Branch 0 was taken 6529800 times"> + </span>]:<span class="lineCov">       5771 :         this._consumeNewAsync = promisify(cb =&gt; {</span></a>
+<a name="23"><span class="lineNum">      23 </span>           [<span class="branchCov" title="Branch 0 was taken 6529800 times"> + </span>]:<span class="lineCov">    6529800 :             this._consumeNew((err, bufs, start) =&gt; {</span></a>
+<a name="24"><span class="lineNum">      24 </span>                :<span class="lineCov">    6529800 :                 cb(err, { bufs, start });</span></a>
+<a name="25"><span class="lineNum">      25 </span>                :<span class="lineCov">    6529800 :             });</span></a>
+<a name="26"><span class="lineNum">      26 </span>                :<span class="lineCov">       5771 :         });</span></a>
+<a name="27"><span class="lineNum">      27 </span>                :<span class="lineCov">       5771 : </span></a>
+<a name="28"><span class="lineNum">      28 </span>           [<span class="branchCov" title="Branch 0 was taken 467557 times"> + </span>]:<span class="lineCov">       5771 :         this._produceClaimAsync = promisify(cb =&gt; {</span></a>
 <a name="29"><span class="lineNum">      29 </span>           [<span class="branchCov" title="Branch 0 was taken 467557 times"> + </span>]:<span class="lineCov">     467557 :             this._produceClaim((err, buf, claimStart, claimEnd, allConsumersIgnoring) =&gt; {</span></a>
 <a name="30"><span class="lineNum">      30 </span>                :<span class="lineCov">     467557 :                 cb(err, { buf, claimStart, claimEnd, allConsumersIgnoring });</span></a>
 <a name="31"><span class="lineNum">      31 </span>                :<span class="lineCov">     467557 :             });</span></a>
-<a name="32"><span class="lineNum">      32 </span>                :<span class="lineCov">       5772 :         });</span></a>
-<a name="33"><span class="lineNum">      33 </span>                :<span class="lineCov">       5772 : </span></a>
-<a name="34"><span class="lineNum">      34 </span>           [<span class="branchCov" title="Branch 0 was taken 27 times"> + </span>]:<span class="lineCov">       5772 :         this._produceClaimManyAsync = promisify((n, cb) =&gt; {</span></a>
+<a name="32"><span class="lineNum">      32 </span>                :<span class="lineCov">       5771 :         });</span></a>
+<a name="33"><span class="lineNum">      33 </span>                :<span class="lineCov">       5771 : </span></a>
+<a name="34"><span class="lineNum">      34 </span>           [<span class="branchCov" title="Branch 0 was taken 27 times"> + </span>]:<span class="lineCov">       5771 :         this._produceClaimManyAsync = promisify((n, cb) =&gt; {</span></a>
 <a name="35"><span class="lineNum">      35 </span>           [<span class="branchCov" title="Branch 0 was taken 27 times"> + </span>]:<span class="lineCov">         27 :             this._produceClaimMany(n, (err, bufs, claimStart, claimEnd, allConsumersIgnoring) =&gt; {</span></a>
 <a name="36"><span class="lineNum">      36 </span>                :<span class="lineCov">         27 :                 cb(err, { bufs, claimStart, claimEnd, allConsumersIgnoring });</span></a>
 <a name="37"><span class="lineNum">      37 </span>                :<span class="lineCov">         27 :             });</span></a>
-<a name="38"><span class="lineNum">      38 </span>                :<span class="lineCov">       5772 :         });</span></a>
-<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">       5772 : </span></a>
-<a name="40"><span class="lineNum">      40 </span>           [<span class="branchCov" title="Branch 0 was taken 2990065 times"> + </span>]:<span class="lineCov">       5772 :         this._produceClaimAvailAsync = promisify((max, cb) =&gt; {</span></a>
-<a name="41"><span class="lineNum">      41 </span>           [<span class="branchCov" title="Branch 0 was taken 2990065 times"> + </span>]:<span class="lineCov">    2990065 :             this._produceClaimAvail(max, (err, bufs, claimStart, claimEnd, allConsumersIgnoring) =&gt; {</span></a>
-<a name="42"><span class="lineNum">      42 </span>                :<span class="lineCov">    2990065 :                 cb(err, { bufs, claimStart, claimEnd, allConsumersIgnoring });</span></a>
-<a name="43"><span class="lineNum">      43 </span>                :<span class="lineCov">    2990065 :             });</span></a>
-<a name="44"><span class="lineNum">      44 </span>                :<span class="lineCov">       5772 :         });</span></a>
-<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">       5772 : </span></a>
-<a name="46"><span class="lineNum">      46 </span>           [<span class="branchCov" title="Branch 0 was taken 469915 times"> + </span>]:<span class="lineCov">       5772 :         this._produceCommitAsync = promisify(function (claimStart, claimEnd, cb) {</span></a>
-<a name="47"><span class="lineNum">      47 </span>           [<span class="branchCov" title="Branch 0 was taken 2353 times"> + </span>]:<span class="lineCov">     469915 :             if (arguments.length &gt;= 2) {</span></a>
-<a name="48"><span class="lineNum">      48 </span>                :<span class="lineCov">       2353 :                 return this._produceCommit(claimStart, claimEnd, cb);</span></a>
-<a name="49"><span class="lineNum">      49 </span>                :<span class="lineCov">       2353 :             }</span></a>
+<a name="38"><span class="lineNum">      38 </span>                :<span class="lineCov">       5771 :         });</span></a>
+<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">       5771 : </span></a>
+<a name="40"><span class="lineNum">      40 </span>           [<span class="branchCov" title="Branch 0 was taken 84308 times"> + </span>]:<span class="lineCov">       5771 :         this._produceClaimAvailAsync = promisify((max, cb) =&gt; {</span></a>
+<a name="41"><span class="lineNum">      41 </span>           [<span class="branchCov" title="Branch 0 was taken 84308 times"> + </span>]:<span class="lineCov">      84308 :             this._produceClaimAvail(max, (err, bufs, claimStart, claimEnd, allConsumersIgnoring) =&gt; {</span></a>
+<a name="42"><span class="lineNum">      42 </span>                :<span class="lineCov">      84308 :                 cb(err, { bufs, claimStart, claimEnd, allConsumersIgnoring });</span></a>
+<a name="43"><span class="lineNum">      43 </span>                :<span class="lineCov">      84308 :             });</span></a>
+<a name="44"><span class="lineNum">      44 </span>                :<span class="lineCov">       5771 :         });</span></a>
+<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">       5771 : </span></a>
+<a name="46"><span class="lineNum">      46 </span>           [<span class="branchCov" title="Branch 0 was taken 469725 times"> + </span>]:<span class="lineCov">       5771 :         this._produceCommitAsync = promisify(function (claimStart, claimEnd, cb) {</span></a>
+<a name="47"><span class="lineNum">      47 </span>           [<span class="branchCov" title="Branch 0 was taken 2163 times"> + </span>]:<span class="lineCov">     469725 :             if (arguments.length &gt;= 2) {</span></a>
+<a name="48"><span class="lineNum">      48 </span>                :<span class="lineCov">       2163 :                 return this._produceCommit(claimStart, claimEnd, cb);</span></a>
+<a name="49"><span class="lineNum">      49 </span>                :<span class="lineCov">       2163 :             }</span></a>
 <a name="50"><span class="lineNum">      50 </span>           [<span class="branchCov" title="Branch 0 was taken 467562 times"> + </span>]:<span class="lineCov">     467562 :             this._produceCommit(claimStart);</span></a>
-<a name="51"><span class="lineNum">      51 </span>                :<span class="lineCov">       5772 :         });</span></a>
-<a name="52"><span class="lineNum">      52 </span>                :<span class="lineCov">       5772 :     }</span></a>
+<a name="51"><span class="lineNum">      51 </span>                :<span class="lineCov">       5771 :         });</span></a>
+<a name="52"><span class="lineNum">      52 </span>                :<span class="lineCov">       5771 :     }</span></a>
 <a name="53"><span class="lineNum">      53 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="54"><span class="lineNum">      54 </span>           [<span class="branchCov" title="Branch 0 was taken 7066683 times"> + </span>]:<span class="lineCov">        506 :     _consumeNew(cb)</span></a>
-<a name="55"><span class="lineNum">      55 </span>                :<span class="lineCov">    7066683 :     {</span></a>
-<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">    7066683 :         check(cb,</span></a>
-<a name="57"><span class="lineNum">      57 </span>                :<span class="lineCov">    7066683 :               super.consumeNew(cb),</span></a>
-<a name="58"><span class="lineNum">      58 </span>                :<span class="lineCov">    7066683 :               super.prevConsumeStart);</span></a>
-<a name="59"><span class="lineNum">      59 </span>                :<span class="lineCov">    7066683 :     }</span></a>
+<a name="54"><span class="lineNum">      54 </span>           [<span class="branchCov" title="Branch 0 was taken 7074862 times"> + </span>]:<span class="lineCov">        506 :     _consumeNew(cb)</span></a>
+<a name="55"><span class="lineNum">      55 </span>                :<span class="lineCov">    7074862 :     {</span></a>
+<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">    7074862 :         check(cb,</span></a>
+<a name="57"><span class="lineNum">      57 </span>                :<span class="lineCov">    7074862 :               super.consumeNew(cb),</span></a>
+<a name="58"><span class="lineNum">      58 </span>                :<span class="lineCov">    7074862 :               super.prevConsumeStart);</span></a>
+<a name="59"><span class="lineNum">      59 </span>                :<span class="lineCov">    7074862 :     }</span></a>
 <a name="60"><span class="lineNum">      60 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="61"><span class="lineNum">      61 </span>           [<span class="branchCov" title="Branch 0 was taken 7066683 times"> + </span>]:<span class="lineCov">        506 :     consumeNew(cb)</span></a>
-<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">    7066683 :     {</span></a>
-<a name="63"><span class="lineNum">      63 </span>                :<span class="lineCov">    7066683 :         if (cb)</span></a>
-<a name="64"><span class="lineNum">      64 </span>           [<span class="branchCov" title="Branch 0 was taken 573871 times"> + </span>]:<span class="lineCov">    7066683 :         {</span></a>
-<a name="65"><span class="lineNum">      65 </span>                :<span class="lineCov">     573871 :             return this._consumeNew(cb);</span></a>
-<a name="66"><span class="lineNum">      66 </span>                :<span class="lineCov">     573871 :         }</span></a>
-<a name="67"><span class="lineNum">      67 </span>           [<span class="branchCov" title="Branch 0 was taken 6492812 times"> + </span>]:<span class="lineCov">    6492812 : </span></a>
-<a name="68"><span class="lineNum">      68 </span>                :<span class="lineCov">    6492812 :         return this._consumeNewAsync();</span></a>
-<a name="69"><span class="lineNum">      69 </span>                :<span class="lineCov">    7066683 :     }</span></a>
+<a name="61"><span class="lineNum">      61 </span>           [<span class="branchCov" title="Branch 0 was taken 7074862 times"> + </span>]:<span class="lineCov">        506 :     consumeNew(cb)</span></a>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">    7074862 :     {</span></a>
+<a name="63"><span class="lineNum">      63 </span>                :<span class="lineCov">    7074862 :         if (cb)</span></a>
+<a name="64"><span class="lineNum">      64 </span>           [<span class="branchCov" title="Branch 0 was taken 545062 times"> + </span>]:<span class="lineCov">    7074862 :         {</span></a>
+<a name="65"><span class="lineNum">      65 </span>                :<span class="lineCov">     545062 :             return this._consumeNew(cb);</span></a>
+<a name="66"><span class="lineNum">      66 </span>                :<span class="lineCov">     545062 :         }</span></a>
+<a name="67"><span class="lineNum">      67 </span>           [<span class="branchCov" title="Branch 0 was taken 6529800 times"> + </span>]:<span class="lineCov">    6529800 : </span></a>
+<a name="68"><span class="lineNum">      68 </span>                :<span class="lineCov">    6529800 :         return this._consumeNewAsync();</span></a>
+<a name="69"><span class="lineNum">      69 </span>                :<span class="lineCov">    7074862 :     }</span></a>
 <a name="70"><span class="lineNum">      70 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="71"><span class="lineNum">      71 </span>           [<span class="branchCov" title="Branch 0 was taken 519445 times"> + </span>]:<span class="lineCov">        506 :     _produceClaim(cb)</span></a>
 <a name="72"><span class="lineNum">      72 </span>                :<span class="lineCov">     519445 :     {</span></a>
@@ -177,54 +177,54 @@
 <a name="106"><span class="lineNum">     106 </span>                :<span class="lineCov">         27 :         return this._produceClaimManyAsync(n);</span></a>
 <a name="107"><span class="lineNum">     107 </span>                :<span class="lineCov">         40 :     }</span></a>
 <a name="108"><span class="lineNum">     108 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="109"><span class="lineNum">     109 </span>           [<span class="branchCov" title="Branch 0 was taken 2990069 times"> + </span>]:<span class="lineCov">        506 :     _produceClaimAvail(max, cb)</span></a>
-<a name="110"><span class="lineNum">     110 </span>                :<span class="lineCov">    2990069 :     {</span></a>
-<a name="111"><span class="lineNum">     111 </span>                :<span class="lineCov">    2990069 :         check(cb,</span></a>
-<a name="112"><span class="lineNum">     112 </span>                :<span class="lineCov">    2990069 :               super.produceClaimAvail(max, cb),</span></a>
-<a name="113"><span class="lineNum">     113 </span>                :<span class="lineCov">    2990069 :               super.prevClaimStart,</span></a>
-<a name="114"><span class="lineNum">     114 </span>                :<span class="lineCov">    2990069 :               super.prevClaimEnd,</span></a>
-<a name="115"><span class="lineNum">     115 </span>                :<span class="lineCov">    2990069 :               super.allConsumersIgnoring);</span></a>
-<a name="116"><span class="lineNum">     116 </span>                :<span class="lineCov">    2990069 :     }</span></a>
+<a name="109"><span class="lineNum">     109 </span>           [<span class="branchCov" title="Branch 0 was taken 84312 times"> + </span>]:<span class="lineCov">        506 :     _produceClaimAvail(max, cb)</span></a>
+<a name="110"><span class="lineNum">     110 </span>                :<span class="lineCov">      84312 :     {</span></a>
+<a name="111"><span class="lineNum">     111 </span>                :<span class="lineCov">      84312 :         check(cb,</span></a>
+<a name="112"><span class="lineNum">     112 </span>                :<span class="lineCov">      84312 :               super.produceClaimAvail(max, cb),</span></a>
+<a name="113"><span class="lineNum">     113 </span>                :<span class="lineCov">      84312 :               super.prevClaimStart,</span></a>
+<a name="114"><span class="lineNum">     114 </span>                :<span class="lineCov">      84312 :               super.prevClaimEnd,</span></a>
+<a name="115"><span class="lineNum">     115 </span>                :<span class="lineCov">      84312 :               super.allConsumersIgnoring);</span></a>
+<a name="116"><span class="lineNum">     116 </span>                :<span class="lineCov">      84312 :     }</span></a>
 <a name="117"><span class="lineNum">     117 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="118"><span class="lineNum">     118 </span>           [<span class="branchCov" title="Branch 0 was taken 2990069 times"> + </span>]:<span class="lineCov">        506 :     produceClaimAvail(max, cb)</span></a>
-<a name="119"><span class="lineNum">     119 </span>                :<span class="lineCov">    2990069 :     {</span></a>
-<a name="120"><span class="lineNum">     120 </span>                :<span class="lineCov">    2990069 :         if (cb)</span></a>
-<a name="121"><span class="lineNum">     121 </span>           [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span>]:<span class="lineCov">    2990069 :         {</span></a>
+<a name="118"><span class="lineNum">     118 </span>           [<span class="branchCov" title="Branch 0 was taken 84312 times"> + </span>]:<span class="lineCov">        506 :     produceClaimAvail(max, cb)</span></a>
+<a name="119"><span class="lineNum">     119 </span>                :<span class="lineCov">      84312 :     {</span></a>
+<a name="120"><span class="lineNum">     120 </span>                :<span class="lineCov">      84312 :         if (cb)</span></a>
+<a name="121"><span class="lineNum">     121 </span>           [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span>]:<span class="lineCov">      84312 :         {</span></a>
 <a name="122"><span class="lineNum">     122 </span>                :<span class="lineCov">          4 :             return this._produceClaimAvail(max, cb);</span></a>
 <a name="123"><span class="lineNum">     123 </span>                :<span class="lineCov">          4 :         }</span></a>
-<a name="124"><span class="lineNum">     124 </span>           [<span class="branchCov" title="Branch 0 was taken 2990065 times"> + </span>]:<span class="lineCov">    2990065 : </span></a>
-<a name="125"><span class="lineNum">     125 </span>                :<span class="lineCov">    2990065 :         return this._produceClaimAvailAsync(max);</span></a>
-<a name="126"><span class="lineNum">     126 </span>                :<span class="lineCov">    2990069 :     }</span></a>
+<a name="124"><span class="lineNum">     124 </span>           [<span class="branchCov" title="Branch 0 was taken 84308 times"> + </span>]:<span class="lineCov">      84308 : </span></a>
+<a name="125"><span class="lineNum">     125 </span>                :<span class="lineCov">      84308 :         return this._produceClaimAvailAsync(max);</span></a>
+<a name="126"><span class="lineNum">     126 </span>                :<span class="lineCov">      84312 :     }</span></a>
 <a name="127"><span class="lineNum">     127 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="128"><span class="lineNum">     128 </span>           [<span class="branchCov" title="Branch 0 was taken 521808 times"> + </span>]:<span class="lineCov">        506 :     _produceCommit(claimStart, claimEnd, cb)</span></a>
-<a name="129"><span class="lineNum">     129 </span>                :<span class="lineCov">     521808 :     {</span></a>
-<a name="130"><span class="lineNum">     130 </span>                :<span class="lineCov">     521808 :         if (arguments.length &gt;= 2)</span></a>
-<a name="131"><span class="lineNum">     131 </span>           [<span class="branchCov" title="Branch 0 was taken 2361 times"> + </span>]:<span class="lineCov">     521808 :         {</span></a>
-<a name="132"><span class="lineNum">     132 </span>                :<span class="lineCov">       2361 :             return check(cb, super.produceCommit(claimStart, claimEnd, cb));</span></a>
-<a name="133"><span class="lineNum">     133 </span>                :<span class="lineCov">       2361 :         }</span></a>
+<a name="128"><span class="lineNum">     128 </span>           [<span class="branchCov" title="Branch 0 was taken 521618 times"> + </span>]:<span class="lineCov">        506 :     _produceCommit(claimStart, claimEnd, cb)</span></a>
+<a name="129"><span class="lineNum">     129 </span>                :<span class="lineCov">     521618 :     {</span></a>
+<a name="130"><span class="lineNum">     130 </span>                :<span class="lineCov">     521618 :         if (arguments.length &gt;= 2)</span></a>
+<a name="131"><span class="lineNum">     131 </span>           [<span class="branchCov" title="Branch 0 was taken 2171 times"> + </span>]:<span class="lineCov">     521618 :         {</span></a>
+<a name="132"><span class="lineNum">     132 </span>                :<span class="lineCov">       2171 :             return check(cb, super.produceCommit(claimStart, claimEnd, cb));</span></a>
+<a name="133"><span class="lineNum">     133 </span>                :<span class="lineCov">       2171 :         }</span></a>
 <a name="134"><span class="lineNum">     134 </span>           [<span class="branchCov" title="Branch 0 was taken 519447 times"> + </span>]:<span class="lineCov">     519447 : </span></a>
 <a name="135"><span class="lineNum">     135 </span>                :<span class="lineCov">     519447 :         check(claimStart, super.produceCommit(claimStart));</span></a>
-<a name="136"><span class="lineNum">     136 </span>                :<span class="lineCov">     521808 :     }</span></a>
+<a name="136"><span class="lineNum">     136 </span>                :<span class="lineCov">     521618 :     }</span></a>
 <a name="137"><span class="lineNum">     137 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="138"><span class="lineNum">     138 </span>           [<span class="branchCov" title="Branch 0 was taken 521808 times"> + </span>]:<span class="lineCov">        506 :     produceCommit(claimStart, claimEnd, cb)</span></a>
-<a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">     521808 :     {</span></a>
-<a name="140"><span class="lineNum">     140 </span>                :<span class="lineCov">     521808 :         if (arguments.length &gt;= 2)</span></a>
-<a name="141"><span class="lineNum">     141 </span>           [<span class="branchCov" title="Branch 0 was taken 2361 times"> + </span>]:<span class="lineCov">     521808 :         {</span></a>
-<a name="142"><span class="lineNum">     142 </span>                :<span class="lineCov">       2361 :             if (cb)</span></a>
-<a name="143"><span class="lineNum">     143 </span>           [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span>]:<span class="lineCov">       2361 :             {</span></a>
+<a name="138"><span class="lineNum">     138 </span>           [<span class="branchCov" title="Branch 0 was taken 521618 times"> + </span>]:<span class="lineCov">        506 :     produceCommit(claimStart, claimEnd, cb)</span></a>
+<a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">     521618 :     {</span></a>
+<a name="140"><span class="lineNum">     140 </span>                :<span class="lineCov">     521618 :         if (arguments.length &gt;= 2)</span></a>
+<a name="141"><span class="lineNum">     141 </span>           [<span class="branchCov" title="Branch 0 was taken 2171 times"> + </span>]:<span class="lineCov">     521618 :         {</span></a>
+<a name="142"><span class="lineNum">     142 </span>                :<span class="lineCov">       2171 :             if (cb)</span></a>
+<a name="143"><span class="lineNum">     143 </span>           [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span>]:<span class="lineCov">       2171 :             {</span></a>
 <a name="144"><span class="lineNum">     144 </span>                :<span class="lineCov">          8 :                 return this._produceCommit(claimStart, claimEnd, cb);</span></a>
 <a name="145"><span class="lineNum">     145 </span>                :<span class="lineCov">          8 :             }</span></a>
-<a name="146"><span class="lineNum">     146 </span>           [<span class="branchCov" title="Branch 0 was taken 2353 times"> + </span>]:<span class="lineCov">       2353 : </span></a>
-<a name="147"><span class="lineNum">     147 </span>                :<span class="lineCov">       2353 :             return this._produceCommitAsync(claimStart, claimEnd);</span></a>
-<a name="148"><span class="lineNum">     148 </span>                :<span class="lineCov">       2353 :         }</span></a>
-<a name="149"><span class="lineNum">     149 </span>      [<span class="branchCov" title="Branch 0 was taken 520808 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 519447 times"> + </span>]:<span class="lineCov">     519447 : </span></a>
+<a name="146"><span class="lineNum">     146 </span>           [<span class="branchCov" title="Branch 0 was taken 2163 times"> + </span>]:<span class="lineCov">       2163 : </span></a>
+<a name="147"><span class="lineNum">     147 </span>                :<span class="lineCov">       2163 :             return this._produceCommitAsync(claimStart, claimEnd);</span></a>
+<a name="148"><span class="lineNum">     148 </span>                :<span class="lineCov">       2163 :         }</span></a>
+<a name="149"><span class="lineNum">     149 </span>      [<span class="branchCov" title="Branch 0 was taken 520618 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 519447 times"> + </span>]:<span class="lineCov">     519447 : </span></a>
 <a name="150"><span class="lineNum">     150 </span>                :<span class="lineCov">     519447 :         if (claimStart)</span></a>
-<a name="151"><span class="lineNum">     151 </span>           [<span class="branchCov" title="Branch 0 was taken 51885 times"> + </span>]:<span class="lineCov">     520808 :         {</span></a>
+<a name="151"><span class="lineNum">     151 </span>           [<span class="branchCov" title="Branch 0 was taken 51885 times"> + </span>]:<span class="lineCov">     520618 :         {</span></a>
 <a name="152"><span class="lineNum">     152 </span>                :<span class="lineCov">      51885 :             return this._produceCommit(claimStart);</span></a>
 <a name="153"><span class="lineNum">     153 </span>                :<span class="lineCov">      51885 :         }</span></a>
 <a name="154"><span class="lineNum">     154 </span>           [<span class="branchCov" title="Branch 0 was taken 467562 times"> + </span>]:<span class="lineCov">     467562 : </span></a>
 <a name="155"><span class="lineNum">     155 </span>                :<span class="lineCov">     467562 :         return this._produceCommitAsync();</span></a>
-<a name="156"><span class="lineNum">     156 </span>                :<span class="lineCov">     521808 :     }</span></a>
+<a name="156"><span class="lineNum">     156 </span>                :<span class="lineCov">     521618 :     }</span></a>
 <a name="157"><span class="lineNum">     157 </span>                :<span class="lineCov">        506 : }</span></a>
 <a name="158"><span class="lineNum">     158 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="159"><span class="lineNum">     159 </span>                :<span class="lineCov">        506 : class DisruptorReadStream extends Readable {</span></a>
@@ -240,40 +240,40 @@
 <a name="169"><span class="lineNum">     169 </span>                :<span class="lineCov">       2010 :         this._reading = false;</span></a>
 <a name="170"><span class="lineNum">     170 </span>                :<span class="lineCov">       2012 :     }</span></a>
 <a name="171"><span class="lineNum">     171 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="172"><span class="lineNum">     172 </span>           [<span class="branchCov" title="Branch 0 was taken 6125862 times"> + </span>]:<span class="lineCov">        506 :     async __read() {</span></a>
-<a name="173"><span class="lineNum">     173 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6125862 :         if (this._reading) {</span></a>
+<a name="172"><span class="lineNum">     172 </span>           [<span class="branchCov" title="Branch 0 was taken 6128592 times"> + </span>]:<span class="lineCov">        506 :     async __read() {</span></a>
+<a name="173"><span class="lineNum">     173 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6128592 :         if (this._reading) {</span></a>
 <a name="174"><span class="lineNum">     174 </span>                :<span class="lineCov">          1 :             return;</span></a>
 <a name="175"><span class="lineNum">     175 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="176"><span class="lineNum">     176 </span>           [<span class="branchCov" title="Branch 0 was taken 6125861 times"> + </span>]:<span class="lineCov">    6125861 :         let buf;</span></a>
-<a name="177"><span class="lineNum">     177 </span>                :<span class="lineCov">    6125861 :         this._reading = true;</span></a>
-<a name="178"><span class="lineNum">     178 </span>                :<span class="lineCov">    6125861 :         try {</span></a>
-<a name="179"><span class="lineNum">     179 </span>           [<span class="branchCov" title="Branch 0 was taken 6125860 times"> + </span>]:<span class="lineCov">    6125862 :             buf = Buffer.concat((await this.disruptor.consumeNew()).bufs);</span></a>
-<a name="180"><span class="lineNum">     180 </span>                :<span class="lineCov">    6125860 :             this.disruptor.consumeCommit();</span></a>
-<a name="181"><span class="lineNum">     181 </span>                :<span class="lineCov">    6125860 :         }</span></a>
-<a name="182"><span class="lineNum">     182 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6125862 :         catch (ex) {</span></a>
+<a name="176"><span class="lineNum">     176 </span>           [<span class="branchCov" title="Branch 0 was taken 6128591 times"> + </span>]:<span class="lineCov">    6128591 :         let buf;</span></a>
+<a name="177"><span class="lineNum">     177 </span>                :<span class="lineCov">    6128591 :         this._reading = true;</span></a>
+<a name="178"><span class="lineNum">     178 </span>                :<span class="lineCov">    6128591 :         try {</span></a>
+<a name="179"><span class="lineNum">     179 </span>           [<span class="branchCov" title="Branch 0 was taken 6128590 times"> + </span>]:<span class="lineCov">    6128592 :             buf = Buffer.concat((await this.disruptor.consumeNew()).bufs);</span></a>
+<a name="180"><span class="lineNum">     180 </span>                :<span class="lineCov">    6128590 :             this.disruptor.consumeCommit();</span></a>
+<a name="181"><span class="lineNum">     181 </span>                :<span class="lineCov">    6128590 :         }</span></a>
+<a name="182"><span class="lineNum">     182 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6128592 :         catch (ex) {</span></a>
 <a name="183"><span class="lineNum">     183 </span>                :<span class="lineCov">          1 :             this._reading = false; // must be done in case _destroy below gets called</span></a>
 <a name="184"><span class="lineNum">     184 </span>                :<span class="lineCov">          1 :             this.emit('error', ex);</span></a>
 <a name="185"><span class="lineNum">     185 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="186"><span class="lineNum">     186 </span>           [<span class="branchCov" title="Branch 0 was taken 6125861 times"> + </span>]:<span class="lineCov">    6125861 :         this._reading = false;</span></a>
-<a name="187"><span class="lineNum">     187 </span>           [<span class="branchCov" title="Branch 0 was taken 1001 times"> + </span>]:<span class="lineCov">    6125862 :         if (this._destroy_info) {</span></a>
+<a name="186"><span class="lineNum">     186 </span>           [<span class="branchCov" title="Branch 0 was taken 6128591 times"> + </span>]:<span class="lineCov">    6128591 :         this._reading = false;</span></a>
+<a name="187"><span class="lineNum">     187 </span>           [<span class="branchCov" title="Branch 0 was taken 1001 times"> + </span>]:<span class="lineCov">    6128592 :         if (this._destroy_info) {</span></a>
 <a name="188"><span class="lineNum">     188 </span>                :<span class="lineCov">       1001 :             const { err, cb } = this._destroy_info;</span></a>
 <a name="189"><span class="lineNum">     189 </span>                :<span class="lineCov">       1001 :             cb(err);</span></a>
 <a name="190"><span class="lineNum">     190 </span>                :<span class="lineCov">       1001 :             return;</span></a>
 <a name="191"><span class="lineNum">     191 </span>                :<span class="lineCov">       1001 :         }</span></a>
-<a name="192"><span class="lineNum">     192 </span>           [<span class="branchCov" title="Branch 0 was taken 6124860 times"> + </span>]:<span class="lineCov">    6124860 :         return buf;</span></a>
-<a name="193"><span class="lineNum">     193 </span>                :<span class="lineCov">    6125862 :     }</span></a>
+<a name="192"><span class="lineNum">     192 </span>           [<span class="branchCov" title="Branch 0 was taken 6127590 times"> + </span>]:<span class="lineCov">    6127590 :         return buf;</span></a>
+<a name="193"><span class="lineNum">     193 </span>                :<span class="lineCov">    6128592 :     }</span></a>
 <a name="194"><span class="lineNum">     194 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="195"><span class="lineNum">     195 </span>           [<span class="branchCov" title="Branch 0 was taken 6232641 times"> + </span>]:<span class="lineCov">        506 :     async _read() {</span></a>
-<a name="196"><span class="lineNum">     196 </span>           [<span class="branchCov" title="Branch 0 was taken 107783 times"> + </span>]:<span class="lineCov">    6232641 :         if (this.destroyed) {</span></a>
-<a name="197"><span class="lineNum">     197 </span>                :<span class="lineCov">     107783 :             return;</span></a>
-<a name="198"><span class="lineNum">     198 </span>                :<span class="lineCov">     107783 :         }</span></a>
-<a name="199"><span class="lineNum">     199 </span>           [<span class="branchCov" title="Branch 0 was taken 6124858 times"> + </span>]:<span class="lineCov">    6124858 :         const buf = await this.__read();</span></a>
-<a name="200"><span class="lineNum">     200 </span>           [<span class="branchCov" title="Branch 0 was taken 6123855 times"> + </span>]:<span class="lineCov">    6232641 :         if (buf) {</span></a>
-<a name="201"><span class="lineNum">     201 </span>           [<span class="branchCov" title="Branch 0 was taken 107782 times"> + </span>]:<span class="lineCov">    6123855 :             if (buf.length &gt; 0) {</span></a>
-<a name="202"><span class="lineNum">     202 </span>           [<span class="branchCov" title="Branch 0 was taken 107780 times"> + </span>]:<span class="lineCov">     107782 :                 if (this.push(buf)) {</span></a>
-<a name="203"><span class="lineNum">     203 </span>                :<span class="lineCov">     107780 :                     this.read_again();</span></a>
-<a name="204"><span class="lineNum">     204 </span>                :<span class="lineCov">     107780 :                 }</span></a>
-<a name="205"><span class="lineNum">     205 </span>      [<span class="branchCov" title="Branch 0 was taken 6016073 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1004 times"> + </span>]:<span class="lineCov">    6123855 :             } else if (this.disruptor.status === status_eof) {</span></a>
+<a name="195"><span class="lineNum">     195 </span>           [<span class="branchCov" title="Branch 0 was taken 6235515 times"> + </span>]:<span class="lineCov">        506 :     async _read() {</span></a>
+<a name="196"><span class="lineNum">     196 </span>           [<span class="branchCov" title="Branch 0 was taken 107927 times"> + </span>]:<span class="lineCov">    6235515 :         if (this.destroyed) {</span></a>
+<a name="197"><span class="lineNum">     197 </span>                :<span class="lineCov">     107927 :             return;</span></a>
+<a name="198"><span class="lineNum">     198 </span>                :<span class="lineCov">     107927 :         }</span></a>
+<a name="199"><span class="lineNum">     199 </span>           [<span class="branchCov" title="Branch 0 was taken 6127588 times"> + </span>]:<span class="lineCov">    6127588 :         const buf = await this.__read();</span></a>
+<a name="200"><span class="lineNum">     200 </span>           [<span class="branchCov" title="Branch 0 was taken 6126585 times"> + </span>]:<span class="lineCov">    6235515 :         if (buf) {</span></a>
+<a name="201"><span class="lineNum">     201 </span>           [<span class="branchCov" title="Branch 0 was taken 107926 times"> + </span>]:<span class="lineCov">    6126585 :             if (buf.length &gt; 0) {</span></a>
+<a name="202"><span class="lineNum">     202 </span>           [<span class="branchCov" title="Branch 0 was taken 107924 times"> + </span>]:<span class="lineCov">     107926 :                 if (this.push(buf)) {</span></a>
+<a name="203"><span class="lineNum">     203 </span>                :<span class="lineCov">     107924 :                     this.read_again();</span></a>
+<a name="204"><span class="lineNum">     204 </span>                :<span class="lineCov">     107924 :                 }</span></a>
+<a name="205"><span class="lineNum">     205 </span>      [<span class="branchCov" title="Branch 0 was taken 6018659 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1004 times"> + </span>]:<span class="lineCov">    6126585 :             } else if (this.disruptor.status === status_eof) {</span></a>
 <a name="206"><span class="lineNum">     206 </span>                :<span class="lineCov">       1004 :                 // Check for data the writer added between us reading zero bytes</span></a>
 <a name="207"><span class="lineNum">     207 </span>                :<span class="lineCov">       1004 :                 // and it setting status_eof</span></a>
 <a name="208"><span class="lineNum">     208 </span>                :<span class="lineCov">       1004 :                 const buf2 = await this.__read();</span></a>
@@ -281,17 +281,17 @@
 <a name="210"><span class="lineNum">     210 </span>                :<span class="lineCov">       1004 :                     this.push(buf2);</span></a>
 <a name="211"><span class="lineNum">     211 </span>                :<span class="lineCov">       1004 :                     this.push(null);</span></a>
 <a name="212"><span class="lineNum">     212 </span>                :<span class="lineCov">       1004 :                 }</span></a>
-<a name="213"><span class="lineNum">     213 </span>      [<span class="branchCov" title="Branch 0 was taken 6015069 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6016073 :             } else if (this.disruptor.status === status_error) {</span></a>
+<a name="213"><span class="lineNum">     213 </span>      [<span class="branchCov" title="Branch 0 was taken 6017655 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    6018659 :             } else if (this.disruptor.status === status_error) {</span></a>
 <a name="214"><span class="lineNum">     214 </span>                :<span class="lineCov">          1 :                 this.emit('error', new Error('writer errored'));</span></a>
-<a name="215"><span class="lineNum">     215 </span>           [<span class="branchCov" title="Branch 0 was taken 6015068 times"> + </span>]:<span class="lineCov">    6015069 :             } else {</span></a>
-<a name="216"><span class="lineNum">     216 </span>                :<span class="lineCov">    6015068 :                 this.read_again();</span></a>
-<a name="217"><span class="lineNum">     217 </span>                :<span class="lineCov">    6015068 :             }</span></a>
-<a name="218"><span class="lineNum">     218 </span>                :<span class="lineCov">    6123855 :         }</span></a>
-<a name="219"><span class="lineNum">     219 </span>                :<span class="lineCov">    6232641 :     }</span></a>
+<a name="215"><span class="lineNum">     215 </span>           [<span class="branchCov" title="Branch 0 was taken 6017654 times"> + </span>]:<span class="lineCov">    6017655 :             } else {</span></a>
+<a name="216"><span class="lineNum">     216 </span>                :<span class="lineCov">    6017654 :                 this.read_again();</span></a>
+<a name="217"><span class="lineNum">     217 </span>                :<span class="lineCov">    6017654 :             }</span></a>
+<a name="218"><span class="lineNum">     218 </span>                :<span class="lineCov">    6126585 :         }</span></a>
+<a name="219"><span class="lineNum">     219 </span>                :<span class="lineCov">    6235515 :     }</span></a>
 <a name="220"><span class="lineNum">     220 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="221"><span class="lineNum">     221 </span>           [<span class="branchCov" title="Branch 0 was taken 6122848 times"> + </span>]:<span class="lineCov">        506 :     read_again() {</span></a>
-<a name="222"><span class="lineNum">     222 </span>           [<span class="branchCov" title="Branch 0 was taken 6122848 times"> + </span>]:<span class="lineCov">    6122848 :         setImmediate(() =&gt; this._read());</span></a>
-<a name="223"><span class="lineNum">     223 </span>                :<span class="lineCov">    6122848 :     }</span></a>
+<a name="221"><span class="lineNum">     221 </span>           [<span class="branchCov" title="Branch 0 was taken 6125578 times"> + </span>]:<span class="lineCov">        506 :     read_again() {</span></a>
+<a name="222"><span class="lineNum">     222 </span>           [<span class="branchCov" title="Branch 0 was taken 6125578 times"> + </span>]:<span class="lineCov">    6125578 :         setImmediate(() =&gt; this._read());</span></a>
+<a name="223"><span class="lineNum">     223 </span>                :<span class="lineCov">    6125578 :     }</span></a>
 <a name="224"><span class="lineNum">     224 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="225"><span class="lineNum">     225 </span>           [<span class="branchCov" title="Branch 0 was taken 2010 times"> + </span>]:<span class="lineCov">        506 :     _destroy(err, cb) {</span></a>
 <a name="226"><span class="lineNum">     226 </span>           [<span class="branchCov" title="Branch 0 was taken 1001 times"> + </span>]:<span class="lineCov">       2010 :         if (this._reading) {</span></a>
@@ -303,52 +303,52 @@
 <a name="232"><span class="lineNum">     232 </span>                :<span class="lineCov">        506 : }</span></a>
 <a name="233"><span class="lineNum">     233 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="234"><span class="lineNum">     234 </span>                :<span class="lineCov">        506 : class DisruptorWriteStream extends Writable {</span></a>
-<a name="235"><span class="lineNum">     235 </span>           [<span class="branchCov" title="Branch 0 was taken 17 times"> + </span>]:<span class="lineCov">        506 :     constructor(disruptor, options) {</span></a>
-<a name="236"><span class="lineNum">     236 </span>                :<span class="lineCov">         17 :         super(options);</span></a>
-<a name="237"><span class="lineNum">     237 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">         17 :         if (disruptor.elementSize !== 1) {</span></a>
+<a name="235"><span class="lineNum">     235 </span>           [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span>]:<span class="lineCov">        506 :     constructor(disruptor, options) {</span></a>
+<a name="236"><span class="lineNum">     236 </span>                :<span class="lineCov">         16 :         super(options);</span></a>
+<a name="237"><span class="lineNum">     237 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (disruptor.elementSize !== 1) {</span></a>
 <a name="238"><span class="lineNum">     238 </span>                :<span class="lineCov">          1 :             throw new Error('element size must be 1');</span></a>
 <a name="239"><span class="lineNum">     239 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="240"><span class="lineNum">     240 </span>      [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">         17 :         if (disruptor.spin) {</span></a>
+<a name="240"><span class="lineNum">     240 </span>      [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         if (disruptor.spin) {</span></a>
 <a name="241"><span class="lineNum">     241 </span>                :<span class="lineCov">          1 :             throw new Error('spin must be false');</span></a>
 <a name="242"><span class="lineNum">     242 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="243"><span class="lineNum">     243 </span>           [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         this.disruptor = disruptor;</span></a>
-<a name="244"><span class="lineNum">     244 </span>                :<span class="lineCov">         15 :         this._writing = false;</span></a>
-<a name="245"><span class="lineNum">     245 </span>                :<span class="lineCov">         17 :     }</span></a>
+<a name="243"><span class="lineNum">     243 </span>           [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span>]:<span class="lineCov">         14 :         this.disruptor = disruptor;</span></a>
+<a name="244"><span class="lineNum">     244 </span>                :<span class="lineCov">         14 :         this._writing = false;</span></a>
+<a name="245"><span class="lineNum">     245 </span>                :<span class="lineCov">         16 :     }</span></a>
 <a name="246"><span class="lineNum">     246 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="247"><span class="lineNum">     247 </span>           [<span class="branchCov" title="Branch 0 was taken 2990061 times"> + </span>]:<span class="lineCov">        506 :     async _write(chunk, encoding, cb) {</span></a>
-<a name="248"><span class="lineNum">     248 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    2990061 :         if (this.destroyed) {</span></a>
+<a name="247"><span class="lineNum">     247 </span>           [<span class="branchCov" title="Branch 0 was taken 84304 times"> + </span>]:<span class="lineCov">        506 :     async _write(chunk, encoding, cb) {</span></a>
+<a name="248"><span class="lineNum">     248 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">      84304 :         if (this.destroyed) {</span></a>
 <a name="249"><span class="lineNum">     249 </span>                :<span class="lineCov">          1 :             return;</span></a>
 <a name="250"><span class="lineNum">     250 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="251"><span class="lineNum">     251 </span>           [<span class="branchCov" title="Branch 0 was taken 2990060 times"> + </span>]:<span class="lineCov">    2990060 :         let bufs, claimStart, claimEnd, allConsumersIgnoring;</span></a>
-<a name="252"><span class="lineNum">     252 </span>                :<span class="lineCov">    2990060 :         this._writing = true;</span></a>
-<a name="253"><span class="lineNum">     253 </span>                :<span class="lineCov">    2990060 :         try {</span></a>
-<a name="254"><span class="lineNum">     254 </span>                :<span class="lineCov">    2990060 :             ({ bufs,</span></a>
-<a name="255"><span class="lineNum">     255 </span>                :<span class="lineCov">    2990060 :                claimStart,</span></a>
-<a name="256"><span class="lineNum">     256 </span>                :<span class="lineCov">    2990060 :                claimEnd,</span></a>
-<a name="257"><span class="lineNum">     257 </span>                :<span class="lineCov">    2990060 :                allConsumersIgnoring</span></a>
-<a name="258"><span class="lineNum">     258 </span>           [<span class="branchCov" title="Branch 0 was taken 2990059 times"> + </span>]:<span class="lineCov">    2990061 :             } = await this.disruptor.produceClaimAvail(chunk.length));</span></a>
-<a name="259"><span class="lineNum">     259 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    2990061 :         } catch (ex) {</span></a>
+<a name="251"><span class="lineNum">     251 </span>           [<span class="branchCov" title="Branch 0 was taken 84303 times"> + </span>]:<span class="lineCov">      84303 :         let bufs, claimStart, claimEnd, allConsumersIgnoring;</span></a>
+<a name="252"><span class="lineNum">     252 </span>                :<span class="lineCov">      84303 :         this._writing = true;</span></a>
+<a name="253"><span class="lineNum">     253 </span>                :<span class="lineCov">      84303 :         try {</span></a>
+<a name="254"><span class="lineNum">     254 </span>                :<span class="lineCov">      84303 :             ({ bufs,</span></a>
+<a name="255"><span class="lineNum">     255 </span>                :<span class="lineCov">      84303 :                claimStart,</span></a>
+<a name="256"><span class="lineNum">     256 </span>                :<span class="lineCov">      84303 :                claimEnd,</span></a>
+<a name="257"><span class="lineNum">     257 </span>                :<span class="lineCov">      84303 :                allConsumersIgnoring</span></a>
+<a name="258"><span class="lineNum">     258 </span>           [<span class="branchCov" title="Branch 0 was taken 84302 times"> + </span>]:<span class="lineCov">      84304 :             } = await this.disruptor.produceClaimAvail(chunk.length));</span></a>
+<a name="259"><span class="lineNum">     259 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">      84304 :         } catch (ex) {</span></a>
 <a name="260"><span class="lineNum">     260 </span>                :<span class="lineCov">          1 :             this._writing = false; // must be done before onwrite called _destroy above</span></a>
 <a name="261"><span class="lineNum">     261 </span>                :<span class="lineCov">          1 :             return cb(ex);</span></a>
 <a name="262"><span class="lineNum">     262 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="263"><span class="lineNum">     263 </span>           [<span class="branchCov" title="Branch 0 was taken 2990059 times"> + </span>]:<span class="lineCov">    2990059 :         this._writing = false;</span></a>
-<a name="264"><span class="lineNum">     264 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    2990061 :         if (this._destroy_info) {</span></a>
+<a name="263"><span class="lineNum">     263 </span>           [<span class="branchCov" title="Branch 0 was taken 84302 times"> + </span>]:<span class="lineCov">      84302 :         this._writing = false;</span></a>
+<a name="264"><span class="lineNum">     264 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">      84304 :         if (this._destroy_info) {</span></a>
 <a name="265"><span class="lineNum">     265 </span>                :<span class="lineCov">          1 :             const { err, cb } = this._destroy_info;</span></a>
 <a name="266"><span class="lineNum">     266 </span>                :<span class="lineCov">          1 :             return cb(err);</span></a>
 <a name="267"><span class="lineNum">     267 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="268"><span class="lineNum">     268 </span>           [<span class="branchCov" title="Branch 0 was taken 2990058 times"> + </span>]:<span class="lineCov">    2990058 :         let i = 0;</span></a>
-<a name="269"><span class="lineNum">     269 </span>           [<span class="branchCov" title="Branch 0 was taken 2358 times"> + </span>]:<span class="lineCov">    2990061 :         for (const buf of bufs) {</span></a>
-<a name="270"><span class="lineNum">     270 </span>                :<span class="lineCov">       2358 :             chunk.copy(buf, 0, i, i + buf.length);</span></a>
-<a name="271"><span class="lineNum">     271 </span>                :<span class="lineCov">       2358 :             i += buf.length;</span></a>
-<a name="272"><span class="lineNum">     272 </span>                :<span class="lineCov">       2358 :         }</span></a>
-<a name="273"><span class="lineNum">     273 </span>      [<span class="branchCov" title="Branch 0 was taken 2990058 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 2987705 times"> + </span>]:<span class="lineCov">    2990061 :         if (i === 0) {</span></a>
-<a name="274"><span class="lineNum">     274 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">    2987705 :             if (allConsumersIgnoring) {</span></a>
+<a name="268"><span class="lineNum">     268 </span>           [<span class="branchCov" title="Branch 0 was taken 84301 times"> + </span>]:<span class="lineCov">      84301 :         let i = 0;</span></a>
+<a name="269"><span class="lineNum">     269 </span>           [<span class="branchCov" title="Branch 0 was taken 2167 times"> + </span>]:<span class="lineCov">      84304 :         for (const buf of bufs) {</span></a>
+<a name="270"><span class="lineNum">     270 </span>                :<span class="lineCov">       2167 :             chunk.copy(buf, 0, i, i + buf.length);</span></a>
+<a name="271"><span class="lineNum">     271 </span>                :<span class="lineCov">       2167 :             i += buf.length;</span></a>
+<a name="272"><span class="lineNum">     272 </span>                :<span class="lineCov">       2167 :         }</span></a>
+<a name="273"><span class="lineNum">     273 </span>      [<span class="branchCov" title="Branch 0 was taken 84301 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 82138 times"> + </span>]:<span class="lineCov">      84304 :         if (i === 0) {</span></a>
+<a name="274"><span class="lineNum">     274 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">      82138 :             if (allConsumersIgnoring) {</span></a>
 <a name="275"><span class="lineNum">     275 </span>                :<span class="lineCov">          1 :                 return cb(new Error('no consumers'));</span></a>
 <a name="276"><span class="lineNum">     276 </span>                :<span class="lineCov">          1 :             }</span></a>
-<a name="277"><span class="lineNum">     277 </span>           [<span class="branchCov" title="Branch 0 was taken 2987704 times"> + </span>]:<span class="lineCov">    2987704 :             return this.write_again(chunk, encoding, cb);</span></a>
-<a name="278"><span class="lineNum">     278 </span>                :<span class="lineCov">    2987704 :         }</span></a>
-<a name="279"><span class="lineNum">     279 </span>           [<span class="branchCov" title="Branch 0 was taken 2353 times"> + </span>]:<span class="lineCov">       2353 :         await this._commit(claimStart, claimEnd, chunk.slice(i), encoding, cb);</span></a>
-<a name="280"><span class="lineNum">     280 </span>                :<span class="lineCov">    2990061 :     }</span></a>
+<a name="277"><span class="lineNum">     277 </span>           [<span class="branchCov" title="Branch 0 was taken 82137 times"> + </span>]:<span class="lineCov">      82137 :             return this.write_again(chunk, encoding, cb);</span></a>
+<a name="278"><span class="lineNum">     278 </span>                :<span class="lineCov">      82137 :         }</span></a>
+<a name="279"><span class="lineNum">     279 </span>           [<span class="branchCov" title="Branch 0 was taken 2163 times"> + </span>]:<span class="lineCov">       2163 :         await this._commit(claimStart, claimEnd, chunk.slice(i), encoding, cb);</span></a>
+<a name="280"><span class="lineNum">     280 </span>                :<span class="lineCov">      84304 :     }</span></a>
 <a name="281"><span class="lineNum">     281 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="282"><span class="lineNum">     282 </span>           [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span>]:<span class="lineCov">        506 :     _final(cb) {</span></a>
 <a name="283"><span class="lineNum">     283 </span>                :<span class="lineCov">          5 :         this.disruptor.status = status_eof;</span></a>
@@ -366,39 +366,39 @@
 <a name="295"><span class="lineNum">     295 </span>                :<span class="lineCov">         12 :         }</span></a>
 <a name="296"><span class="lineNum">     296 </span>                :<span class="lineCov">         14 :     }</span></a>
 <a name="297"><span class="lineNum">     297 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="298"><span class="lineNum">     298 </span>           [<span class="branchCov" title="Branch 0 was taken 2354 times"> + </span>]:<span class="lineCov">        506 :     async _commit(claimStart, claimEnd, chunk, encoding, cb) {</span></a>
-<a name="299"><span class="lineNum">     299 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2354 :         if (this.destroyed) {</span></a>
+<a name="298"><span class="lineNum">     298 </span>           [<span class="branchCov" title="Branch 0 was taken 2164 times"> + </span>]:<span class="lineCov">        506 :     async _commit(claimStart, claimEnd, chunk, encoding, cb) {</span></a>
+<a name="299"><span class="lineNum">     299 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2164 :         if (this.destroyed) {</span></a>
 <a name="300"><span class="lineNum">     300 </span>                :<span class="lineCov">          1 :             return;</span></a>
 <a name="301"><span class="lineNum">     301 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="302"><span class="lineNum">     302 </span>           [<span class="branchCov" title="Branch 0 was taken 2353 times"> + </span>]:<span class="lineCov">       2353 :         let committed;</span></a>
-<a name="303"><span class="lineNum">     303 </span>                :<span class="lineCov">       2353 :         this._writing = true;</span></a>
-<a name="304"><span class="lineNum">     304 </span>                :<span class="lineCov">       2353 :         try {</span></a>
-<a name="305"><span class="lineNum">     305 </span>                :<span class="lineCov">       2353 :             committed = await this.disruptor.produceCommit(claimStart, claimEnd);</span></a>
-<a name="306"><span class="lineNum">     306 </span>      [<span class="branchCov" title="Branch 0 was taken 2352 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2354 :         } catch (ex) {</span></a>
+<a name="302"><span class="lineNum">     302 </span>           [<span class="branchCov" title="Branch 0 was taken 2163 times"> + </span>]:<span class="lineCov">       2163 :         let committed;</span></a>
+<a name="303"><span class="lineNum">     303 </span>                :<span class="lineCov">       2163 :         this._writing = true;</span></a>
+<a name="304"><span class="lineNum">     304 </span>                :<span class="lineCov">       2163 :         try {</span></a>
+<a name="305"><span class="lineNum">     305 </span>                :<span class="lineCov">       2163 :             committed = await this.disruptor.produceCommit(claimStart, claimEnd);</span></a>
+<a name="306"><span class="lineNum">     306 </span>      [<span class="branchCov" title="Branch 0 was taken 2162 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2164 :         } catch (ex) {</span></a>
 <a name="307"><span class="lineNum">     307 </span>                :<span class="lineCov">          1 :             this._writing = false; // must be done before onwrite called _destroy above</span></a>
 <a name="308"><span class="lineNum">     308 </span>                :<span class="lineCov">          1 :             return cb(ex);</span></a>
 <a name="309"><span class="lineNum">     309 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="310"><span class="lineNum">     310 </span>           [<span class="branchCov" title="Branch 0 was taken 2352 times"> + </span>]:<span class="lineCov">       2352 :         this._writing = false;</span></a>
-<a name="311"><span class="lineNum">     311 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2354 :         if (this._destroy_info) {</span></a>
+<a name="310"><span class="lineNum">     310 </span>           [<span class="branchCov" title="Branch 0 was taken 2162 times"> + </span>]:<span class="lineCov">       2162 :         this._writing = false;</span></a>
+<a name="311"><span class="lineNum">     311 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2164 :         if (this._destroy_info) {</span></a>
 <a name="312"><span class="lineNum">     312 </span>                :<span class="lineCov">          1 :             const { err, cb } = this._destroy_info;</span></a>
 <a name="313"><span class="lineNum">     313 </span>                :<span class="lineCov">          1 :             return cb(err);</span></a>
 <a name="314"><span class="lineNum">     314 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="315"><span class="lineNum">     315 </span>      [<span class="branchCov" title="Branch 0 was taken 2351 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2354 :         if (!committed) {</span></a>
+<a name="315"><span class="lineNum">     315 </span>      [<span class="branchCov" title="Branch 0 was taken 2161 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">       2164 :         if (!committed) {</span></a>
 <a name="316"><span class="lineNum">     316 </span>                :<span class="lineCov">          1 :             return this.commit_again(claimStart, claimEnd, chunk, encoding, cb);</span></a>
 <a name="317"><span class="lineNum">     317 </span>                :<span class="lineCov">          1 :         }</span></a>
-<a name="318"><span class="lineNum">     318 </span>      [<span class="branchCov" title="Branch 0 was taken 2350 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1154 times"> + </span>]:<span class="lineCov">       2354 :         if (chunk.length &gt; 0) {</span></a>
-<a name="319"><span class="lineNum">     319 </span>                :<span class="lineCov">       1154 :             return this.write_again(chunk, encoding, cb);</span></a>
-<a name="320"><span class="lineNum">     320 </span>                :<span class="lineCov">       1154 :         }</span></a>
-<a name="321"><span class="lineNum">     321 </span>           [<span class="branchCov" title="Branch 0 was taken 1196 times"> + </span>]:<span class="lineCov">       1196 :         cb();</span></a>
-<a name="322"><span class="lineNum">     322 </span>                :<span class="lineCov">       2354 :     }</span></a>
+<a name="318"><span class="lineNum">     318 </span>      [<span class="branchCov" title="Branch 0 was taken 2160 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 1153 times"> + </span>]:<span class="lineCov">       2164 :         if (chunk.length &gt; 0) {</span></a>
+<a name="319"><span class="lineNum">     319 </span>                :<span class="lineCov">       1153 :             return this.write_again(chunk, encoding, cb);</span></a>
+<a name="320"><span class="lineNum">     320 </span>                :<span class="lineCov">       1153 :         }</span></a>
+<a name="321"><span class="lineNum">     321 </span>           [<span class="branchCov" title="Branch 0 was taken 1007 times"> + </span>]:<span class="lineCov">       1007 :         cb();</span></a>
+<a name="322"><span class="lineNum">     322 </span>                :<span class="lineCov">       2164 :     }</span></a>
 <a name="323"><span class="lineNum">     323 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="324"><span class="lineNum">     324 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">        506 :     commit_again(claimStart, claimEnd, chunk, encoding, cb) {</span></a>
 <a name="325"><span class="lineNum">     325 </span>           [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         setImmediate(() =&gt; this._commit(claimStart, claimEnd, chunk, encoding, cb));</span></a>
 <a name="326"><span class="lineNum">     326 </span>                :<span class="lineCov">          1 :     }</span></a>
 <a name="327"><span class="lineNum">     327 </span>                :<span class="lineCov">        506 : </span></a>
-<a name="328"><span class="lineNum">     328 </span>           [<span class="branchCov" title="Branch 0 was taken 2988858 times"> + </span>]:<span class="lineCov">        506 :     write_again(chunk, encoding, cb) {</span></a>
-<a name="329"><span class="lineNum">     329 </span>           [<span class="branchCov" title="Branch 0 was taken 2988857 times"> + </span>]:<span class="lineCov">    2988858 :         setImmediate(() =&gt; this._write(chunk, encoding, cb));</span></a>
-<a name="330"><span class="lineNum">     330 </span>                :<span class="lineCov">    2988858 :     }</span></a>
+<a name="328"><span class="lineNum">     328 </span>           [<span class="branchCov" title="Branch 0 was taken 83290 times"> + </span>]:<span class="lineCov">        506 :     write_again(chunk, encoding, cb) {</span></a>
+<a name="329"><span class="lineNum">     329 </span>           [<span class="branchCov" title="Branch 0 was taken 83290 times"> + </span>]:<span class="lineCov">      83290 :         setImmediate(() =&gt; this._write(chunk, encoding, cb));</span></a>
+<a name="330"><span class="lineNum">     330 </span>                :<span class="lineCov">      83290 :     }</span></a>
 <a name="331"><span class="lineNum">     331 </span>                :<span class="lineCov">        506 : }</span></a>
 <a name="332"><span class="lineNum">     332 </span>                :<span class="lineCov">        506 : </span></a>
 <a name="333"><span class="lineNum">     333 </span>                :<span class="lineCov">        506 : exports.Disruptor = Disruptor2;</span></a>

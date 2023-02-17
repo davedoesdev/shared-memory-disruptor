@@ -1,7 +1,7 @@
 const {
     Disruptor,
     DisruptorWriteStream
-} = require('..');
+} = require('../..');
 
 const ws = new DisruptorWriteStream(
     new Disruptor('/stream', 5000, 1, 1, 0, false, false)

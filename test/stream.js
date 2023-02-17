@@ -544,6 +544,7 @@ describe('stream functionality', function () {
             done();
         });
 
-        child_process.fork(path.join(__dirname, 'producer.js'));
+        child_process.fork(
+            path.join(__dirname, 'fixtures', 'issue-28-producer.js'));
     });
 });
