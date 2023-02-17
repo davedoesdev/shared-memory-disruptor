@@ -1,5 +1,7 @@
 const { Readable, Writable } = require('stream');
 const { randomBytes, createHash } = require('crypto');
+const child_process = require('child_process');
+const path = require('path');
 const { expect } = require('chai');
 const {
     Disruptor,
@@ -511,5 +513,37 @@ describe('stream functionality', function () {
             the_resolve({ bufs: [] });
             done();
         }, 500);
+    });
+
+    it('should handle multiple consume buffers (#28)', function (done) {
+        const d = new Disruptor('/stream', 5000, 1, 1, 0, true, false);
+        disruptors.push(d);
+
+        const rs = new DisruptorReadStream(d);
+        streams.push(rs);
+
+        let msg = '';
+        let msgCount = 0;
+        rs.on('data', (chunk) => {
+            msg += chunk.toString('utf8');
+            if (msg.charCodeAt(msg.length - 1) === 0) {
+                const allData = msg.substring(0, msg.length - 1);
+                allData.split("\0").map(message => {
+                    const data = JSON.parse(message);
+                    expect(data).to.eql({
+                        test: 'Text',
+                        data: msgCount++
+                    });
+                });
+                msg = '';
+            }
+        });
+
+        rs.on('end', () => {
+            expect(msgCount).to.equal(1000);
+            done();
+        });
+
+        child_process.fork(path.join(__dirname, 'producer.js'));
     });
 });

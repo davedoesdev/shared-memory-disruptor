@@ -25,7 +25,11 @@ Currently only POSIX shared memory is supported.
 Here’s a program which writes a million random numbers to a Disruptor.
 Run this first in one terminal.
 
-**producer.js.**
+<div class="formalpara-title">
+
+**producer.js**
+
+</div>
 
 ``` javascript
 const { Disruptor } = require('shared-memory-disruptor');
@@ -44,20 +48,24 @@ async function test() {
 test();
 ```
 
-  - Use a Disruptor on the shared memory object `/example`. The
+-   Use a Disruptor on the shared memory object `/example`. The
     Disruptor has 1000 elements of 4 bytes each. It has 1 consumer, and
     because we’re only going to produce data, we give an invalid a
     consumer index (-1) which won’t be used. We’ll initialize the
     Disruptor and spin when the Disruptor is full.
 
-  - Grab an element in the Disruptor to fill in.
+-   Grab an element in the Disruptor to fill in.
 
-  - Tell the Disruptor we’ve filled in the elements.
+-   Tell the Disruptor we’ve filled in the elements.
 
 Here’s another program which reads a million random numbers from the
 same Disruptor. Run this in a second terminal.
 
-**consumer.js.**
+<div class="formalpara-title">
+
+**consumer.js**
+
+</div>
 
 ``` javascript
 const { Disruptor } = require('shared-memory-disruptor');
@@ -79,17 +87,17 @@ async function test() {
 test();
 ```
 
-  - Use the Disruptor that [formalpara\_title](#producer) initialized on
+-   Use the Disruptor that [formalpara_title](#producer) initialized on
     the shared memory object `/example`. We must specify the same number
     of elements (1000) of the same size (4 bytes), and the same number
     of consumers (1). We’ll be the only consumer (index 0), won’t
     initialize the Disruptor and will spin when the Disruptor is empty.
 
-  - Read new data from the Disruptor. We get an array of
+-   Read new data from the Disruptor. We get an array of
     [Buffer](https://nodejs.org/dist/latest-v8.x/docs/api/buffer.html)s,
     each Buffer containing a whole number of elements.
 
-  - Tell the Disruptor we’ve finished processing the data.
+-   Tell the Disruptor we’ve finished processing the data.
 
 Both programs print the same result.
 
@@ -97,7 +105,11 @@ Both programs print the same result.
 
 You can produce and consume arbitrary data through streams.
 
-**consumer.js.**
+<div class="formalpara-title">
+
+**consumer.js**
+
+</div>
 
 ``` javascript
 // You must run the consumer before the producer
@@ -109,7 +121,11 @@ const rs = new DisruptorReadStream(d)
 rs.pipe(process.stdout);
 ```
 
-**producer.js.**
+<div class="formalpara-title">
+
+**producer.js**
+
+</div>
 
 ``` javascript
 const { Disruptor, DisruptorWriteStream } = require('shared-memory-disruptor');

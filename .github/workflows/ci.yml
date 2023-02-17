@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Update APT
         if: matrix.os == 'ubuntu-latest'
@@ -41,7 +41,7 @@ jobs:
         run: sysctl -n hw.logicalcpu
 
       - name: Use Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
