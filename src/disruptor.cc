@@ -436,7 +436,7 @@ void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
     } else {
         auto errmsg = strerror_r(errnum, buf, sizeof(buf));
         throw Napi::Error::New(info.Env(),
-        std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
+        std::string(msg) + ": " + (errmsg ? std::to_string(errmsg) : std::to_string(errnum)));
     }
     
 }
