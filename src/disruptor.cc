@@ -422,11 +422,13 @@ public:
     }
 };
 
-static std::string err_to_string(int errmsg) __attribute__((unused)) {
+static std::string err_to_string(int errmsg) __attribute__((unused));
+static std::string err_to_string(int errmsg) {
     return std::to_string(errmsg);
 }
 
-static std::string err_to_string(char* errmsg) __attribute__((unused)) {
+static std::string err_to_string(char* errmsg) __attribute__((unused));
+static std::string err_to_string(char* errmsg) {
     return std::string(errmsg);
 }
 
