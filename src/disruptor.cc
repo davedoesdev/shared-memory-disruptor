@@ -422,6 +422,8 @@ public:
     }
 };
 
+#pragma GCC poison err_to_string
+
 static std::string err_to_string(int errmsg) __attribute__((unused));
 static std::string err_to_string(int errmsg) {
     return std::to_string(errmsg);
