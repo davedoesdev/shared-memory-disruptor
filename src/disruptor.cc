@@ -422,14 +422,13 @@ public:
     }
 };
 
-#pragma GCC poison err_to_string
-
-static std::string err_to_string(int errmsg) __attribute__((unused));
+// Exclude err_to_string from code coverage analysis
+static std::string err_to_string(int errmsg) __attribute__((unused, no_instrument_function)));
 static std::string err_to_string(int errmsg) {
     return std::to_string(errmsg);
 }
 
-static std::string err_to_string(char* errmsg) __attribute__((unused));
+static std::string err_to_string(char* errmsg) __attribute__((unused, no_instrument_function)));
 static std::string err_to_string(char* errmsg) {
     return std::string(errmsg);
 }
