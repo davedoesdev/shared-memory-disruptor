@@ -191,8 +191,9 @@ private:
     Napi::Value GetPendingSeqNextEnd(const Napi::CallbackInfo& info);
     Napi::Value GetAllConsumersIgnoring(const Napi::CallbackInfo& info);
 
+    // ignore coverage
     void ThrowErrnoError(const Napi::CallbackInfo& info,
-                         const char *msg);
+                         const char *msg) __attribute__((no_instrument_function));
 };
 
 //LCOV_EXCL_START
@@ -432,10 +433,6 @@ static std::string err_to_string(char* errmsg) __attribute__((unused, no_instrum
 static std::string err_to_string(char* errmsg) {
     return std::string(errmsg);
 }
-
-// ignore coverage
-void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
-                                const char *msg) __attribute__((no_instrument_function));
 
 void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
                                 const char *msg)
