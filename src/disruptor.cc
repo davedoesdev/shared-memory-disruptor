@@ -433,6 +433,10 @@ static std::string err_to_string(char* errmsg) {
     return std::string(errmsg);
 }
 
+// ignore coverage
+void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
+                                const char *msg) __attribute__((no_instrument_function));
+
 void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
                                 const char *msg)
 {
