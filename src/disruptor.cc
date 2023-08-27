@@ -429,12 +429,16 @@ void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
     char buf[1024] = {0};
     auto err = strerror_r(errnum, buf, sizeof(buf));
 
-    char *errmsg;
     if (std::is_same<decltype(err), int>::value) {
-        errmsg = (err == 0) ? buf : nullptr;
-    }
-    throw Napi::Error::New(info.Env(),
+        char *errmsg = (err == 0) ? buf : nullptr;
+        throw Napi::Error::New(info.Env(),
         std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
+    } else {
+        auto errmsg = strerror_r(errnum, buf, sizeof(buf));
+        throw Napi::Error::New(info.Env(),
+        std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
+    }
+    
 }
 
 Disruptor::Disruptor(const Napi::CallbackInfo& info) :
