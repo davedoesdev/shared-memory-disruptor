@@ -427,17 +427,13 @@ void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
 {
     int errnum = errno;
     char buf[1024] = {0};
-#ifdef __APPLE__
     auto err = strerror_r(errnum, buf, sizeof(buf));
-    static_assert(std::is_same<decltype(err), int>::value,
-                  "strerror_r must return int");
-    char *errmsg = err == 0 ? buf : nullptr;
-#else
-    auto errmsg = strerror_r(errnum, buf, sizeof(buf));
-    static_assert(std::is_same<decltype(errmsg), char*>::value,
-                  "strerror_r must return char*");
-#endif
-    throw Napi::Error::New(info.Env(), 
+
+    char *errmsg;
+    if (std::is_same<decltype(err), int>::value) { // Use value to check type
+        errmsg = (err == 0) ? buf : nullptr;
+    }
+    throw Napi::Error::New(info.Env(),
         std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
 }
 
