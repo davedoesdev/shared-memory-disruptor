@@ -19,10 +19,11 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt update
 
-#      - name: Install OS dependencies
-#        if: matrix.os == 'ubuntu-latest'
-#        run: |
-#          sudo apt update
+      - name: Install OS dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt update
+          sudo apt install lcov
 #          sudo apt install gcc-11 g++-11 lcov
 #          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
 
