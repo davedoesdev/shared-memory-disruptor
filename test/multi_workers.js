@@ -1,8 +1,12 @@
 let worker_threads = require('worker_threads'),
     path = require('path'),
     Disruptor = require('..').Disruptor,
-    expect = require('chai').expect,
+    expect,
     async = require('async');
+
+before(async function () {
+    ({ expect } = await import('chai'));
+});
 
 function many(num_producers, num_consumers, num_elements_to_write)
 {

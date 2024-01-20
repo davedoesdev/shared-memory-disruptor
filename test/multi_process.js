@@ -1,9 +1,13 @@
 let child_process = require('child_process'),
     path = require('path'),
     Disruptor = require('..').Disruptor,
-    expect = require('chai').expect,
+    expect,
     async = require('async'),
     os = require('os');
+
+before(async function () {
+    ({ expect } = await import('chai'));
+});
 
 function many(num_producers, num_consumers, num_elements_to_write)
 {

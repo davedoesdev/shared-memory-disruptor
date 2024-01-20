@@ -8,23 +8,23 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14, 16, 18]
+        node-version: [16, 18, 20]
         os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Update APT
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt update
 
-      - name: Install OS dependencies
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt update
-          sudo apt install gcc-11 g++-11 lcov
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+#      - name: Install OS dependencies
+#        if: matrix.os == 'ubuntu-latest'
+#        run: |
+#          sudo apt update
+#          sudo apt install gcc-11 g++-11 lcov
+#          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 110 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
 
       - name: Display versions
         if: matrix.os == 'ubuntu-latest'
@@ -41,12 +41,9 @@ jobs:
         run: sysctl -n hw.logicalcpu
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: Reconfigure git to use HTTPS
-        run: git config --global url.https://github.com/.insteadOf ssh://git@github.com/
 
       - name: Install packages
         run: npm ci

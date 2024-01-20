@@ -1,7 +1,11 @@
 let crypto = require('crypto'),
     Disruptor = require('..').Disruptor,
-    expect = require('chai').expect,
+    expect,
     async = require('async');
+
+before(async function () {
+    ({ expect } = await import('chai'));
+});
 
 process.on('unhandledRejection', err => { throw(err); });
 

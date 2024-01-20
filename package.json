@@ -1,7 +1,7 @@
 {
   "name": "shared-memory-disruptor",
   "description": "Shared memory LMAX Disruptor",
-  "version": "4.1.4",
+  "version": "4.2.0",
   "homepage": "https://github.com/davedoesdev/shared-memory-disruptor",
   "author": {
     "name": "David Halls",
@@ -31,22 +31,22 @@
   ],
   "dependencies": {
     "bindings": "^1.5.0",
-    "node-addon-api": "^6.0.0"
+    "node-addon-api": "^7.1.0"
   },
   "devDependencies": {
-    "async": "^3.2.4",
-    "c8": "^7.12.0",
-    "chai": "^4.3.7",
-    "documentation": "^14.0.1",
+    "async": "^3.2.5",
+    "c8": "^9.1.0",
+    "chai": "^5.0.0",
+    "documentation": "^14.0.2",
     "grunt": "^1.6.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-exec": "^3.0.0",
     "grunt-mocha-test": "^0.13.3",
     "mocha": "^10.2.0",
-    "yargs": "^17.6.2"
+    "yargs": "^17.7.2"
   },
   "engines": {
-    "node": ">=14"
+    "node": ">=16"
   },
   "os": [
     "linux",

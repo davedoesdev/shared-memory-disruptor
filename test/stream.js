@@ -2,13 +2,16 @@ const { Readable, Writable } = require('stream');
 const { randomBytes, createHash } = require('crypto');
 const child_process = require('child_process');
 const path = require('path');
-const { expect } = require('chai');
+let expect;
 const {
     Disruptor,
     DisruptorReadStream,
     DisruptorWriteStream
 }  = require('..');
 
+before(async function () {
+    ({ expect } = await import('chai'));
+});
 
 class RandomStream extends Readable {
     constructor(size) {
