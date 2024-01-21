@@ -10,6 +10,11 @@ jobs:
       matrix:
         node-version: [16, 18, 20]
         os: [ubuntu-latest, macos-latest]
+        exclude:
+          - os: macos-latest
+            node-version: 16
+          - os: macos-latest
+            node-version: 18
 
     steps:
       - name: Checkout
@@ -25,8 +30,8 @@ jobs:
           sudo apt update
           sudo apt install lcov
 
-      - name: Work around https://github.com/nodejs/node-gyp/issues/2869
-        run: python3 -m pip install packaging
+#      - name: Work around https://github.com/nodejs/node-gyp/issues/2869
+#        run: python3 -m pip install packaging
 
       - name: Display versions
         if: matrix.os == 'ubuntu-latest'
