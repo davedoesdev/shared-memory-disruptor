@@ -215,6 +215,11 @@ describe('stream functionality', function () {
 
         const rngs = new RandomStream(1024 * 1024);
 
+        const final = function (cb) {
+            expect(this.hash.digest('hex')).to.equal(rngs.digest);
+            cb();
+        };
+
         for (let i = 0; i < num_readers; ++i) {
             const d = new Disruptor('/test', 10000, 1, num_readers, i, i === 0, false);
             disruptors.push(d);
@@ -240,10 +245,7 @@ describe('stream functionality', function () {
                     cb();
                 },
 
-                final(cb) {
-                    expect(this.hash.digest('hex')).to.equal(rngs.digest);
-                    cb();
-                }
+                final
             }).on('close', check));
         }
 
