@@ -30,9 +30,6 @@ jobs:
           sudo apt update
           sudo apt install lcov
 
-#      - name: Work around https://github.com/nodejs/node-gyp/issues/2869
-#        run: python3 -m pip install packaging
-
       - name: Display versions
         if: matrix.os == 'ubuntu-latest'
         run: |
