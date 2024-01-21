@@ -9,8 +9,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16, 18, 20]
-        os: [ubuntu-latest]
-#        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - name: Checkout
