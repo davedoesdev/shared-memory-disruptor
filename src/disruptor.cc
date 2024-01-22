@@ -191,6 +191,8 @@ private:
     Napi::Value GetPendingSeqNextEnd(const Napi::CallbackInfo& info);
     Napi::Value GetAllConsumersIgnoring(const Napi::CallbackInfo& info);
 
+    const char* ErrorMessage(const int r, const char* buf);
+    const char* ErrorMessage(const char* r, const char* buf);
     void ThrowErrnoError(const Napi::CallbackInfo& info,
                          const char *msg);
 };
@@ -422,21 +424,22 @@ public:
     }
 };
 
+const char* Disruptor::ErrorMessage(const int r, const char* buf)
+{
+    return r == 0 ? buf : nullptr;
+}
+
+const char* Disruptor::ErrorMessage(const char* r, const char* buf)
+{
+    return r;
+}
+
 void Disruptor::ThrowErrnoError(const Napi::CallbackInfo& info,
                                 const char *msg)
 {
     int errnum = errno;
-    char buf[1024] = {0};
-#ifdef __APPLE__
-    auto err = strerror_r(errnum, buf, sizeof(buf));
-    static_assert(std::is_same<decltype(err), int>::value,
-                  "strerror_r must return int");
-    char *errmsg = err == 0 ? buf : nullptr;
-#else
-    auto errmsg = strerror_r(errnum, buf, sizeof(buf));
-    static_assert(std::is_same<decltype(errmsg), char*>::value,
-                  "strerror_r must return char*");
-#endif
+    char buf[1025] = {0};
+    auto errmsg = ErrorMessage(strerror_r(errnum, buf, sizeof(buf) - 1), buf);
     throw Napi::Error::New(info.Env(), 
         std::string(msg) + ": " + (errmsg ? errmsg : std::to_string(errnum)));
 }
