@@ -429,7 +429,7 @@ const char* Disruptor::ErrorMessage(const int r, const char* buf)
     return r == 0 ? buf : nullptr;
 }
 
-const char* Disruptor::ErrorMessage(const char* r, const char* buf)
+const char* Disruptor::ErrorMessage(const char* r, const char*)
 {
     return r;
 }
