@@ -70,3 +70,7 @@ jobs:
       - name: Test
         if: matrix.os == 'macos-latest'
         run: npx grunt test
+
+      - name: Test Docker build
+        if: matrix.os == 'ubuntu-latest'
+        run: docker buildx build -f test/Dockerfile .
